@@ -6,4 +6,5 @@ RUN set -ex \
 		make
 
 COPY ./ /go/src/github.com/cloudposse/github-authorized-keys
-CMD ["github-authorized-keys"]
+RUN cd /go/src/github.com/cloudposse/github-authorized-keys && make setup && go-wrapper install
+ENTRYPOINT ["github-authorized-keys"]
