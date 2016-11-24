@@ -23,6 +23,10 @@ import (
 )
 
 var cfgFile string
+var githubApiToken string
+var githubOrganization string
+var githubTeamName string
+var githubTeamId int
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -56,6 +60,10 @@ func init() {
 	// will be global for your application.
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.github-authorized-keys.yaml)")
+	RootCmd.PersistentFlags().StringVar(&githubApiToken, "token", "", "Github API token (reatd more https://github.com/blog/1509-personal-api-tokens)")
+	RootCmd.PersistentFlags().StringVar(&githubOrganization, "org", "", "Github organization name")
+	RootCmd.PersistentFlags().StringVar(&githubTeamName, "team", "", "Github team name")
+	RootCmd.PersistentFlags().IntVar(&githubTeamId, "team_id", 0, "Github team id")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")

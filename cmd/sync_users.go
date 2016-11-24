@@ -18,7 +18,12 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"errors"
 )
+
+var userGID int
+var userGroups []string
+var userShell string
 
 // sync_usersCmd represents the sync_users command
 var sync_usersCmd = &cobra.Command{
@@ -30,9 +35,26 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+
+		if githubApiToken == "" {
+			return errors.New("Github API Token is required")
+		}
+
+		if githubTeamName == "" && githubTeamId == 0 {
+			return errors.New("Team name or Team id should be specified")
+		}
+
 		// TODO: Work your own magic here
 		fmt.Println("sync_users called")
+
+		c := NewGithubClient(githubApiToken, githubOrganization)
+		// Load team
+		team, err := c.getTeam(githubTeamName, githubTeamId)
+		if err != nil { return err }
+
+		c.GetTeamMembers(team)
+		return nil
 	},
 }
 
