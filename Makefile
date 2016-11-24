@@ -7,9 +7,9 @@ build: $(GO)
 
 .PHONY: setup
 setup: $(GO)
-	$(GO) get "github.com/google/go-github/github"
-	$(GO) get "golang.org/x/oauth2"
-	$(GO) get "github.com/spf13/cobra/cobra"
+	$(GO) get -d -v "github.com/google/go-github/github"
+	$(GO) get -d -v "golang.org/x/oauth2"
+	$(GO) get -d -v "github.com/spf13/cobra/cobra"
 
 clean:
 	rm -f $(bin)

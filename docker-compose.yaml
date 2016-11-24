@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  github-authorized-keys:
+    build: ./
+    volumes:
+      - "./:/go/src/github.com/cloudposse/github-authorized-keys"
+    entrypoint:
+      - "sh"
+    restart: always
