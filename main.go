@@ -1,68 +1,21 @@
+// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
-import (
-	"encoding/json"
-	"errors"
-	"flag"
-	"fmt"
-	"log"
-	"os"
-
-	"github.com/google/go-github/github"
-)
-
-const (
-	DEFAULT_CONFIG = "/etc/sshauth/config.json"
-)
-
-type Config struct {
-	Token  string
-	Owner  string `json:",omitempty"`
-	Team   string `json:",omitempty"`
-	TeamID int    `json:"team_id,omitempty"`
-}
-
-func loadConfig(file string) Config {
-	f, err := os.Open(file)
-	exitIf(err)
-
-	decoder := json.NewDecoder(f)
-	config := Config{}
-	err = decoder.Decode(&config)
-	exitIf(err)
-
-	return config
-}
-
-func exitIf(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+import "github.com/cloudposse/github-authorized-keys/cmd"
 
 func main() {
-	var configFile = flag.String("config", DEFAULT_CONFIG, "path to a JSON config file")
-	flag.Parse()
-
-	config := loadConfig(*configFile)
-
-	c := NewGithubClient(config.Token, config.Owner)
-
-	var (
-		users []*github.User
-		err   error
-	)
-	if config.TeamID != 0 {
-		users, err = c.GetTeamMembersByID(config.TeamID)
-	} else if config.Team != "" {
-		users, err = c.GetTeamMembers(config.Team)
-	} else {
-		err = errors.New("Either team_id or team must be specified in config.json, but both were empty")
-	}
-	exitIf(err)
-
-	keys := c.GetTeamKeys(users)
-	for _, k := range keys {
-		fmt.Println(*k.Key)
-	}
+	cmd.Execute()
 }
