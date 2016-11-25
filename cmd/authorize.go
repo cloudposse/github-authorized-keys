@@ -24,14 +24,18 @@ import (
 
 // authorizeCmd represents the authorize command
 var authorizeCmd = &cobra.Command{
-	Use:   "authorize",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "authorize [user]",
+	Short: "Outputs user public key if the user is member of github team",
+	Long:
+`
+Outputs [user] public key if [user] is member of github team.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Could be used as provider for ssh AuthorizedKeysCommand.
+To implement this add in /etc/ssh/sshd_config following string
+-----------------------------------------------------------
+|  AuthorizedKeysCommand github-authorized-keys authorize |
+-----------------------------------------------------------
+`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		githubApiToken		:= viper.GetString("github_api_token")
@@ -89,15 +93,4 @@ to quickly create a Cobra application.`,
 
 func init() {
 	RootCmd.AddCommand(authorizeCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// authorizeCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// authorizeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }

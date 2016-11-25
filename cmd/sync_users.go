@@ -26,13 +26,14 @@ import (
 // sync_usersCmd represents the sync_users command
 var sync_usersCmd = &cobra.Command{
 	Use:   "sync_users",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Create linux users for github team members",
+	Long:
+`Create user for each of github team member.
+Run on schedule following command to create user asap.
+-------------------------------------
+|  github-authorized-keys sync_users|
+-------------------------------------
+`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Validate Github API token
 
@@ -117,9 +118,14 @@ to quickly create a Cobra application.`,
 func init() {
 	RootCmd.AddCommand(sync_usersCmd)
 
-	sync_usersCmd.Flags().String("gid", "", "User main group id")
-	sync_usersCmd.Flags().StringSlice("groups", make([]string, 0), "User secondary groups")
-	sync_usersCmd.Flags().String("shell", "/bin/bash", "User shell")
+	sync_usersCmd.Flags().String("gid", "",
+		"User's primary group id                       ( environment variable SYNC_USERS_GID    could be used instead )")
+
+	sync_usersCmd.Flags().StringSlice("groups", make([]string, 0),
+		"Comma separeted user's secondary groups name  ( environment variable SYNC_USERS_GROUPS could be used instead )")
+
+	sync_usersCmd.Flags().String("shell", "/bin/bash",
+		"User shell                                    ( environment variable SYNC_USERS_SHELL  could be used instead )")
 
 	viper.BindPFlag("sync_users_gid", sync_usersCmd.Flags().Lookup("gid"))
 	viper.BindPFlag("sync_users_groups",   sync_usersCmd.Flags().Lookup("groups"))

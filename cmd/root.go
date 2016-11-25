@@ -28,16 +28,19 @@ var cfgFile string
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "github-authorized-keys",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Allow to provide ssh access to servers based on github teams",
+	Long:
+`
+github-authorized-keys is CLI tool allow to provide ssh access to server based on github teams.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-// Uncomment the following line if your bare application
-// has an action associated with it:
-//	Run: func(cmd *cobra.Command, args []string) { },
+Config:
+  REQUIRED: Github API token        | flag --token   OR environment variable GITHUB_API_TOKEN
+  REQUIRED: Github organization     | flag --org     OR environment variable GITHUB_ORGANIZATION
+  REQUIRED: One of
+  		   Github team name | flag --team    OR environment variable GITHUB_TEAM
+  			OR
+  		   Github team id   | flag --team_id OR Environment variable GITHUB_TEAM_ID
+`,
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -62,8 +65,8 @@ func init() {
 	// will be global for your application.
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.github-authorized-keys.yaml)")
-	RootCmd.PersistentFlags().StringVar(&githubApiToken, "token", "", "Github API token (reatd more https://github.com/blog/1509-personal-api-tokens)")
-	RootCmd.PersistentFlags().StringVar(&githubOrganization, "org", "", "Github organization name")
+	RootCmd.PersistentFlags().StringVar(&githubApiToken, "token", "", "Github API token (read more https://github.com/blog/1509-personal-api-tokens)")
+	RootCmd.PersistentFlags().StringVar(&githubOrganization, "org", "", "Github organization")
 	RootCmd.PersistentFlags().StringVar(&githubTeamName, "team", "", "Github team name")
 	RootCmd.PersistentFlags().IntVar(&githubTeamId, "team_id", 0, "Github team id")
 
