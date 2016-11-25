@@ -5,6 +5,11 @@ bin	= sshauth
 build: $(GO)
 	$(GO) build -o $(bin)
 
+.PHONY: test
+test: $(GO)
+	$(GO) test github.com/cloudposse/github-authorized-keys/cmd
+
+
 .PHONY: setup
 setup: $(GO)
 	$(GO) get -d -v "github.com/google/go-github/github"

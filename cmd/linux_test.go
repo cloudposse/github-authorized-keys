@@ -81,8 +81,8 @@ func TestApiLinuxCreateUser(t *testing.T) {
 
 	shell := LinuxUserShell(user_name.Name)
 
-	if ! strings.EqualFold(shell, userShell) {
-		t.Errorf("Expect user shell %v, got %v.", userShell, shell)
+	if ! strings.EqualFold(shell, user_name.Shell) {
+		t.Errorf("Expect user shell %v, got %v.", user_name.Shell, shell)
 	}
 }
 
@@ -126,8 +126,8 @@ func TestApiLinuxCreateUserProvideGid(t *testing.T) {
 
 	shell := LinuxUserShell(user_name.Name)
 
-	if ! strings.EqualFold(shell, userShell) {
-		t.Errorf("Expect user shell %v, got %v.", userShell, shell)
+	if ! strings.EqualFold(shell, user_name.Shell) {
+		t.Errorf("Expect user shell %v, got %v.", user_name.Shell, shell)
 	}
 }
 

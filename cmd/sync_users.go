@@ -37,14 +37,22 @@ Run on schedule following command to create user asap.
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Validate Github API token
 
+
 		githubApiToken		:= viper.GetString("github_api_token")
 		githubTeamName 		:= viper.GetString("github_team")
 		githubTeamId 		:= viper.GetInt("github_team_id")
 		githubOrganization 	:= viper.GetString("github_organization")
 
 
+
+
 		userGID 	:= viper.GetString("sync_users_gid")
-		userGroups 	:= strings.Split(viper.GetString("sync_users_groups"), ",")
+
+		userGroups := []string{}
+		if groups := viper.GetString("sync_users_groups"); groups != "" {
+			userGroups = strings.Split(groups, ",")
+		}
+
 		userShell 	:= viper.GetString("sync_users_shell")
 
 		if githubApiToken == "" {

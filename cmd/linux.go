@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"io"
 	"strings"
+	"fmt"
 )
 
 const(
@@ -41,12 +42,13 @@ func LinuxUserCreate(new User) error {
 
 	err := cmd.Run()
 	if err != nil { return err }
-
+	fmt.Printf("Created user %v\n", new.Name)
 
 	for _, group := range new.Groups {
 		cmd := exec.Command(createUserCMD, new.Name, group)
 		err := cmd.Run()
 		if err != nil { return err }
+		fmt.Printf("Added user %v to group %v\n", new.Name, group)
 	}
 
 	return nil
