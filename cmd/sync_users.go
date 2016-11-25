@@ -19,11 +19,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"errors"
+	"strings"
+	"github.com/spf13/viper"
 )
-
-var userGID int
-var userGroups []string
-var userShell string
 
 // sync_usersCmd represents the sync_users command
 var sync_usersCmd = &cobra.Command{
@@ -36,24 +34,82 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Validate Github API token
+
+		githubApiToken		:= viper.GetString("github_api_token")
+		githubTeamName 		:= viper.GetString("github_team")
+		githubTeamId 		:= viper.GetInt("github_team_id")
+		githubOrganization 	:= viper.GetString("github_organization")
+
+
+		userGID 	:= viper.GetString("sync_users_gid")
+		userGroups 	:= strings.Split(viper.GetString("sync_users_groups"), ",")
+		userShell 	:= viper.GetString("sync_users_shell")
 
 		if githubApiToken == "" {
 			return errors.New("Github API Token is required")
 		}
 
+		// Validate Github Team exists
 		if githubTeamName == "" && githubTeamId == 0 {
 			return errors.New("Team name or Team id should be specified")
 		}
 
-		// TODO: Work your own magic here
-		fmt.Println("sync_users called")
+		// If user GID is not empty validate that group with such id exists
+		if userGID != "" && LinuxGroupExistsById(userGID) {
+			return errors.New(fmt.Sprintf("Group with ID %v does not exists", userGID))
+		}
+		// Validate linux group exists
+		nonExistedGroups := make([]string, 0)
+
+		for _, group := range userGroups {
+			if ! LinuxGroupExists(group) {
+				nonExistedGroups = append(nonExistedGroups, group)
+			}
+		}
+
+		if len(nonExistedGroups) > 0 {
+
+			return errors.New(fmt.Sprintf("Groups %v not exists", strings.Join(nonExistedGroups, ",")))
+		}
+
+		//-------------------------------------------------------------------
 
 		c := NewGithubClient(githubApiToken, githubOrganization)
 		// Load team
 		team, err := c.getTeam(githubTeamName, githubTeamId)
 		if err != nil { return err }
 
-		c.GetTeamMembers(team)
+		// Get all members
+		githubUsers, err := c.GetTeamMembers(team)
+		if err != nil { return err }
+
+		// Here we will store user name for users that got error during creation
+		notCreatedUsers := make([]string, 0)
+
+		for _, githubUser := range githubUsers {
+			// Create only non existed users
+			if ! LinuxUserExists(*githubUser.Login) {
+
+				linuxUser := User{Name: *githubUser.Login, Shell: userShell, Groups: userGroups}
+
+				// If we have defined GID set it please
+				if userGID != "" {
+					linuxUser.Gid = userGID
+				}
+
+				// Create user and store it's name if there was error during creation
+				if err := LinuxUserCreate(linuxUser); err != nil {
+					notCreatedUsers = append(notCreatedUsers, linuxUser.Name)
+				}
+			}
+ 		}
+
+		// Report error if we there was at least one error during user creation
+		if len(notCreatedUsers) > 0 {
+			return errors.New(fmt.Sprintf("Users %v created with errors", strings.Join(notCreatedUsers, ",")))
+		}
+
 		return nil
 	},
 }
@@ -61,14 +117,11 @@ to quickly create a Cobra application.`,
 func init() {
 	RootCmd.AddCommand(sync_usersCmd)
 
-	// Here you will define your flags and configuration settings.
+	sync_usersCmd.Flags().String("gid", "", "User main group id")
+	sync_usersCmd.Flags().StringSlice("groups", make([]string, 0), "User secondary groups")
+	sync_usersCmd.Flags().String("shell", "/bin/bash", "User shell")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// sync_usersCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// sync_usersCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	viper.BindPFlag("sync_users_gid", sync_usersCmd.Flags().Lookup("gid"))
+	viper.BindPFlag("sync_users_groups",   sync_usersCmd.Flags().Lookup("groups"))
+	viper.BindPFlag("sync_users_shell",  sync_usersCmd.Flags().Lookup("shell"))
 }

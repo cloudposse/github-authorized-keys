@@ -23,10 +23,7 @@ import (
 )
 
 var cfgFile string
-var githubApiToken string
-var githubOrganization string
-var githubTeamName string
-var githubTeamId int
+
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -55,6 +52,11 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	var githubApiToken string
+	var githubOrganization string
+	var githubTeamName string
+	var githubTeamId int
+
 	// Here you will define your flags and configuration settings.
 	// Cobra supports Persistent Flags, which, if defined here,
 	// will be global for your application.
@@ -64,9 +66,14 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&githubOrganization, "org", "", "Github organization name")
 	RootCmd.PersistentFlags().StringVar(&githubTeamName, "team", "", "Github team name")
 	RootCmd.PersistentFlags().IntVar(&githubTeamId, "team_id", 0, "Github team id")
+
+	viper.BindPFlag("github_api_token",   RootCmd.PersistentFlags().Lookup("token"))
+	viper.BindPFlag("github_organization",     RootCmd.PersistentFlags().Lookup("org"))
+	viper.BindPFlag("github_team",    RootCmd.PersistentFlags().Lookup("team"))
+	viper.BindPFlag("github_team_id", RootCmd.PersistentFlags().Lookup("team_id"))
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.

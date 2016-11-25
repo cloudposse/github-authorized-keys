@@ -19,6 +19,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"errors"
+	"github.com/spf13/viper"
 )
 
 // authorizeCmd represents the authorize command
@@ -32,6 +33,12 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+
+		githubApiToken		:= viper.GetString("github_api_token")
+		githubTeamName 		:= viper.GetString("github_team")
+		githubTeamId 		:= viper.GetInt("github_team_id")
+		githubOrganization 	:= viper.GetString("github_organization")
+
 		// Validate user name arg
 		if len(args) <= 0 {
 			return errors.New("User name is required argument")
