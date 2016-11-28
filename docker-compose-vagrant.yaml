@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  github-authorized-keys:
+    build: /vagrant
+    container_name: github-authorized-keys
+    environment:
+      - GITHUB_API_TOKEN=${GITHUB_API_TOKEN}
+      - GITHUB_ORGANIZATION=${GITHUB_ORGANIZATION}
+      - GITHUB_TEAM=${GITHUB_TEAM}
+      - SYNC_USERS_GROUPS=adm,ssh,root,admin
+      - SYNC_USERS_SHELL=/bin/bash
+    volumes:
+      - "/etc:/etc"
+    command: sync_users
+    restart: always
