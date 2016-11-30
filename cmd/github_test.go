@@ -1,272 +1,171 @@
 package cmd
 
 import (
-	"testing"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"github.com/spf13/viper"
 )
 
-const (
-	validToken = "7bf553ea09a665829455afd0f0541342fa85d71b"
-	validOrg = "intervals-mining-lab"
-	validTeamName = "libiada-developers"
-	validTeamID = 191933
-	validUser = "goruha"
-)
+var _ = Describe("Github Client", func() {
+	var (
+		validToken string
+		validOrg string
+		validTeamName string
+		validTeamID int
+		validUser string
+	)
+
+	BeforeEach(func() {
+		validToken = viper.GetString("github_api_token")
+		validOrg = viper.GetString("github_organization")
+		validTeamName = viper.GetString("github_team")
+		validTeamID = viper.GetInt("github_team_id")
+		validUser = viper.GetString("github_user")
+	})
+
+	Describe("Get team", func() {
+		Context("with valid token, org, team name and team id ", func() {
+			It("should return nil error and valid team", func() {
+				c := newGithubClient(validToken, validOrg)
+				team, err := c.getTeam(validTeamName, validTeamID)
+
+				Expect(err).To(BeNil())
+
+				Expect(team).NotTo(BeNil())
+				Expect(team.ID).NotTo(BeZero())
+				Expect(*team.Name).NotTo(BeEmpty())
+			})
+		})
+
+		Context("with invalid team name AND valid token, org, team id", func() {
+			It("should return nil error and valid team", func() {
+				c := newGithubClient(validToken, validOrg)
+				team, err := c.getTeam("dasdasd", validTeamID)
+
+				Expect(err).To(BeNil())
+
+				Expect(team).NotTo(BeNil())
+				Expect(team.ID).NotTo(BeZero())
+				Expect(*team.Name).NotTo(BeEmpty())
+			})
+		})
+
+		Context("with invalid team name && team id AND valid token, org", func() {
+			It("should return valid error and nil team", func() {
+				c := newGithubClient(validToken, validOrg)
+				team, err := c.getTeam("dasdasd", 0)
+
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("Team with such name or id not found"))
+
+				Expect(team).To(BeNil())
+			})
+		})
+
+		Context("with invalid token AND valid org, team name, team id", func() {
+			It("should return valid error and nil team", func() {
+				c := newGithubClient("11111111111111111111111111", validOrg)
+				team, err := c.getTeam(validTeamName, validTeamID)
+
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("Access denied"))
+
+				Expect(team).To(BeNil())
+			})
+		})
+
+		Context("with invalid org AND valid token, team name, team id", func() {
+			It("should return valid error and nil team", func() {
+				c := newGithubClient(validToken, "dsadsad")
+				team, err := c.getTeam(validTeamName, validTeamID)
+
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("Access denied"))
+
+				Expect(team).To(BeNil())
+			})
+		})
+
+	})
+
+	Describe("Is Member", func() {
+		Context("with user that is member of the team", func() {
+			It("should return nil error and true value", func() {
+				c := newGithubClient(validToken, validOrg)
+				team, _ := c.getTeam(validTeamName, validTeamID)
+				isMember, err := c.isTeamMember(validUser, team)
+
+				Expect(err).To(BeNil())
+
+				Expect(isMember).To(BeTrue())
+			})
+		})
+
+		Context("with user that is not member of the team", func() {
+			It("should return nil error and false value", func() {
+				c := newGithubClient(validToken, validOrg)
+				team, _ := c.getTeam(validTeamName, validTeamID)
+				isMember, err := c.isTeamMember("dasda", team)
+
+				Expect(err).To(BeNil())
 
-func TestApiClient(t *testing.T) {
-	t.Log("getTeam - Positive testing")
+				Expect(isMember).To(BeFalse())
+			})
+		})
 
-	token := validToken
-	organization := validOrg
-	teamName := validTeamName
-	teamID := 0
+	})
 
-	c := newGithubClient(token, organization)
-	team, err := c.getTeam(teamName, teamID)
+	Describe("Get User", func() {
+		Context("with valid user", func() {
+			It("should return nil error and not nil user", func() {
+				c := newGithubClient(validToken, validOrg)
+				user, err := c.getUser(validUser)
 
-	if err != nil {
-		t.Errorf("Expected no error, got %v.", err)
-	}
+				Expect(err).To(BeNil())
 
-	if team == nil {
-		t.Errorf("Expected team object, got nil.")
-	}
+				Expect(user).NotTo(BeNil())
+			})
+		})
 
+		Context("with invalid user", func() {
+			It("should return error and nil user", func() {
+				c := newGithubClient(validToken, validOrg)
+				user, err := c.getUser("dasdddds232dasdas")
 
-	if *team.ID == 0 {
-		t.Errorf("Expected team id")
-	}
+				Expect(err).NotTo(BeNil())
 
+				Expect(user).To(BeNil())
+			})
+		})
 
-	if *team.Name == "" {
-		t.Errorf("Expected team name.")
-	}
-}
+	})
 
-func TestApiClientGetTeamById(t *testing.T) {
-	t.Log("getTeam - Positive testing get by ID")
+	Describe("Get Public Keys", func() {
+		Context("with valid user", func() {
+			It("should return nil error and no empty list of keys", func() {
+				c := newGithubClient(validToken, validOrg)
+				user, _ := c.getUser(validUser)
+				keys, err := c.getKeys(user)
 
-	token := validToken
-	organization := validOrg
-	teamName := "dasdasd"
-	teamID := validTeamID
+				Expect(err).To(BeNil())
 
-	c := newGithubClient(token, organization)
-	team, err := c.getTeam(teamName, teamID)
+				Expect(len(keys) > 0).To(BeTrue())
+			})
+		})
+	})
 
-	if err != nil {
-		t.Errorf("Expected no error, got %v.", err)
-	}
+	Describe("Get Team members", func() {
+		Context("with valid team", func() {
+			It("should return nil error and no empty list of members", func() {
+				c := newGithubClient(validToken, validOrg)
+				team, _ := c.getTeam(validTeamName, validTeamID)
 
-	if team == nil {
-		t.Errorf("Expected team object, got nil.")
-	}
+				members, err := c.getTeamMembers(team)
 
+				Expect(err).To(BeNil())
 
-	if *team.ID == 0 {
-		t.Errorf("Expected team id")
-	}
-
-
-	if *team.Name == "" {
-		t.Errorf("Expected team name.")
-	}
-}
-
-
-func TestApiClientWrongTeam(t *testing.T) {
-	t.Log("getTeam - Wrong team testing")
-
-	token := validToken
-	organization := validOrg
-	teamName := "xxx"
-	teamID := 0
-
-	c := newGithubClient(token, organization)
-	team, err := c.getTeam(teamName, teamID)
-
-	if err == nil {
-		t.Errorf("Expected error, got %v.", err)
-	}
-
-	if err.Error() != "Team with such name or id not found" {
-		t.Errorf("Wrong error, got %v.", err)
-	}
-
-	if team != nil {
-		t.Errorf("Expected no team object, got %v.", team)
-	}
-}
-
-func TestApiClientWrongToken(t *testing.T) {
-	t.Log("getTeam - Wrong token testing")
-
-	token := "11111111111111111111111111"
-	organization := validOrg
-	teamName := validTeamName
-	teamID := 0
-
-	c := newGithubClient(token, organization)
-	team, err := c.getTeam(teamName, teamID)
-
-	if err == nil {
-		t.Errorf("Expected error, got %v.", err)
-	}
-
-	if err.Error() != "Access denied" {
-		t.Errorf("Wrong error, got %v.", err)
-	}
-
-	if team != nil {
-		t.Errorf("Expected no team object, got %v.", team)
-	}
-}
-
-func TestApiClientWrongOrganization(t *testing.T) {
-	t.Log("getTeam - Wrong organization testing")
-
-	token := validToken
-	organization := "dsadsad"
-	teamName := validTeamName
-	teamID := validTeamID
-
-	c := newGithubClient(token, organization)
-	team, err := c.getTeam(teamName, teamID)
-
-	if err == nil {
-		t.Errorf("Expected error, got %v.", err)
-	}
-
-	if err.Error() != "Access denied" {
-		t.Errorf("Wrong error, got %v.", err)
-	}
-
-	if team != nil {
-		t.Errorf("Expected no team object, got %v.", team)
-	}
-}
-
-func TestApiClientIsMember(t *testing.T) {
-	t.Log("IsMember - Positive testing")
-
-	token := validToken
-	organization := validOrg
-	teamName := validTeamName
-	teamID := validTeamID
-	user := validUser
-
-	c := newGithubClient(token, organization)
-	team, _ := c.getTeam(teamName, teamID)
-
-	isMember, err := c.isTeamMember(user, team)
-
-	if err != nil {
-		t.Errorf("Expected no error, got %v.", err)
-	}
-	if !isMember {
-		t.Errorf("User %v is member of team %v, but it was %v instead.", user, team, isMember)
-	}
-}
-
-func TestApiClientIsNotMember(t *testing.T) {
-	t.Log("IsMember - Not member")
-
-	token := validToken
-	organization := validOrg
-	teamName := validTeamName
-	teamID := validTeamID
-	user := "dasda"
-
-	c := newGithubClient(token, organization)
-	team, _ := c.getTeam(teamName, teamID)
-
-	isMember, err := c.isTeamMember(user, team)
-
-	if err != nil {
-		t.Errorf("Expected no error, got %v.", err)
-	}
-	if isMember {
-		t.Errorf("User %v is member of team %v, but it was %v instead.", user, team, isMember)
-	}
-}
-
-func TestApiClientGetUser(t *testing.T) {
-	t.Log("GetUser - Positive testing")
-
-	token := validToken
-	organization := validOrg
-	userName := validUser
-
-	c := newGithubClient(token, organization)
-	user, err := c.getUser(userName)
-
-
-	if err != nil {
-		t.Errorf("Expected no error, got %v.", err)
-	}
-	if user == nil {
-		t.Errorf("Expected to get user")
-	}
-}
-
-func TestApiClientGetUserWrongUser(t *testing.T) {
-	t.Log("GetUser - Wrong User")
-
-	token := validToken
-	organization := validOrg
-	userName := "dasdddds232dasdas"
-
-	c := newGithubClient(token, organization)
-	user, err := c.getUser(userName)
-
-
-	if err == nil {
-		t.Errorf("Expected no error, got %v.", err)
-	}
-	if user != nil {
-		t.Errorf("Expected to get nil, got %v", user)
-	}
-}
-
-
-func TestApiClientGetPublicKeys(t *testing.T) {
-	t.Log("GetPublicKeys - Positive testing")
-
-	token := validToken
-	organization := validOrg
-	userName := validUser
-
-	c := newGithubClient(token, organization)
-	user, _ := c.getUser(userName)
-
-	keys, err := c.getKeys(user)
-
-	if err != nil {
-		t.Errorf("Expected no error, got %v.", err)
-	}
-	if len(keys) <= 0 {
-		t.Errorf("Expected to get keys, got %v.", keys)
-	}
-}
-
-func TestApiClientGetTeamMembers(t *testing.T) {
-	t.Log("GetTeamMembers - Positive testing")
-
-	token := validToken
-	organization := validOrg
-	teamName := validTeamName
-	teamID := 0
-
-	c := newGithubClient(token, organization)
-	team, err := c.getTeam(teamName, teamID)
-
-	members, err := c.getTeamMembers(team)
-
-	if err != nil {
-		t.Errorf("Expected no error, got %v.", err)
-	}
-	if len(members) <= 0 {
-		t.Errorf("Expected to get users, got %v.", members)
-	}
-}
-
-
+				Expect(len(members) > 0).To(BeTrue())
+			})
+		})
+	})
+})

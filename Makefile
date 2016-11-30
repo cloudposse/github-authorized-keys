@@ -41,6 +41,8 @@ lint: $(GO)
 ## Install development dependencies
 deps-dev: $(GO)
 	$(GO) get -d -v "github.com/golang/lint"
+	$(GO) get -d -v "github.com/onsi/ginkgo/ginkgo"
+	$(GO) get -d -v "github.com/onsi/gomega"
 	$(GO) install -v "github.com/golang/lint/golint"
 
 ## This help screen

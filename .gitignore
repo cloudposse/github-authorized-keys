@@ -29,3 +29,6 @@ _testmain.go
 .vagrant
 
 github-authorized-keys
+
+# Config for tests
+.github-authorized-keys-tests.yml
