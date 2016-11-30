@@ -34,7 +34,9 @@ run: build
 .PHONY: lint
 lint: $(GO)
 	golint cmd/*
+	golint *.go
 	$(GO) vet -v cmd/*
+	$(GO) vet -v *.go
 
 ## Install development dependencies
 .PHONY: deps-dev
