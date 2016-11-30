@@ -1,9 +1,9 @@
 GO	:= $(shell which go)
-bin	= github-authorized-keys
+BIN	= github-authorized-keys
 
 .PHONY: build
 build: $(GO)
-	$(GO) build -o $(bin)
+	$(GO) build -o $(BIN)
 
 .PHONY: test
 test: $(GO)
@@ -17,23 +17,24 @@ deps: $(GO)
 	$(GO) get -d -v "github.com/spf13/cobra/cobra"
 
 clean:
-	rm -f $(bin)
+	rm -f $(BIN)
 
-install: $(bin)
-	cp $(bin) /usr/local/sbin/
-	chmod 555 /usr/local/sbin/$(bin)
+install: $(BIN)
+	cp $(BIN) /usr/local/sBIN/
+	chmod 555 /usr/local/sBIN/$(BIN)
 
 
 #- development targets
 
 .PHONY: run
 run: build
-	./$(bin) --config ./config.json
+	./$(BIN) --config ./config.json
 
 ## Lint code
 .PHONY: lint
 lint: $(GO)
 	golint cmd/*
+	$(GO) vet -v cmd/*
 
 ## Install development dependencies
 .PHONY: deps-dev

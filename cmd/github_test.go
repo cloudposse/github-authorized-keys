@@ -163,7 +163,7 @@ func TestApiClientIsMember(t *testing.T) {
 		t.Errorf("Expected no error, got %v.", err)
 	}
 	if !isMember {
-		t.Errorf("User %v is member of team %v, but it was %d instead.", user, team, isMember)
+		t.Errorf("User %v is member of team %v, but it was %v instead.", user, team, isMember)
 	}
 }
 
@@ -185,7 +185,7 @@ func TestApiClientIsNotMember(t *testing.T) {
 		t.Errorf("Expected no error, got %v.", err)
 	}
 	if isMember {
-		t.Errorf("User %v is member of team %v, but it was %d instead.", user, team, isMember)
+		t.Errorf("User %v is member of team %v, but it was %v instead.", user, team, isMember)
 	}
 }
 
