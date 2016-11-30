@@ -9,15 +9,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-// syncUsersCmd represents the sync_users command
+// syncUsersCmd represents the sync-users command
 var syncUsersCmd = &cobra.Command{
-	Use:   "sync_users",
+	Use:   "sync-users",
 	Short: "Create linux users for github team members",
 	Long:
 `Create user for each of github team member.
 Run on schedule following command to create user asap.
 -------------------------------------
-|  github-authorized-keys sync_users|
+|  github-authorized-keys sync-users|
 -------------------------------------
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {

@@ -12,5 +12,5 @@ services:
       - SYNC_USERS_SHELL=/bin/bash
     volumes:
       - "/etc:/etc"
-    command: sync_users
+    command: sync-users
     restart: always

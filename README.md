@@ -63,7 +63,7 @@ You can specify params as flags
 --gid={user gid} \
 --groups={comma separated secondary groups names} \
 --shell={user shell} \
-sync_users
+sync-users
 ```
 
 or as environment variables
@@ -76,7 +76,7 @@ GITHUB_TEAM={team} \
 SYNC_USERS_GID={gid OR empty} \
 SYNC_USERS_GROUPS={comma separated groups OR empty} \
 SYNC_USERS_SHELL={user shell} \
-/usr/local/sbin/github-authorized-keys sync_users
+/usr/local/sbin/github-authorized-keys sync-users
 ```
 
 or you can mix that approaches
@@ -117,7 +117,7 @@ docker run \
 -e SYNC_USERS_SHELL={user shell} \
 -v /etc:/etc \
 -v /home:/home \
-github-authorized-keys sync_users
+github-authorized-keys sync-users
 ```
 
 You have to share ``/etc`` because ``adduser`` command backup ``/etc/passwd`` to  ``/etc/passwd-`` with system call
