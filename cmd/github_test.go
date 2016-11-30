@@ -204,7 +204,7 @@ func TestApiClientGetUser(t *testing.T) {
 		t.Errorf("Expected no error, got %v.", err)
 	}
 	if user == nil {
-		t.Errorf("Expect to get user")
+		t.Errorf("Expected to get user")
 	}
 }
 
@@ -223,7 +223,7 @@ func TestApiClientGetUserWrongUser(t *testing.T) {
 		t.Errorf("Expected no error, got %v.", err)
 	}
 	if user != nil {
-		t.Errorf("Expect to get nil, got %v", user)
+		t.Errorf("Expected to get nil, got %v", user)
 	}
 }
 
@@ -244,7 +244,7 @@ func TestApiClientGetPublicKeys(t *testing.T) {
 		t.Errorf("Expected no error, got %v.", err)
 	}
 	if len(keys) <= 0 {
-		t.Errorf("Expect to get keys, got %v.", keys)
+		t.Errorf("Expected to get keys, got %v.", keys)
 	}
 }
 
@@ -265,7 +265,7 @@ func TestApiClientGetTeamMembers(t *testing.T) {
 		t.Errorf("Expected no error, got %v.", err)
 	}
 	if len(members) <= 0 {
-		t.Errorf("Expect to get users, got %v.", members)
+		t.Errorf("Expected to get users, got %v.", members)
 	}
 }
 
