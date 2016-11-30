@@ -1,0 +1,5 @@
+github_api_token: {token api}
+github_organization: {organization}
+github_team: {team}
+github_team_id: {team id}
+github_user: {user name}

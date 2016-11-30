@@ -5,25 +5,34 @@ unless Vagrant.has_plugin?("vagrant-docker-compose")
   raise "Install plugin vagrant-docker-compose with command $> vagrant plugin install vagrant-docker-compose"
 end
 
+require 'yaml'
 
-github_api_token = if ENV['GITHUB_API_TOKEN'].nil? || ENV['GITHUB_API_TOKEN'].empty? then
-                     "7bf553ea09a665829455afd0f0541342fa85d71b"
-                   else
-                     ENV['GITHUB_API_TOKEN']
-                   end
+filename = '.github-authorized-keys-demo.yml'
 
-github_organization = if ENV['GITHUB_ORGANIZATION'].nil? || ENV['GITHUB_ORGANIZATION'].empty? then
-                        "intervals-mining-lab"
-                       else
-                        ENV['GITHUB_ORGANIZATION']
-                      end
+demo_config = {}
+demo_config =  YAML.load_file(filename) if File.file?(filename)
 
-github_team = if ENV['GITHUB_TEAM'].nil? || ENV['GITHUB_TEAM'].empty? then
-                        "libiada-developers"
-                      else
-                        ENV['GITHUB_TEAM']
-                      end
+github_api_token = demo_config["github_api_token"]
+github_organization = demo_config["github_organization"]
+github_team = demo_config["github_team"]
 
+
+github_api_token = ENV['GITHUB_API_TOKEN'] unless ENV['GITHUB_API_TOKEN'].nil?
+github_organization = ENV['GITHUB_ORGANIZATION'] unless ENV['GITHUB_ORGANIZATION'].nil?
+github_team = ENV['GITHUB_TEAM'] unless ENV['GITHUB_TEAM'].nil?
+
+
+if github_api_token.nil? || github_api_token.empty?
+  raise "Please set github api token with environment variable GITHUB_API_TOKEN or in demo config file"
+end
+
+if github_organization.nil? || github_organization.empty?
+  raise "Please set github organization with environment variable GITHUB_ORGANIZATION or in demo config file"
+end
+
+if github_team.nil? || github_team.empty?
+  raise "Please set github team name with environment variable GITHUB_TEAM or in demo config file"
+end
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for

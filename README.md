@@ -1,6 +1,48 @@
 # github-authorized-keys
 Allow to provide ssh access to servers based on github teams
 
+## Demo
+
+We use Vagrant to demonstrate how this tool works.
+
+### Deps
+
+Install
+
+**Virtual box** (tested on version 4.3.26) https://www.virtualbox.org/wiki/Downloads
+
+**Vagrant** (tested on version 1.8.4) https://www.vagrantup.com/downloads.html
+
+**vagrant-docker-compose** plugin  with command
+
+``vagrant plugin install vagrant-docker-compose``
+
+### Run
+
+Run vagrant with command
+
+
+```
+GITHUB_API_TOKEN={api token} \
+GITHUB_ORGANIZATION={organization name} \
+GITHUB_TEAM={team name} \
+vagrant up
+```
+
+### Test
+
+Login into vagrant box with command
+
+``ssh -o "UserKnownHostsFile /dev/null" {user}@192.168.33.10``
+
+### Logs
+
+You can check what is going with ssh inside vagrant box
+
+``sudo tail -f /var/log/auth.log``
+
+----------------
+
 ## Getting started
 
 Tool is writen on go lang and provide command line interface.
@@ -125,42 +167,3 @@ fire EXDEV error if backup are on different layers.
 https://docs.docker.com/engine/userguide/storagedriver/aufs-driver/
 
 
-# Demo
-
-We use Vagrant to demonstrate how this tool works.
-
-## Deps
-
-Install
-
-**Virtual box** (tested on version 4.3.26) https://www.virtualbox.org/wiki/Downloads
-
-**Vagrant** (tested on version 1.8.4) https://www.vagrantup.com/downloads.html
-
-**vagrant-docker-compose** plugin  with command
-
-``vagrant plugin install vagrant-docker-compose``
-
-## Run
-
-Run vagrant with command
-
-
-```
-GITHUB_API_TOKEN={api token} \
-GITHUB_ORGANIZATION={organization name} \
-GITHUB_TEAM={team name} \
-vagrant up
-```
-
-## Test
-
-Login into vagrant box with command
-
-``ssh {user}@192.168.33.10``
-
-## Logs
-
-You can check what is going with ssh inside vagrant box
-
-``sudo tail -f /var/log/auth.log``

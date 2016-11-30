@@ -10,7 +10,7 @@ build: $(GO)
 .PHONY: test
 ## Run tests
 test: $(GO)
-	$(GO) test github.com/cloudposse/github-authorized-keys/cmd
+	$(GO) test -v github.com/cloudposse/github-authorized-keys/cmd
 
 
 .PHONY: deps

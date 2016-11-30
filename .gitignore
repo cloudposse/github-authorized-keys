@@ -32,3 +32,6 @@ github-authorized-keys
 
 # Config for tests
 .github-authorized-keys-tests.yml
+
+# Config for vagrant demo
+.github-authorized-keys-demo.yml
