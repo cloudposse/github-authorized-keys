@@ -8,7 +8,7 @@ RUN set -ex \
 	&& apk add --no-cache --virtual .build-deps \
 		git \
 		make \
-		&& make setup \
+		&& make deps \
 		&& make test \
 		&& go-wrapper install \
 		&& rm -rf  /go/src \

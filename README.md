@@ -16,7 +16,7 @@ It is possible to run this command as simple cli application or in docker contai
 
   Compile with command
   ```
-make setup
+make deps
 make build
 make install
   ```

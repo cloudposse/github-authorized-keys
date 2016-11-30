@@ -10,8 +10,8 @@ test: $(GO)
 	$(GO) test github.com/cloudposse/github-authorized-keys/cmd
 
 
-.PHONY: setup
-setup: $(GO)
+.PHONY: deps
+deps: $(GO)
 	$(GO) get -d -v "github.com/google/go-github/github"
 	$(GO) get -d -v "golang.org/x/oauth2"
 	$(GO) get -d -v "github.com/spf13/cobra/cobra"
