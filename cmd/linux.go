@@ -10,8 +10,8 @@ import (
 )
 
 const(
-	createUserCMD = "adduser"
-	deleteUserCMD = "deluser"
+	createUserCommand = "adduser"
+	deleteUserCommand = "deluser"
 )
 
 type linuxUser struct {
@@ -32,12 +32,12 @@ func linuxUserCreate(new linuxUser) error {
 	var cmd *exec.Cmd
 
 	if new.Gid == "" {
-		cmd = exec.Command(createUserCMD, "-s", new.Shell, "-D", new.Name)
+		cmd = exec.Command(createUserCommand, "-s", new.Shell, "-D", new.Name)
 	} else {
 		primaryGroup, err := user.LookupGroupId(new.Gid)
 		if err != nil { return err }
 
-		cmd = exec.Command(createUserCMD, "-s", new.Shell, "-G", primaryGroup.Name, "-D", new.Name)
+		cmd = exec.Command(createUserCommand, "-s", new.Shell, "-G", primaryGroup.Name, "-D", new.Name)
 	}
 
 	err := cmd.Run()
@@ -45,7 +45,7 @@ func linuxUserCreate(new linuxUser) error {
 	fmt.Printf("Created user %v\n", new.Name)
 
 	for _, group := range new.Groups {
-		cmd := exec.Command(createUserCMD, new.Name, group)
+		cmd := exec.Command(createUserCommand, new.Name, group)
 		err := cmd.Run()
 		if err != nil { return err }
 		fmt.Printf("Added user %v to group %v\n", new.Name, group)
@@ -55,7 +55,7 @@ func linuxUserCreate(new linuxUser) error {
 }
 
 func linuxUserDelete(new linuxUser) error {
-	cmd := exec.Command(deleteUserCMD, new.Name)
+	cmd := exec.Command(deleteUserCommand, new.Name)
 	return cmd.Run()
 }
 
