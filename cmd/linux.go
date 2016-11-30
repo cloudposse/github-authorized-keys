@@ -4,7 +4,6 @@ import (
 	"os/user"
 	"os/exec"
 	"bytes"
-	"io"
 	"strings"
 	"fmt"
 )
@@ -71,28 +70,20 @@ func linuxGroupExistsByID(groupID string) bool {
 
 func linuxUserShell(userName string) string {
 	getent := exec.Command("getent", "passwd", userName)
-	// @TODO: Redo this golang code instead of cut command
-	cut := exec.Command("cut" , "-d:", "-f7")
-
-	r, w := io.Pipe()
-	getent.Stdout = w
-	cut.Stdin = r
 
 	var b2 bytes.Buffer
-	cut.Stdout = &b2
+	getent.Stdout = &b2
 
-	getent.Start()
-	cut.Start()
-
-	err := getent.Wait()
+	err := getent.Run()
 	if err != nil { return "" }
 
-	w.Close()
+	userPasswd := strings.Replace(string(b2.Bytes()), "\n", "", 1)
 
-	err = cut.Wait()
+	userPasswdSlice := strings.Split(userPasswd,":")
 
-	if err != nil { return "" }
+	if len(userPasswdSlice) != 7 {
+		return ""
+	}
 
-	// Command return \n in the end
-	return strings.Replace(string(b2.Bytes()), "\n", "", 1)
+	return userPasswdSlice[6]
 }
