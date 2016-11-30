@@ -33,7 +33,7 @@ To implement this add in /etc/ssh/sshd_config following string
 		if len(args) <= 0 {
 			return errors.New("User name is required argument")
 		}  else if len(args) > 1 {
-			return fmt.Errorf("Command does not support multiple users or you provide wrong user: %v", args)
+			return errors.New("Can only authorize a single user at a time")
 		}
 
 		if githubAPIToken == "" {
