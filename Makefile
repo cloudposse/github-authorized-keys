@@ -1,5 +1,5 @@
 GO	:= $(shell which go)
-bin	= sshauth
+bin	= github-authorized-keys
 
 .PHONY: build
 build: $(GO)
@@ -22,11 +22,6 @@ clean:
 install: $(bin)
 	cp $(bin) /usr/local/sbin/
 	chmod 555 /usr/local/sbin/$(bin)
-	mkdir -p /etc/sshauth
-	chmod 750 /etc/sshauth
-	chown root:root /etc/ssh/sshauth
-	cp config.example /etc/sshauth/
-	chmod 440 /etc/sshauth/config.example
 
 #- development targets
 

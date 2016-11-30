@@ -1,29 +1,114 @@
 # github-authorized-keys
 Allow to provide ssh access to servers based on github teams
 
-## Build docker image
+## Getting started
+
+Tool is writen on go lang and provide command line interface.
+It is possible to run this command as simple cli application or in docker container.
+
+### Run as cli
+
+#### Requirements
+
+  Go lang 1.7.x
+
+#### Install
+
+  Compile with command
+  ```
+make setup
+make build
+make install
+  ```
+
+After installation you could find command as
+```
+/usr/local/sbin/github-authorized-keys
+```
+
+#### Run
+
+##### Authorize command
+You can specify params as flags
+
+```
+/usr/local/sbin/github-authorized-keys \
+--token={token} \
+--org={organization} \
+--team={team} \
+authorize {user}
+```
+
+or as environment variables
+
+
+```
+GITHUB_API_TOKEN={token} \
+GITHUB_ORGANIZATION={organization} \
+GITHUB_TEAM={team} \
+/usr/local/sbin/github-authorized-keys authorize {user}
+```
+
+or you can mix that approaches
+
+##### Create users
+
+You can specify params as flags
+
+```
+/usr/local/sbin/github-authorized-keys \
+--token={token} \
+--org={organization} \
+--team={team} \
+--gid={user gid} \
+--groups={comma separated secondary groups names} \
+--shell={user shell} \
+sync_users
+```
+
+or as environment variables
+
+
+```
+GITHUB_API_TOKEN={token} \
+GITHUB_ORGANIZATION={organization} \
+GITHUB_TEAM={team} \
+SYNC_USERS_GID={gid OR empty} \
+SYNC_USERS_GROUPS={comma separated groups OR empty} \
+SYNC_USERS_SHELL={user shell} \
+/usr/local/sbin/github-authorized-keys sync_users
+```
+
+or you can mix that approaches
+
+### Run in containers
+
+#### Requirements
+
+  Docker
+
+#### Build docker image
 ```
 docker build ./ -t github-authorized-keys
 ```
 
-## Authorize command
+### Run docker image
+
+#### Authorize command
 
 ```
-docker run \                                                                      [system]
+docker run \
 -e GITHUB_API_TOKEN={token} \
 -e GITHUB_ORGANIZATION={organization} \
 -e GITHUB_TEAM={team} \
 github-authorized-keys authorize {user}
 ```
 
-Work only for versions openssh >= 6.9
 
-
-
-## Create users
+#### Create users
 
 ```
-docker run \                                                                      [system]
+docker run \
 -e GITHUB_API_TOKEN={token} \
 -e GITHUB_ORGANIZATION={organization} \
 -e GITHUB_TEAM={team} \
@@ -67,7 +152,6 @@ GITHUB_ORGANIZATION={organization name} \
 GITHUB_TEAM={team name} \
 vagrant up
 ```
-
 
 ## Test
 

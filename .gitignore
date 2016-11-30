@@ -27,4 +27,6 @@ _testmain.go
 *.iml
 
 .vagrant
-.vagrant/*
+.vagrant/
+
+github-authorized-keys
