@@ -23,12 +23,23 @@ install: $(bin)
 	cp $(bin) /usr/local/sbin/
 	chmod 555 /usr/local/sbin/$(bin)
 
+
 #- development targets
 
 .PHONY: run
 run: build
 	./$(bin) --config ./config.json
 
+## Lint code
+.PHONY: lint
+lint: $(GO)
+	golint cmd/*
+
+## Install development dependencies
+.PHONY: deps-dev
+deps-dev: $(GO)
+	$(GO) get -d -v "github.com/golang/lint"
+	$(GO) install -v "github.com/golang/lint/golint"
 
 ## This help screen
 help:

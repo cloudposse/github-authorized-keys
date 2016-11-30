@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// sync_usersCmd represents the sync_users command
-var sync_usersCmd = &cobra.Command{
+// syncUsersCmd represents the sync_users command
+var syncUsersCmd = &cobra.Command{
 	Use:   "sync_users",
 	Short: "Create linux users for github team members",
 	Long:
@@ -24,9 +24,9 @@ Run on schedule following command to create user asap.
 		// Validate Github API token
 
 
-		githubApiToken		:= viper.GetString("github_api_token")
+		githubAPIToken 		:= viper.GetString("github_api_token")
 		githubTeamName 		:= viper.GetString("github_team")
-		githubTeamId 		:= viper.GetInt("github_team_id")
+		githubTeamID 		:= viper.GetInt("github_team_id")
 		githubOrganization 	:= viper.GetString("github_organization")
 
 
@@ -41,42 +41,42 @@ Run on schedule following command to create user asap.
 
 		userShell 	:= viper.GetString("sync_users_shell")
 
-		if githubApiToken == "" {
+		if githubAPIToken == "" {
 			return errors.New("Github API Token is required")
 		}
 
 		// Validate Github Team exists
-		if githubTeamName == "" && githubTeamId == 0 {
+		if githubTeamName == "" && githubTeamID == 0 {
 			return errors.New("Team name or Team id should be specified")
 		}
 
 		// If user GID is not empty validate that group with such id exists
-		if userGID != "" && LinuxGroupExistsById(userGID) {
-			return errors.New(fmt.Sprintf("Group with ID %v does not exists", userGID))
+		if userGID != "" && linuxGroupExistsByID(userGID) {
+			return fmt.Errorf("Group with ID %v does not exists", userGID)
 		}
 		// Validate linux group exists
 		nonExistedGroups := make([]string, 0)
 
 		for _, group := range userGroups {
-			if ! LinuxGroupExists(group) {
+			if ! linuxGroupExists(group) {
 				nonExistedGroups = append(nonExistedGroups, group)
 			}
 		}
 
 		if len(nonExistedGroups) > 0 {
 
-			return errors.New(fmt.Sprintf("Groups %v not exists", strings.Join(nonExistedGroups, ",")))
+			return fmt.Errorf("Groups %v not exists", strings.Join(nonExistedGroups, ","))
 		}
 
 		//-------------------------------------------------------------------
 
-		c := NewGithubClient(githubApiToken, githubOrganization)
+		c := newGithubClient(githubAPIToken, githubOrganization)
 		// Load team
-		team, err := c.getTeam(githubTeamName, githubTeamId)
+		team, err := c.getTeam(githubTeamName, githubTeamID)
 		if err != nil { return err }
 
 		// Get all members
-		githubUsers, err := c.GetTeamMembers(team)
+		githubUsers, err := c.getTeamMembers(team)
 		if err != nil { return err }
 
 		// Here we will store user name for users that got error during creation
@@ -84,9 +84,9 @@ Run on schedule following command to create user asap.
 
 		for _, githubUser := range githubUsers {
 			// Create only non existed users
-			if ! LinuxUserExists(*githubUser.Login) {
+			if ! linuxUserExists(*githubUser.Login) {
 
-				linuxUser := User{Name: *githubUser.Login, Shell: userShell, Groups: userGroups}
+				linuxUser := linuxUser{Name: *githubUser.Login, Shell: userShell, Groups: userGroups}
 
 				// If we have defined GID set it please
 				if userGID != "" {
@@ -94,7 +94,7 @@ Run on schedule following command to create user asap.
 				}
 
 				// Create user and store it's name if there was error during creation
-				if err := LinuxUserCreate(linuxUser); err != nil {
+				if err := linuxUserCreate(linuxUser); err != nil {
 					notCreatedUsers = append(notCreatedUsers, linuxUser.Name)
 				}
 			}
@@ -102,7 +102,7 @@ Run on schedule following command to create user asap.
 
 		// Report error if we there was at least one error during user creation
 		if len(notCreatedUsers) > 0 {
-			return errors.New(fmt.Sprintf("Users %v created with errors", strings.Join(notCreatedUsers, ",")))
+			return fmt.Errorf("Users %v created with errors", strings.Join(notCreatedUsers, ","))
 		}
 
 		return nil
@@ -110,18 +110,18 @@ Run on schedule following command to create user asap.
 }
 
 func init() {
-	RootCmd.AddCommand(sync_usersCmd)
+	RootCmd.AddCommand(syncUsersCmd)
 
-	sync_usersCmd.Flags().String("gid", "",
+	syncUsersCmd.Flags().String("gid", "",
 		"User's primary group id                       ( environment variable SYNC_USERS_GID    could be used instead )")
 
-	sync_usersCmd.Flags().StringSlice("groups", make([]string, 0),
+	syncUsersCmd.Flags().StringSlice("groups", make([]string, 0),
 		"Comma separeted user's secondary groups name  ( environment variable SYNC_USERS_GROUPS could be used instead )")
 
-	sync_usersCmd.Flags().String("shell", "/bin/bash",
+	syncUsersCmd.Flags().String("shell", "/bin/bash",
 		"User shell                                    ( environment variable SYNC_USERS_SHELL  could be used instead )")
 
-	viper.BindPFlag("sync_users_gid", sync_usersCmd.Flags().Lookup("gid"))
-	viper.BindPFlag("sync_users_groups",   sync_usersCmd.Flags().Lookup("groups"))
-	viper.BindPFlag("sync_users_shell",  sync_usersCmd.Flags().Lookup("shell"))
+	viper.BindPFlag("sync_users_gid", syncUsersCmd.Flags().Lookup("gid"))
+	viper.BindPFlag("sync_users_groups",   syncUsersCmd.Flags().Lookup("groups"))
+	viper.BindPFlag("sync_users_shell",  syncUsersCmd.Flags().Lookup("shell"))
 }

@@ -14,7 +14,7 @@ const(
 	deleteUserCMD = "deluser"
 )
 
-type User struct {
+type linuxUser struct {
 	Name     string
 	Gid      string // primary group ID
 	Groups   []string
@@ -22,13 +22,13 @@ type User struct {
 }
 
 
-func LinuxUserExists(user_name string) bool {
-	user, _ := user.Lookup(user_name)
+func linuxUserExists(userName string) bool {
+	user, _ := user.Lookup(userName)
 	return user != nil
 }
 
 
-func LinuxUserCreate(new User) error {
+func linuxUserCreate(new linuxUser) error {
 	var cmd *exec.Cmd
 
 	if new.Gid == "" {
@@ -54,22 +54,22 @@ func LinuxUserCreate(new User) error {
 	return nil
 }
 
-func LinuxUserDelete(new User) error {
+func linuxUserDelete(new linuxUser) error {
 	cmd := exec.Command(deleteUserCMD, new.Name)
 	return cmd.Run()
 }
 
-func LinuxGroupExists(groupName string) bool {
+func linuxGroupExists(groupName string) bool {
 	group, _ := user.LookupGroup(groupName)
 	return group != nil
 }
 
-func LinuxGroupExistsById(groupId string) bool {
-	group, _ := user.LookupGroupId(groupId)
+func linuxGroupExistsByID(groupID string) bool {
+	group, _ := user.LookupGroupId(groupID)
 	return group != nil
 }
 
-func LinuxUserShell(userName string) string {
+func linuxUserShell(userName string) string {
 	c1 := exec.Command("getent", "passwd", userName)
 	// @TODO: Redo this golang code instead of cut command
 	c2 := exec.Command("cut" , "-d:", "-f7")

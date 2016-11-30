@@ -41,20 +41,15 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	var githubApiToken string
-	var githubOrganization string
-	var githubTeamName string
-	var githubTeamId int
-
-	// Here you will define your flags and configuration settings.
+		// Here you will define your flags and configuration settings.
 	// Cobra supports Persistent Flags, which, if defined here,
 	// will be global for your application.
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.github-authorized-keys.yaml)")
-	RootCmd.PersistentFlags().StringVar(&githubApiToken, "token", "", "Github API token (read more https://github.com/blog/1509-personal-api-tokens)")
-	RootCmd.PersistentFlags().StringVar(&githubOrganization, "org", "", "Github organization")
-	RootCmd.PersistentFlags().StringVar(&githubTeamName, "team", "", "Github team name")
-	RootCmd.PersistentFlags().IntVar(&githubTeamId, "team_id", 0, "Github team id")
+	RootCmd.PersistentFlags().String("token", "", "Github API token (read more https://github.com/blog/1509-personal-api-tokens)")
+	RootCmd.PersistentFlags().String("org", "", "Github organization")
+	RootCmd.PersistentFlags().String("team", "", "Github team name")
+	RootCmd.PersistentFlags().Int("team_id", 0, "Github team id")
 
 	viper.BindPFlag("github_api_token",   RootCmd.PersistentFlags().Lookup("token"))
 	viper.BindPFlag("github_organization",     RootCmd.PersistentFlags().Lookup("org"))

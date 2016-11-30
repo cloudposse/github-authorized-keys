@@ -24,48 +24,47 @@ To implement this add in /etc/ssh/sshd_config following string
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		githubApiToken		:= viper.GetString("github_api_token")
+		githubAPIToken 		:= viper.GetString("github_api_token")
 		githubTeamName 		:= viper.GetString("github_team")
-		githubTeamId 		:= viper.GetInt("github_team_id")
+		githubTeamID 		:= viper.GetInt("github_team_id")
 		githubOrganization 	:= viper.GetString("github_organization")
 
 		// Validate user name arg
 		if len(args) <= 0 {
 			return errors.New("User name is required argument")
 		}  else if len(args) > 1 {
-			return errors.New(
-				fmt.Sprintf("Command does not support multiple users or you provide wrong user: %v", args))
+			return fmt.Errorf("Command does not support multiple users or you provide wrong user: %v", args)
 		}
 
-		if githubApiToken == "" {
+		if githubAPIToken == "" {
 			return errors.New("Github API Token is required")
 		}
 
-		if githubTeamName == "" && githubTeamId == 0 {
+		if githubTeamName == "" && githubTeamID == 0 {
 			return errors.New("Team name or Team id should be specified")
 		}
 		//-----------------------------------------------------------------
 
-		user_name := args[0]
+		userName := args[0]
 
-		c := NewGithubClient(githubApiToken, githubOrganization)
+		c := newGithubClient(githubAPIToken, githubOrganization)
 
 		// Load team
-		team, err := c.getTeam(githubTeamName, githubTeamId)
+		team, err := c.getTeam(githubTeamName, githubTeamID)
 		if err != nil { return err }
 
 		// Check if user is a member
-		isMember, err := c.isTeamMember(user_name, team)
+		isMember, err := c.isTeamMember(userName, team)
 		if err != nil { return err }
 		if ! isMember {
-			return errors.New(fmt.Sprintf("User %v is not a member of team %v", user_name, *team.Name))
+			return fmt.Errorf("User %v is not a member of team %v", userName, *team.Name)
 		}
 
 		// Load user
-		user, err := c.getUser(user_name)
+		user, err := c.getUser(userName)
 		if err != nil { return err }
 		// Get keys
-		keys, err := c.GetKeys(user)
+		keys, err := c.getKeys(user)
 		if err != nil { return err }
 
 		// Print keys

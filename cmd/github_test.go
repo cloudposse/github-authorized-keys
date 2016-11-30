@@ -8,7 +8,7 @@ const (
 	validToken = "7bf553ea09a665829455afd0f0541342fa85d71b"
 	validOrg = "intervals-mining-lab"
 	validTeamName = "libiada-developers"
-	validTeamId = 191933
+	validTeamID = 191933
 	validUser = "goruha"
 )
 
@@ -17,11 +17,11 @@ func TestApiClient(t *testing.T) {
 
 	token := validToken
 	organization := validOrg
-	team_name := validTeamName
-	team_id := 0
+	teamName := validTeamName
+	teamID := 0
 
-	c := NewGithubClient(token, organization)
-	team, err := c.getTeam(team_name, team_id)
+	c := newGithubClient(token, organization)
+	team, err := c.getTeam(teamName, teamID)
 
 	if err != nil {
 		t.Errorf("Expected no error, got %v.", err)
@@ -47,11 +47,11 @@ func TestApiClientGetTeamById(t *testing.T) {
 
 	token := validToken
 	organization := validOrg
-	team_name := "dasdasd"
-	team_id := validTeamId
+	teamName := "dasdasd"
+	teamID := validTeamID
 
-	c := NewGithubClient(token, organization)
-	team, err := c.getTeam(team_name, team_id)
+	c := newGithubClient(token, organization)
+	team, err := c.getTeam(teamName, teamID)
 
 	if err != nil {
 		t.Errorf("Expected no error, got %v.", err)
@@ -78,11 +78,11 @@ func TestApiClientWrongTeam(t *testing.T) {
 
 	token := validToken
 	organization := validOrg
-	team_name := "xxx"
-	team_id := 0
+	teamName := "xxx"
+	teamID := 0
 
-	c := NewGithubClient(token, organization)
-	team, err := c.getTeam(team_name, team_id)
+	c := newGithubClient(token, organization)
+	team, err := c.getTeam(teamName, teamID)
 
 	if err == nil {
 		t.Errorf("Expected error, got %v.", err)
@@ -102,11 +102,11 @@ func TestApiClientWrongToken(t *testing.T) {
 
 	token := "11111111111111111111111111"
 	organization := validOrg
-	team_name := validTeamName
-	team_id := 0
+	teamName := validTeamName
+	teamID := 0
 
-	c := NewGithubClient(token, organization)
-	team, err := c.getTeam(team_name, team_id)
+	c := newGithubClient(token, organization)
+	team, err := c.getTeam(teamName, teamID)
 
 	if err == nil {
 		t.Errorf("Expected error, got %v.", err)
@@ -126,11 +126,11 @@ func TestApiClientWrongOrganization(t *testing.T) {
 
 	token := validToken
 	organization := "dsadsad"
-	team_name := validTeamName
-	team_id := validTeamId
+	teamName := validTeamName
+	teamID := validTeamID
 
-	c := NewGithubClient(token, organization)
-	team, err := c.getTeam(team_name, team_id)
+	c := newGithubClient(token, organization)
+	team, err := c.getTeam(teamName, teamID)
 
 	if err == nil {
 		t.Errorf("Expected error, got %v.", err)
@@ -150,12 +150,12 @@ func TestApiClientIsMember(t *testing.T) {
 
 	token := validToken
 	organization := validOrg
-	team_name := validTeamName
-	team_id := validTeamId
+	teamName := validTeamName
+	teamID := validTeamID
 	user := validUser
 
-	c := NewGithubClient(token, organization)
-	team, _ := c.getTeam(team_name, team_id)
+	c := newGithubClient(token, organization)
+	team, _ := c.getTeam(teamName, teamID)
 
 	isMember, err := c.isTeamMember(user, team)
 
@@ -172,12 +172,12 @@ func TestApiClientIsNotMember(t *testing.T) {
 
 	token := validToken
 	organization := validOrg
-	team_name := validTeamName
-	team_id := validTeamId
+	teamName := validTeamName
+	teamID := validTeamID
 	user := "dasda"
 
-	c := NewGithubClient(token, organization)
-	team, _ := c.getTeam(team_name, team_id)
+	c := newGithubClient(token, organization)
+	team, _ := c.getTeam(teamName, teamID)
 
 	isMember, err := c.isTeamMember(user, team)
 
@@ -194,10 +194,10 @@ func TestApiClientGetUser(t *testing.T) {
 
 	token := validToken
 	organization := validOrg
-	user_name := validUser
+	userName := validUser
 
-	c := NewGithubClient(token, organization)
-	user, err := c.getUser(user_name)
+	c := newGithubClient(token, organization)
+	user, err := c.getUser(userName)
 
 
 	if err != nil {
@@ -213,10 +213,10 @@ func TestApiClientGetUserWrongUser(t *testing.T) {
 
 	token := validToken
 	organization := validOrg
-	user_name := "dasdddds232dasdas"
+	userName := "dasdddds232dasdas"
 
-	c := NewGithubClient(token, organization)
-	user, err := c.getUser(user_name)
+	c := newGithubClient(token, organization)
+	user, err := c.getUser(userName)
 
 
 	if err == nil {
@@ -233,12 +233,12 @@ func TestApiClientGetPublicKeys(t *testing.T) {
 
 	token := validToken
 	organization := validOrg
-	user_name := validUser
+	userName := validUser
 
-	c := NewGithubClient(token, organization)
-	user, _ := c.getUser(user_name)
+	c := newGithubClient(token, organization)
+	user, _ := c.getUser(userName)
 
-	keys, err := c.GetKeys(user)
+	keys, err := c.getKeys(user)
 
 	if err != nil {
 		t.Errorf("Expected no error, got %v.", err)
@@ -253,13 +253,13 @@ func TestApiClientGetTeamMembers(t *testing.T) {
 
 	token := validToken
 	organization := validOrg
-	team_name := validTeamName
-	team_id := 0
+	teamName := validTeamName
+	teamID := 0
 
-	c := NewGithubClient(token, organization)
-	team, err := c.getTeam(team_name, team_id)
+	c := newGithubClient(token, organization)
+	team, err := c.getTeam(teamName, teamID)
 
-	members, err := c.GetTeamMembers(team)
+	members, err := c.getTeamMembers(team)
 
 	if err != nil {
 		t.Errorf("Expected no error, got %v.", err)

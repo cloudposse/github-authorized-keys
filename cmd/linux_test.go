@@ -20,9 +20,9 @@ func inArray(val string, array []string) bool {
 func TestApiLinuxUserNotExists(t *testing.T) {
 	t.Log("Check user not exists - Positive testing")
 
-	user_name := "test"
+	userName := "test"
 
-	isExists := LinuxUserExists(user_name)
+	isExists := linuxUserExists(userName)
 
 	if isExists {
 		t.Errorf("User should not exist.")
@@ -32,9 +32,9 @@ func TestApiLinuxUserNotExists(t *testing.T) {
 func TestApiLinuxUserExists(t *testing.T) {
 	t.Log("Check user exists - Positive testing")
 
-	user_name := "root"
+	userName := "root"
 
-	isExists := LinuxUserExists(user_name)
+	isExists := linuxUserExists(userName)
 
 	if !isExists {
 		t.Errorf("User should exist.")
@@ -43,10 +43,10 @@ func TestApiLinuxUserExists(t *testing.T) {
 
 func TestApiLinuxCreateUser(t *testing.T) {
 	t.Log("Create user - Positive testing")
-	user_name := User{Gid: "", Name: "test", Shell: "/bin/bash", Groups: []string{"wheel", "root"}}
+	userName := linuxUser{Gid: "", Name: "test", Shell: "/bin/bash", Groups: []string{"wheel", "root"}}
 
-	err := LinuxUserCreate(user_name)
-	defer LinuxUserDelete(user_name)
+	err := linuxUserCreate(userName)
+	defer linuxUserDelete(userName)
 
 
 	if err != nil {
@@ -54,10 +54,10 @@ func TestApiLinuxCreateUser(t *testing.T) {
 	}
 
 
-	osUser, _ := user.Lookup(user_name.Name)
+	osUser, _ := user.Lookup(userName.Name)
 
-	if osUser.Username != user_name.Name {
-		t.Errorf("Linux user name %v should be equal %v", osUser.Username, user_name.Name)
+	if osUser.Username != userName.Name {
+		t.Errorf("Linux user name %v should be equal %v", osUser.Username, userName.Name)
 	}
 
 	if value, _ := strconv.ParseInt(osUser.Gid, 10, 64); value <= 0 {
@@ -66,7 +66,7 @@ func TestApiLinuxCreateUser(t *testing.T) {
 
 	gids, _:= osUser.GroupIds()
 
-	for _, group := range user_name.Groups {
+	for _, group := range userName.Groups {
 		linuxGroup, err := user.LookupGroup(group)
 		if err != nil {
 			t.Errorf("Did not find group: %v. Got error %v", group, err)
@@ -79,19 +79,19 @@ func TestApiLinuxCreateUser(t *testing.T) {
 		}
 	}
 
-	shell := LinuxUserShell(user_name.Name)
+	shell := linuxUserShell(userName.Name)
 
-	if ! strings.EqualFold(shell, user_name.Shell) {
-		t.Errorf("Expect user shell %v, got %v.", user_name.Shell, shell)
+	if ! strings.EqualFold(shell, userName.Shell) {
+		t.Errorf("Expect user shell %v, got %v.", userName.Shell, shell)
 	}
 }
 
 func TestApiLinuxCreateUserProvideGid(t *testing.T) {
 	t.Log("Create user - Positive testing")
-	user_name := User{Gid: "42", Name: "test", Shell: "/bin/bash", Groups: []string{"root"}}
+	userName := linuxUser{Gid: "42", Name: "test", Shell: "/bin/bash", Groups: []string{"root"}}
 
-	err := LinuxUserCreate(user_name)
-	defer LinuxUserDelete(user_name)
+	err := linuxUserCreate(userName)
+	defer linuxUserDelete(userName)
 
 
 	if err != nil {
@@ -99,19 +99,19 @@ func TestApiLinuxCreateUserProvideGid(t *testing.T) {
 	}
 
 
-	osUser, _ := user.Lookup(user_name.Name)
+	osUser, _ := user.Lookup(userName.Name)
 
-	if osUser.Username != user_name.Name {
-		t.Errorf("Linux user name %v should be equal %v", osUser.Username, user_name.Name)
+	if osUser.Username != userName.Name {
+		t.Errorf("Linux user name %v should be equal %v", osUser.Username, userName.Name)
 	}
 
-	if osUser.Gid != user_name.Gid {
-		t.Errorf("Linux user GID %v should be eqaul %v", osUser.Gid, user_name.Gid)
+	if osUser.Gid != userName.Gid {
+		t.Errorf("Linux user GID %v should be eqaul %v", osUser.Gid, userName.Gid)
 	}
 
 	gids, _:= osUser.GroupIds()
 
-	for _, group := range user_name.Groups {
+	for _, group := range userName.Groups {
 		linuxGroup, err := user.LookupGroup(group)
 		if err != nil {
 			t.Errorf("Did not find group: %v. Got error %v", group, err)
@@ -124,10 +124,10 @@ func TestApiLinuxCreateUserProvideGid(t *testing.T) {
 		}
 	}
 
-	shell := LinuxUserShell(user_name.Name)
+	shell := linuxUserShell(userName.Name)
 
-	if ! strings.EqualFold(shell, user_name.Shell) {
-		t.Errorf("Expect user shell %v, got %v.", user_name.Shell, shell)
+	if ! strings.EqualFold(shell, userName.Shell) {
+		t.Errorf("Expect user shell %v, got %v.", userName.Shell, shell)
 	}
 }
 
@@ -137,7 +137,7 @@ func TestApiLinuxGroupNotExists(t *testing.T) {
 
 	groupName := "test"
 
-	isExists := LinuxGroupExists(groupName)
+	isExists := linuxGroupExists(groupName)
 
 	if isExists {
 		t.Errorf("Group should not exist.")
@@ -150,7 +150,7 @@ func TestApiLinuxGroupExists(t *testing.T) {
 
 	groupName := "wheel"
 
-	isExists := LinuxGroupExists(groupName)
+	isExists := linuxGroupExists(groupName)
 
 	if ! isExists {
 		t.Errorf("Group should exist.")
@@ -161,9 +161,9 @@ func TestApiLinuxGroupExists(t *testing.T) {
 func TestApiLinuxGroupByIdNotExists(t *testing.T) {
 	t.Log("Check group not exists - Positive testing")
 
-	groupId := "43"
+	groupID := "43"
 
-	isExists := LinuxGroupExistsById(groupId)
+	isExists := linuxGroupExistsByID(groupID)
 
 	if isExists {
 		t.Errorf("Group should not exist.")
@@ -173,9 +173,9 @@ func TestApiLinuxGroupByIdNotExists(t *testing.T) {
 func TestApiLinuxGroupByIdExists(t *testing.T) {
 	t.Log("Check group exists - Positive testing")
 
-	groupId := "42"
+	groupID := "42"
 
-	isExists := LinuxGroupExistsById(groupId)
+	isExists := linuxGroupExistsByID(groupID)
 
 	if ! isExists {
 		t.Errorf("Group should exist.")
@@ -188,7 +188,7 @@ func TestApiLinuxUserShell(t *testing.T) {
 
 	userName := "root"
 
-	shell := LinuxUserShell(userName)
+	shell := linuxUserShell(userName)
 
 	if ! strings.EqualFold(shell, "/bin/ash") {
 		t.Errorf("Expect user shell %v, got %v.", "/bin/ash", shell)

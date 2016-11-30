@@ -6,21 +6,22 @@ import (
 	"errors"
 )
 
-//- naive oauth setup
-type AccessToken struct {
+// Naive oauth setup
+
+type accessToken struct {
 	token *oauth2.Token
 }
 
-func (a AccessToken) Token() (*oauth2.Token, error) {
+func (a accessToken) Token() (*oauth2.Token, error) {
 	return a.token, nil
 }
 
-func newAccessToken(token string) AccessToken {
+func newAccessToken(token string) accessToken {
 	t := oauth2.Token{AccessToken: token}
-	return AccessToken{token: &t}
+	return accessToken{token: &t}
 }
 
-//- models & namespacing
+// GithubClient - client for operate with Github API
 type GithubClient struct {
 	client github.Client
 	owner  string
@@ -59,7 +60,7 @@ func (c *GithubClient) isTeamMember(user string, team *github.Team) (bool, error
 }
 
 
-func (c *GithubClient) GetKeys(user *github.User) ([]*github.Key, error) {
+func (c *GithubClient) getKeys(user *github.User) ([]*github.Key, error) {
 	keys, response, err := c.client.Users.ListKeys(*user.Login, nil)
 	if response.StatusCode != 200 {
 		return nil, errors.New("Access denied")
@@ -68,12 +69,12 @@ func (c *GithubClient) GetKeys(user *github.User) ([]*github.Key, error) {
 }
 
 
-func (c *GithubClient) GetTeamMembers(team *github.Team) ([]*github.User, error) {
+func (c *GithubClient) getTeamMembers(team *github.Team) ([]*github.User, error) {
 	users, _, err := c.client.Organizations.ListTeamMembers(*team.ID, nil)
 	return users, err
 }
 
-func NewGithubClient(token, owner string) GithubClient {
+func newGithubClient(token, owner string) GithubClient {
 	c := oauth2.NewClient(oauth2.NoContext, newAccessToken(token))
 	return GithubClient{client: *github.NewClient(c), owner: owner}
 }
