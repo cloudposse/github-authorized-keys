@@ -2,44 +2,42 @@ GO	:= $(shell which go)
 BIN	= github-authorized-keys
 
 .PHONY: build
+## Build binary
 build: $(GO)
 	$(GO) build -o $(BIN)
 
 .PHONY: test
+## Run tests
 test: $(GO)
 	$(GO) test github.com/cloudposse/github-authorized-keys/cmd
 
 
 .PHONY: deps
+## Install dependencies
 deps: $(GO)
 	$(GO) get -d -v "github.com/google/go-github/github"
 	$(GO) get -d -v "golang.org/x/oauth2"
 	$(GO) get -d -v "github.com/spf13/cobra/cobra"
 
+## Clean compiled binary
 clean:
 	rm -f $(BIN)
 
+## Install cli
 install: $(BIN)
-	cp $(BIN) /usr/local/sBIN/
-	chmod 555 /usr/local/sBIN/$(BIN)
+	cp $(BIN) /usr/local/sbin/
+	chmod 555 /usr/local/sbin/$(BIN)
 
-
-#- development targets
-
-.PHONY: run
-run: build
-	./$(BIN) --config ./config.json
-
-## Lint code
 .PHONY: lint
+## Lint code
 lint: $(GO)
 	golint cmd/*
 	golint *.go
 	$(GO) vet -v cmd/*
 	$(GO) vet -v *.go
 
-## Install development dependencies
 .PHONY: deps-dev
+## Install development dependencies
 deps-dev: $(GO)
 	$(GO) get -d -v "github.com/golang/lint"
 	$(GO) install -v "github.com/golang/lint/golint"
