@@ -27,6 +27,5 @@ _testmain.go
 *.iml
 
 .vagrant
-.vagrant/
 
 github-authorized-keys
