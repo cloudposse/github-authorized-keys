@@ -1,6 +1,6 @@
 GO	:= $(shell which go)
 APP	?= github-authorized-keys
-BIN_DIR ?= /usr/local/sbin
+INSTALL_DIR ?= /usr/local/sbin
 
 .PHONY: build
 ## Build binary
@@ -26,8 +26,8 @@ clean:
 
 ## Install cli
 install: $(APP)
-	cp $(APP) $(BIN_DIR)
-	chmod 555 $(BIN_DIR)/$(APP)
+	cp $(APP) $(INSTALL_DIR)
+	chmod 555 $(INSTALL_DIR)/$(APP)
 
 .PHONY: lint
 ## Lint code
