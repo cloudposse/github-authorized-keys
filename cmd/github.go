@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"errors"
+
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
-	"errors"
 )
 
 // Naive oauth setup

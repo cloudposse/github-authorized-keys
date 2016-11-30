@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-
-	"github.com/spf13/cobra"
 	"errors"
 	"strings"
+
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
