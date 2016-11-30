@@ -3,6 +3,7 @@ version: '2'
 services:
   github-authorized-keys:
     build: ./
+    container_name: github-authorized-keys
     volumes:
       - "./:/go/src/github.com/cloudposse/github-authorized-keys"
     entrypoint:

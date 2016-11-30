@@ -1,4 +1,4 @@
-# github-authorized-keys
+# Github Authorized Keys
 Allow to provide ssh access to servers based on github teams
 
 ## Demo
@@ -19,6 +19,28 @@ Install
 
 ### Run
 
+Vagrant up required some configs.
+There are 2 cases to do this.
+
+#### With config file
+
+Copy .github-authorized-keys-demo.default.yml to .github-authorized-keys-demo.yml
+
+```
+cp .github-authorized-keys-demo.default.yml .github-authorized-keys-demo.yml
+```
+
+and set required values in that file.
+
+Then you can simple run
+
+```
+vagrant up
+```
+
+
+#### With environment variables
+
 Run vagrant with command
 
 
@@ -28,6 +50,7 @@ GITHUB_ORGANIZATION={organization name} \
 GITHUB_TEAM={team name} \
 vagrant up
 ```
+
 
 ### Test
 
@@ -166,4 +189,104 @@ You have to share ``/etc`` because ``adduser`` command backup ``/etc/passwd`` to
 fire EXDEV error if backup are on different layers.
 https://docs.docker.com/engine/userguide/storagedriver/aufs-driver/
 
+------------
 
+## Development
+
+### Requirements
+
+  * Go lang 1.7.x
+  * Make
+  * Docker (optional)
+
+
+### Run development in docker
+
+There is docker-compose file allow to start docker container for development purpose.
+This container shared source code dir with host.
+
+To ssh inside container run
+
+```
+docker exec -it github-authorized-keys sh
+cd /go/src/github.com/cloudposse/github-authorized-keys
+```
+
+### Install go libs dependencies
+
+  Run ``make deps-dev`` to install additional go libs
+
+### Testing
+
+**Warning:**
+Tests require perms to create users, so it is better to run them inside docker container.
+
+Running tests required some configs.
+There are 2 approaches to do this.
+
+#### With config file
+
+Copy .github-authorized-keys-tests.default.yml to .github-authorized-keys-tests.yml
+
+```
+cp .github-authorized-keys-tests.default.yml .github-authorized-keys-tests.yml
+```
+
+and set required values in that file.
+
+Then you can simple run
+
+```
+make test
+```
+
+#### With environment variables
+
+Run tests with command
+
+
+```
+TEST_GITHUB_API_TOKEN={api token} \
+TEST_GITHUB_ORGANIZATION={organization name} \
+TEST_GITHUB_TEAM={team name} \
+TEST_GITHUB_TEAM_ID={team id} \
+TEST_GITHUB_USER={user} \
+make test
+```
+
+
+
+### Run tests on docker build
+
+To enable test run on docker build use ``--build-arg`` option
+to set ``RUN_TESTS=1``
+
+**Example**
+
+```
+docker build --build-arg RUN_TESTS=1 ./
+```
+
+Also you need to config tests before build
+There are 2 approaches to do this.
+
+#### With config file
+
+The same way as described in configuration of tests with config file
+
+#### With build args
+
+Pass tests config environment variables as build-args
+
+**Example**
+
+```
+docker build  \
+--build-arg RUN_TESTS=1 \
+--build-arg  TEST_GITHUB_API_TOKEN={token} \
+--build-arg  TEST_GITHUB_ORGANIZATION={org} \
+--build-arg  TEST_GITHUB_TEAM={team} \
+--build-arg  TEST_GITHUB_TEAM_ID={team_id} \
+--build-arg  TEST_GITHUB_USER={user}
+./
+```
