@@ -1,6 +1,8 @@
 # Github Authorized Keys
 Allow to provide ssh access to servers based on github teams
 
+----
+
 ## Demo
 
 We use Vagrant to demonstrate how this tool works.
