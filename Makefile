@@ -1,10 +1,11 @@
 GO	:= $(shell which go)
-BIN	= github-authorized-keys
+APP	?= github-authorized-keys
+BIN_DIR ?= /usr/local/sbin
 
 .PHONY: build
 ## Build binary
 build: $(GO)
-	$(GO) build -o $(BIN)
+	$(GO) build -o $(APP)
 
 .PHONY: test
 ## Run tests
@@ -21,12 +22,12 @@ deps: $(GO)
 
 ## Clean compiled binary
 clean:
-	rm -f $(BIN)
+	rm -f $(APP)
 
 ## Install cli
-install: $(BIN)
-	cp $(BIN) /usr/local/sbin/
-	chmod 555 /usr/local/sbin/$(BIN)
+install: $(APP)
+	cp $(APP) $(BIN_DIR)
+	chmod 555 $(BIN_DIR)/$(APP)
 
 .PHONY: lint
 ## Lint code
