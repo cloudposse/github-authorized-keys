@@ -70,26 +70,26 @@ func linuxGroupExistsByID(groupID string) bool {
 }
 
 func linuxUserShell(userName string) string {
-	c1 := exec.Command("getent", "passwd", userName)
+	getent := exec.Command("getent", "passwd", userName)
 	// @TODO: Redo this golang code instead of cut command
-	c2 := exec.Command("cut" , "-d:", "-f7")
+	cut := exec.Command("cut" , "-d:", "-f7")
 
 	r, w := io.Pipe()
-	c1.Stdout = w
-	c2.Stdin = r
+	getent.Stdout = w
+	cut.Stdin = r
 
 	var b2 bytes.Buffer
-	c2.Stdout = &b2
+	cut.Stdout = &b2
 
-	c1.Start()
-	c2.Start()
+	getent.Start()
+	cut.Start()
 
-	err := c1.Wait()
+	err := getent.Wait()
 	if err != nil { return "" }
 
 	w.Close()
 
-	err = c2.Wait()
+	err = cut.Wait()
 
 	if err != nil { return "" }
 
