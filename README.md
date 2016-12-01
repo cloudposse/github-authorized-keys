@@ -215,12 +215,14 @@ To start container run this command
 docker-compose up -d
 ```
 
-To ssh inside container run
+Once the docker-compose environment is running, you can attach to the container with this command
 
 ```
 docker exec -it github-authorized-keys sh
-cd /go/src/github.com/cloudposse/github-authorized-keys
 ```
+
+Source code is shared into ``/go/src/github.com/cloudposse/github-authorized-keys`` directory.
+
 
 ### Install go libs dependencies
 
