@@ -44,15 +44,17 @@ Run on schedule following command to create user asap.
 			return errors.New("Team name or Team id should be specified")
 		}
 
+		linux := NewOs("/")
+
 		// If user GID is not empty validate that group with such id exists
-		if userGID != "" && linuxGroupExistsByID(userGID) {
+		if userGID != "" && linux.groupExistsByID(userGID) {
 			return fmt.Errorf("Group with ID %v does not exists", userGID)
 		}
 		// Validate linux group exists
 		nonExistedGroups := make([]string, 0)
 
 		for _, group := range userGroups {
-			if ! linuxGroupExists(group) {
+			if ! linux.groupExists(group) {
 				nonExistedGroups = append(nonExistedGroups, group)
 			}
 		}
@@ -78,7 +80,7 @@ Run on schedule following command to create user asap.
 
 		for _, githubUser := range githubUsers {
 			// Create only non existed users
-			if ! linuxUserExists(*githubUser.Login) {
+			if ! linux.userExists(*githubUser.Login) {
 
 				linuxUser := linuxUser{Name: *githubUser.Login, Shell: userShell, Groups: userGroups}
 
@@ -88,7 +90,7 @@ Run on schedule following command to create user asap.
 				}
 
 				// Create user and store it's name if there was error during creation
-				if err := linuxUserCreate(linuxUser); err != nil {
+				if err := linux.userCreate(linuxUser); err != nil {
 					notCreatedUsers = append(notCreatedUsers, linuxUser.Name)
 				}
 			}
