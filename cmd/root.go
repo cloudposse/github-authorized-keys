@@ -14,10 +14,10 @@ var cfgFile string
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "github-authorized-keys",
-	Short: "Allow to provide ssh access to servers based on github teams",
+	Short: "Use GitHub teams to manage system user accounts and authorized_keys",
 	Long:
 `
-github-authorized-keys is CLI tool allow to provide ssh access to server based on github teams.
+Use GitHub teams to manage system user accounts and authorized_keys.
 
 Config:
   REQUIRED: Github API token        | flag --token   OR environment variable GITHUB_API_TOKEN
