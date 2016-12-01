@@ -59,7 +59,7 @@ Run on schedule following command to create user asap.
 
 		if len(nonExistedGroups) > 0 {
 
-			return fmt.Errorf("Groups %v not exists", strings.Join(nonExistedGroups, ","))
+			return fmt.Errorf("Groups not found: %v", strings.Join(nonExistedGroups, ","))
 		}
 
 		//-------------------------------------------------------------------
