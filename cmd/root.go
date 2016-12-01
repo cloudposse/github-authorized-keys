@@ -20,12 +20,12 @@ var RootCmd = &cobra.Command{
 Use GitHub teams to manage system user accounts and authorized_keys.
 
 Config:
-  REQUIRED: Github API token        | flag --token   OR environment variable GITHUB_API_TOKEN
-  REQUIRED: Github organization     | flag --org     OR environment variable GITHUB_ORGANIZATION
+  REQUIRED: Github API token        | flag --github-api-token    OR environment variable GITHUB_API_TOKEN
+  REQUIRED: Github organization     | flag --github-organization OR environment variable GITHUB_ORGANIZATION
   REQUIRED: One of
-  		   Github team name | flag --team    OR environment variable GITHUB_TEAM
+  		   Github team name | flag --github-team    OR environment variable GITHUB_TEAM
   			OR
-  		   Github team id   | flag --team_id OR Environment variable GITHUB_TEAM_ID
+  		   Github team id   | flag --github-team-id OR Environment variable GITHUB_TEAM_ID
 `,
 }
 
@@ -42,15 +42,15 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.github-authorized-keys.yaml)")
-	RootCmd.PersistentFlags().String("token", "", "Github API token (read more https://github.com/blog/1509-personal-api-tokens)")
-	RootCmd.PersistentFlags().String("org", "", "Github organization")
-	RootCmd.PersistentFlags().String("team", "", "Github team name")
-	RootCmd.PersistentFlags().Int("team_id", 0, "Github team id")
+	RootCmd.PersistentFlags().StringP("github-api-token", "t", "", "Github API token (read more https://github.com/blog/1509-personal-api-tokens)")
+	RootCmd.PersistentFlags().StringP("github-organization", "o", "", "Github organization")
+	RootCmd.PersistentFlags().StringP("github-team", "n", "", "Github team name")
+	RootCmd.PersistentFlags().IntP("github-team-id", "i", 0, "Github team id")
 
-	viper.BindPFlag("github_api_token",   RootCmd.PersistentFlags().Lookup("token"))
-	viper.BindPFlag("github_organization",     RootCmd.PersistentFlags().Lookup("org"))
-	viper.BindPFlag("github_team",    RootCmd.PersistentFlags().Lookup("team"))
-	viper.BindPFlag("github_team_id", RootCmd.PersistentFlags().Lookup("team_id"))
+	viper.BindPFlag("github_api_token",   RootCmd.PersistentFlags().Lookup("github-api-token"))
+	viper.BindPFlag("github_organization",     RootCmd.PersistentFlags().Lookup("github-organization"))
+	viper.BindPFlag("github_team",    RootCmd.PersistentFlags().Lookup("github-team"))
+	viper.BindPFlag("github_team_id", RootCmd.PersistentFlags().Lookup("github-team-id"))
 }
 
 // initConfig reads in config file and ENV variables if set.

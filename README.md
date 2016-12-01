@@ -101,9 +101,9 @@ You can specify params as flags
 
 ```
 /usr/local/sbin/github-authorized-keys \
---token={token} \
---org={organization} \
---team={team} \
+--github-api-token={token} \
+--github-organization={organization} \
+--github-team={team} \
 authorize {user}
 ```
 
@@ -125,12 +125,12 @@ You can specify params as flags
 
 ```
 /usr/local/sbin/github-authorized-keys \
---token={token} \
---org={organization} \
---team={team} \
---gid={user gid} \
---groups={comma separated secondary groups names} \
---shell={user shell} \
+--github-api-token={token} \
+--github-organization={organization} \
+--github-team={team} \
+--sync-users-gid={user gid} \
+--sync-users-groups={comma separated secondary groups names} \
+--sync-users-shell={user shell} \
 sync-users
 ```
 
