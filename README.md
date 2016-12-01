@@ -292,12 +292,11 @@ Pass tests config environment variables as build-args
 **Example**
 
 ```
-docker build  \
+docker build \
 --build-arg RUN_TESTS=1 \
 --build-arg  TEST_GITHUB_API_TOKEN={token} \
 --build-arg  TEST_GITHUB_ORGANIZATION={org} \
 --build-arg  TEST_GITHUB_TEAM={team} \
 --build-arg  TEST_GITHUB_TEAM_ID={team_id} \
 --build-arg  TEST_GITHUB_USER={user}
-./
 ```
