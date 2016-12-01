@@ -11,11 +11,12 @@ We use Vagrant to demonstrate how this tool works.
 
 Install
 
-**Virtual box** (tested on version 4.3.26) https://www.virtualbox.org/wiki/Downloads
+**[Virtual box](https://www.virtualbox.org/wiki/Downloads)** (tested on version 4.3.26)
 
-**Vagrant** (tested on version 1.8.4) https://www.vagrantup.com/downloads.html
+**[Vagrant](https://www.vagrantup.com/downloads.html)** (tested on version 1.8.4)
 
-**vagrant-docker-compose** plugin  with command
+**[vagrant-docker-compose](https://github.com/leighmcculloch/vagrant-docker-compose)** plugin
+  with command
 
 ``vagrant plugin install vagrant-docker-compose``
 
@@ -77,7 +78,7 @@ It is possible to run this command as simple cli application or in docker contai
 
 #### Requirements
 
-  Go lang 1.7.x
+  [Go lang 1.7.x](https://golang.org/)
 
 #### Install
 
@@ -152,7 +153,7 @@ or you can mix that approaches
 
 #### Requirements
 
-  Docker
+  [Docker](https://docs.docker.com/engine/installation)
 
 #### Build docker image
 ```
@@ -197,15 +198,22 @@ https://docs.docker.com/engine/userguide/storagedriver/aufs-driver/
 
 ### Requirements
 
-  * Go lang 1.7.x
-  * Make
-  * Docker (optional)
+  * [Go lang 1.7.x](https://golang.org/)
+  * [Make](https://en.wikipedia.org/wiki/Make_(software))
+  * [Docker](https://docs.docker.com/engine/installation) (optional)
+  * [Docker compose](https://docs.docker.com/compose/install/) (optional)
 
 
 ### Run development in docker
 
 There is docker-compose file allow to start docker container for development purpose.
 This container shared source code dir with host.
+
+To start container run this command
+
+```
+docker-compose up -d
+```
 
 To ssh inside container run
 
@@ -255,7 +263,6 @@ TEST_GITHUB_TEAM_ID={team id} \
 TEST_GITHUB_USER={user} \
 make test
 ```
-
 
 
 ### Run tests on docker build
