@@ -96,13 +96,13 @@ Vagrant.configure("2") do |config|
     sed -i -- 's/#DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4"/DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4"/g' /etc/default/docker
     service docker restart
 
-    printf "#!/bin/bash \n /usr/bin/docker run -e GITHUB_API_TOKEN=#{github_api_token} -e GITHUB_ORGANIZATION=#{github_organization} -e GITHUB_TEAM=#{github_team} vagrant_github-authorized-keys authorize \\$1" > /etc/ssh_auth
+    printf "#!/bin/bash \n /usr/bin/docker run -e GITHUB_API_TOKEN=#{github_api_token} -e GITHUB_ORGANIZATION=#{github_organization} -e GITHUB_TEAM=#{github_team} vagrant_github-authorized-keys authorize \\$1" > /usr/local/bin/github-authorized-keys
 
-    chmod +x /etc/ssh_auth
+    chmod +x /usr/local/bin/github-authorized-keys
 
-    if  ! grep -Fq  'AuthorizedKeysCommand /etc/ssh_auth' /etc/ssh/sshd_config;
+    if  ! grep -Fq  'AuthorizedKeysCommand /usr/local/bin/github-authorized-keys' /etc/ssh/sshd_config;
     then
-      printf "\nAuthorizedKeysCommand /etc/ssh_auth\n" >> /etc/ssh/sshd_config
+      printf "\nAuthorizedKeysCommand /usr/local/bin/github-authorized-keys\n" >> /etc/ssh/sshd_config
     fi
 
     if  ! grep -Fq  'AuthorizedKeysCommandUser root' /etc/ssh/sshd_config;
