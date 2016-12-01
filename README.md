@@ -70,7 +70,7 @@ You can check what is going with ssh inside vagrant box
 
 ## Getting started
 
-Tool is writen on go lang and provide command line interface.
+Tool is writen on go lang and provides a command line interface.
 It is possible to run this command as simple cli application or in docker container.
 
 ### Run as cli

@@ -69,6 +69,17 @@ func linuxGroupExistsByID(groupID string) bool {
 }
 
 func linuxUserShell(userName string) string {
+	const(
+		// Passwd file contains one row per user
+		// Format of the row consists of 7 columns
+		// https://en.wikipedia.org/wiki/Passwd#Password_file
+		countOfColumnsInPasswd = 7
+
+		// User shell stored in 6 column (started numeration from 0)
+		sheelColumnNumberInPasswd = 6
+
+	)
+
 	getent := exec.Command("getent", "passwd", userName)
 
 	var b2 bytes.Buffer
@@ -81,9 +92,10 @@ func linuxUserShell(userName string) string {
 
 	userPasswdSlice := strings.Split(userPasswd,":")
 
-	if len(userPasswdSlice) != 7 {
+	if len(userPasswdSlice) != countOfColumnsInPasswd {
 		return ""
 	}
 
-	return userPasswdSlice[6]
+
+	return userPasswdSlice[sheelColumnNumberInPasswd]
 }
