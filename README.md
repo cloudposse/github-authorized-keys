@@ -59,7 +59,7 @@ vagrant up
 
 Login into vagrant box with command
 
-``ssh -o "UserKnownHostsFile /dev/null" {user}@192.168.33.10``
+``ssh -o "UserKnownHostsFile /dev/null" {github username}@192.168.33.10``
 
 ### Logs
 
