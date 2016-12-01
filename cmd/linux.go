@@ -88,7 +88,7 @@ func linuxUserShell(userName string) string {
 	err := getent.Run()
 	if err != nil { return "" }
 
-	userPasswd := strings.Replace(string(b2.Bytes()), "\n", "", 1)
+	userPasswd := strings.Trim(string(b2.Bytes()), "\n")
 
 	userPasswdSlice := strings.Split(userPasswd,":")
 
