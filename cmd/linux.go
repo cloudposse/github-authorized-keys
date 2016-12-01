@@ -6,9 +6,7 @@ import (
 	"strings"
 )
 
-const(
-	chrootCommand     = "chroot"
-)
+const chrootCommand  = "chroot"
 
 type OS struct {
 	root string

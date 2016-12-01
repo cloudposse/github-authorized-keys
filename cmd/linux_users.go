@@ -79,17 +79,25 @@ func (linux *OS) userLookup(userName string) (*user.User, error) {
 func (linux *OS) userCreate(new linuxUser) error {
 	var cmd *exec.Cmd
 
-	if new.Gid == "" {
-		cmd = linux.Command(createUserCommand, "-s", new.Shell, "-D", new.Name)
-	} else {
+	userOptions := []string{
+		"--shell", new.Shell,
+		"--disabled-password",
+		"--gecos", "''",
+		new.Name,
+	}
+
+	if new.Gid != "" {
 		primaryGroup, err := linux.groupLookupByID(new.Gid)
 		if err != nil { return err }
 
-		cmd = linux.Command(createUserCommand, "-s", new.Shell, "-G", primaryGroup.Name, "-D", new.Name)
+		userOptions = append([]string{"--gid", primaryGroup.Name}, userOptions...)
 	}
-
+	cmd = linux.Command(createUserCommand, userOptions...)
 	err := cmd.Run()
-	if err != nil { return err }
+	if err != nil {
+		fmt.Printf("%v\n", cmd)
+		return err
+	}
 	fmt.Printf("Created user %v\n", new.Name)
 
 	for _, group := range new.Groups {

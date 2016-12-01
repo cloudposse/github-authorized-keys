@@ -193,6 +193,20 @@ var _ = Describe("OS", func() {
 				Expect(group.Name).To(Equal("wheel"))
 			})
 		})
+
+		Context("call with existing group with users", func() {
+			It("should return valid group", func() {
+				linux := NewOs("/")
+				group, err := linux.groupLookup("root")
+
+				Expect(err).To(BeNil())
+
+				Expect(group).NotTo(BeNil())
+
+				Expect(group.Gid).To(Equal("0"))
+				Expect(group.Name).To(Equal("root"))
+			})
+		})
 	})
 
 	Describe("groupLookupById()", func() {
@@ -223,6 +237,20 @@ var _ = Describe("OS", func() {
 
 				Expect(group.Gid).To(Equal("10"))
 				Expect(group.Name).To(Equal("wheel"))
+			})
+		})
+
+		Context("call with existing group with users", func() {
+			It("should return valid group", func() {
+				linux := NewOs("/")
+				group, err := linux.groupLookup("0")
+
+				Expect(err).To(BeNil())
+
+				Expect(group).NotTo(BeNil())
+
+				Expect(group.Gid).To(Equal("0"))
+				Expect(group.Name).To(Equal("root"))
 			})
 		})
 	})

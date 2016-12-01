@@ -10,7 +10,8 @@ services:
       - GITHUB_TEAM=${GITHUB_TEAM}
       - SYNC_USERS_GROUPS=adm,ssh,root,admin
       - SYNC_USERS_SHELL=/bin/bash
+      - SYNC_USERS_ROOT=/host
     volumes:
-      - "/etc:/etc"
+      - "/:/host"
     command: sync-users
     restart: always
