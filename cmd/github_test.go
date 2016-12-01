@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var _ = Describe("Github Client", func() {
+var _ = Describe("GithubClient", func() {
 	var (
 		validToken string
 		validOrg string
@@ -23,8 +23,8 @@ var _ = Describe("Github Client", func() {
 		validUser = viper.GetString("github_user")
 	})
 
-	Describe("Get team", func() {
-		Context("with valid token, org, team name and team id ", func() {
+	Describe("getTeam()", func() {
+		Context("call with valid token, org, team name and team id ", func() {
 			It("should return nil error and valid team", func() {
 				c := newGithubClient(validToken, validOrg)
 				team, err := c.getTeam(validTeamName, validTeamID)
@@ -37,7 +37,7 @@ var _ = Describe("Github Client", func() {
 			})
 		})
 
-		Context("with invalid team name AND valid token, org, team id", func() {
+		Context("call with invalid team name AND valid token, org, team id", func() {
 			It("should return nil error and valid team", func() {
 				c := newGithubClient(validToken, validOrg)
 				team, err := c.getTeam("dasdasd", validTeamID)
@@ -50,7 +50,7 @@ var _ = Describe("Github Client", func() {
 			})
 		})
 
-		Context("with invalid team name && team id AND valid token, org", func() {
+		Context("call with invalid team name && team id AND valid token, org", func() {
 			It("should return valid error and nil team", func() {
 				c := newGithubClient(validToken, validOrg)
 				team, err := c.getTeam("dasdasd", 0)
@@ -62,7 +62,7 @@ var _ = Describe("Github Client", func() {
 			})
 		})
 
-		Context("with invalid token AND valid org, team name, team id", func() {
+		Context("call with invalid token AND valid org, team name, team id", func() {
 			It("should return valid error and nil team", func() {
 				c := newGithubClient("11111111111111111111111111", validOrg)
 				team, err := c.getTeam(validTeamName, validTeamID)
@@ -74,7 +74,7 @@ var _ = Describe("Github Client", func() {
 			})
 		})
 
-		Context("with invalid org AND valid token, team name, team id", func() {
+		Context("call with invalid org AND valid token, team name, team id", func() {
 			It("should return valid error and nil team", func() {
 				c := newGithubClient(validToken, "dsadsad")
 				team, err := c.getTeam(validTeamName, validTeamID)
@@ -88,8 +88,8 @@ var _ = Describe("Github Client", func() {
 
 	})
 
-	Describe("Is Member", func() {
-		Context("with user that is member of the team", func() {
+	Describe("isTeamMember()", func() {
+		Context("call with user that is member of the team", func() {
 			It("should return nil error and true value", func() {
 				c := newGithubClient(validToken, validOrg)
 				team, _ := c.getTeam(validTeamName, validTeamID)
@@ -101,7 +101,7 @@ var _ = Describe("Github Client", func() {
 			})
 		})
 
-		Context("with user that is not member of the team", func() {
+		Context("call with user that is not member of the team", func() {
 			It("should return nil error and false value", func() {
 				c := newGithubClient(validToken, validOrg)
 				team, _ := c.getTeam(validTeamName, validTeamID)
@@ -115,8 +115,8 @@ var _ = Describe("Github Client", func() {
 
 	})
 
-	Describe("Get User", func() {
-		Context("with valid user", func() {
+	Describe("getUser()", func() {
+		Context("call with valid user", func() {
 			It("should return nil error and not nil user", func() {
 				c := newGithubClient(validToken, validOrg)
 				user, err := c.getUser(validUser)
@@ -127,7 +127,7 @@ var _ = Describe("Github Client", func() {
 			})
 		})
 
-		Context("with invalid user", func() {
+		Context("call with invalid user", func() {
 			It("should return error and nil user", func() {
 				c := newGithubClient(validToken, validOrg)
 				user, err := c.getUser("dasdddds232dasdas")
@@ -140,8 +140,8 @@ var _ = Describe("Github Client", func() {
 
 	})
 
-	Describe("Get Public Keys", func() {
-		Context("with valid user", func() {
+	Describe("getKeys()", func() {
+		Context("call with valid user", func() {
 			It("should return nil error and no empty list of keys", func() {
 				c := newGithubClient(validToken, validOrg)
 				user, _ := c.getUser(validUser)
@@ -154,8 +154,8 @@ var _ = Describe("Github Client", func() {
 		})
 	})
 
-	Describe("Get Team members", func() {
-		Context("with valid team", func() {
+	Describe("getTeamMembers()", func() {
+		Context("call with valid team", func() {
 			It("should return nil error and no empty list of members", func() {
 				c := newGithubClient(validToken, validOrg)
 				team, _ := c.getTeam(validTeamName, validTeamID)

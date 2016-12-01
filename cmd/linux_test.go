@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-var _ = Describe("Linux api", func() {
+var _ = Describe("Linux API", func() {
 	var (
 		validToken string
 		validOrg string
@@ -25,15 +25,15 @@ var _ = Describe("Linux api", func() {
 		validUser = viper.GetString("github_user")
 	})
 
-	Describe("User exists", func() {
-		Context("for no existed user", func() {
+	Describe("linuxUserExists()", func() {
+		Context("call with not existing user", func() {
 			It("should return false", func() {
 				isExists := linuxUserExists("testdsadasfsa")
 				Expect(isExists).To(BeFalse())
 			})
 		})
 
-		Context("for existed user", func() {
+		Context("call for existing user", func() {
 			It("should return true", func() {
 				isExists := linuxUserExists("root")
 				Expect(isExists).To(BeTrue())
@@ -41,8 +41,8 @@ var _ = Describe("Linux api", func() {
 		})
 	})
 
-	Describe("Create user", func() {
-		Context("without GID", func() {
+	Describe("linuxUserCreate()", func() {
+		Context("call without GID", func() {
 			var (
 				userName linuxUser
 			)
@@ -81,7 +81,7 @@ var _ = Describe("Linux api", func() {
 			})
 		})
 
-		Context("with GID", func() {
+		Context("call with GID", func() {
 			var (
 				userName linuxUser
 			)
@@ -121,15 +121,15 @@ var _ = Describe("Linux api", func() {
 	})
 
 
-	Describe("Group exists", func() {
-		Context("for no existed group", func() {
+	Describe("linuxGroupExists()", func() {
+			Context("call with no existing group", func() {
 			It("should return false", func() {
 				isExists := linuxGroupExists("testdsadasfsa")
 				Expect(isExists).To(BeFalse())
 			})
 		})
 
-		Context("for existed group", func() {
+		Context("call with existing group", func() {
 			It("should return true", func() {
 				isExists := linuxGroupExists("wheel")
 				Expect(isExists).To(BeTrue())
@@ -138,15 +138,15 @@ var _ = Describe("Linux api", func() {
 	})
 
 
-	Describe("Group exists by id", func() {
-		Context("for no existed group", func() {
+	Describe("linuxGroupExistsByID()", func() {
+		Context("call with no existing group", func() {
 			It("should return false", func() {
 				isExists := linuxGroupExistsByID("43")
 				Expect(isExists).To(BeFalse())
 			})
 		})
 
-		Context("for existed group", func() {
+		Context("call with existing group", func() {
 			It("should return true", func() {
 				isExists := linuxGroupExistsByID("42")
 				Expect(isExists).To(BeTrue())
@@ -154,8 +154,8 @@ var _ = Describe("Linux api", func() {
 		})
 	})
 
-	Describe("Get User shell", func() {
-		Context("for existed user", func() {
+	Describe("linuxUserShell()", func() {
+		Context("call with existing user", func() {
 			It("should return /bin/ash", func() {
 				shell := linuxUserShell("root")
 				Expect(shell).To(Equal("/bin/ash"))
