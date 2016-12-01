@@ -76,7 +76,7 @@ func linuxUserShell(userName string) string {
 		countOfColumnsInPasswd = 7
 
 		// User shell stored in 6 column (started numeration from 0)
-		sheelColumnNumberInPasswd = 6
+		shellColumnNumberInPasswd = 6
 
 	)
 
@@ -97,5 +97,5 @@ func linuxUserShell(userName string) string {
 	}
 
 
-	return userPasswdSlice[sheelColumnNumberInPasswd]
+	return userPasswdSlice[shellColumnNumberInPasswd]
 }
