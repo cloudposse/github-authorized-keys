@@ -214,7 +214,7 @@ var _ = Describe("OS", func() {
 			It("should return nil group and error", func() {
 				linux := NewOs("/")
 
-				groupID := "43"
+				groupID := "843"
 
 				group, err := linux.groupLookupByID(groupID)
 
@@ -277,7 +277,7 @@ var _ = Describe("OS", func() {
 		Context("call with no existing group", func() {
 			It("should return false", func() {
 				linux := NewOs("/")
-				isExists := linux.groupExistsByID("43")
+				isExists := linux.groupExistsByID("843")
 				Expect(isExists).To(BeFalse())
 			})
 		})

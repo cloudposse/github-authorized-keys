@@ -124,7 +124,6 @@ func init() {
 	syncUsersCmd.Flags().StringP("sync-users-root", "r", "/",
 		"Root directory used for chroot                ( environment variable SYNC_USERS_ROOT  could be used instead )")
 
-
 	viper.BindPFlag("sync_users_gid",    syncUsersCmd.Flags().Lookup("sync-users-gid"))
 	viper.BindPFlag("sync_users_groups", syncUsersCmd.Flags().Lookup("sync-users-groups"))
 	viper.BindPFlag("sync_users_shell",  syncUsersCmd.Flags().Lookup("sync-users-shell"))

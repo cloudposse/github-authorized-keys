@@ -19,6 +19,7 @@ deps: $(GO)
 	$(GO) get -d -v "github.com/google/go-github/github"
 	$(GO) get -d -v "golang.org/x/oauth2"
 	$(GO) get -d -v "github.com/spf13/cobra/cobra"
+	$(GO) get -d -v "github.com/valyala/fasttemplate"
 
 ## Clean compiled binary
 clean:

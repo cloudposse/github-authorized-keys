@@ -4,6 +4,8 @@ import (
 	"os/exec"
 	"bytes"
 	"strings"
+
+	"github.com/valyala/fasttemplate"
 )
 
 const chrootCommand  = "chroot"
@@ -48,7 +50,21 @@ func (linux *OS) getEntity(database, key string) ([]string, error) {
 // The returned Cmd's Args field is constructed from the command name
 // followed by the elements of arg, so arg should not include the
 // command name itself. For example, Command("echo", "hello")
-func (linux *OS) Command(name string, arg ...string) *exec.Cmd {
-	args := append( []string{linux.root, name}, arg...)
-	return exec.Command(chrootCommand, args...)
+func (linux *OS) Command(name string, params ...string) *exec.Cmd {
+	cmd := chrootCommand
+	args := append( []string{linux.root, name}, params...)
+
+	if strings.Trim(linux.root, " ") == "/" {
+		cmd = name
+		args = params
+	}
+
+	return exec.Command(cmd, args...)
+}
+
+
+func (linux *OS) TemplateCommand(template string, args map[string]interface{}) *exec.Cmd {
+	t := fasttemplate.New(template, "{", "}")
+	cmd := strings.Split(t.ExecuteString(args), " ")
+	return linux.Command(cmd[0], cmd[1:]...)
 }

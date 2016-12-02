@@ -5,11 +5,7 @@ import (
 	"os/exec"
 	"fmt"
 	"errors"
-)
-
-const(
-	createUserCommand = "adduser"
-	deleteUserCommand = "deluser"
+	"github.com/spf13/viper"
 )
 
 const(
@@ -41,11 +37,19 @@ const(
 
 )
 
+
 type linuxUser struct {
 	Name     string
 	Gid      string // primary group ID
 	Groups   []string
 	Shell    string
+}
+
+func init () {
+	viper.SetDefault("linux_user_add_tpl",          "adduser --disabled-password  --gecos '' --shell {shell} {username}")
+	viper.SetDefault("linux_user_add_with_gid_tpl", "adduser --disabled-password  --gecos '' --shell {shell} --group {group} {username}")
+	viper.SetDefault("linux_user_add_to_group_tpl", "adduser {username} {group}")
+	viper.SetDefault("linux_user_del_tpl",          "deluser {username}")
 }
 
 func (linux *OS) userExists(userName string) bool {
@@ -75,33 +79,42 @@ func (linux *OS) userLookup(userName string) (*user.User, error) {
 	return &user, err
 }
 
-
 func (linux *OS) userCreate(new linuxUser) error {
+
+	createUserCommandTemplate        := viper.GetString("linux_user_add_tpl")
+	createUserWithGIDCommandTemplate := viper.GetString("linux_user_add_with_gid_tpl")
+	addUserToGroupCommandTemplate    := viper.GetString("linux_user_add_to_group_tpl")
+
 	var cmd *exec.Cmd
 
-	userOptions := []string{
-		"--shell", new.Shell,
-		"--disabled-password",
-		"--gecos", "''",
-		new.Name,
+	template := createUserCommandTemplate
+
+	args := map[string]interface{}{
+		"shell": new.Shell,
+		"username": new.Name,
 	}
 
 	if new.Gid != "" {
 		primaryGroup, err := linux.groupLookupByID(new.Gid)
 		if err != nil { return err }
 
-		userOptions = append([]string{"--gid", primaryGroup.Name}, userOptions...)
+		template = createUserWithGIDCommandTemplate
+
+		args["group"] = primaryGroup.Name
 	}
-	cmd = linux.Command(createUserCommand, userOptions...)
+
+	cmd = linux.TemplateCommand(template, args)
 	err := cmd.Run()
+	fmt.Printf("%v\n", cmd)
 	if err != nil {
-		fmt.Printf("%v\n", cmd)
 		return err
 	}
+
 	fmt.Printf("Created user %v\n", new.Name)
 
 	for _, group := range new.Groups {
-		cmd := linux.Command(createUserCommand, new.Name, group)
+		cmd := linux.TemplateCommand(addUserToGroupCommandTemplate,
+			map[string]interface{}{"username": new.Name, "group": group})
 		err := cmd.Run()
 		if err != nil { return err }
 		fmt.Printf("Added user %v to group %v\n", new.Name, group)
@@ -111,7 +124,11 @@ func (linux *OS) userCreate(new linuxUser) error {
 }
 
 func (linux *OS) userDelete(new linuxUser) error {
-	cmd := linux.Command(deleteUserCommand, new.Name)
+	deleteUserCommandTemplate := viper.GetString("linux_user_del_tpl")
+
+
+	fmt.Printf("Delete user %v\n", new.Name)
+	cmd := linux.TemplateCommand(deleteUserCommandTemplate, map[string]interface{}{"username": new.Name})
 	return cmd.Run()
 }
 
