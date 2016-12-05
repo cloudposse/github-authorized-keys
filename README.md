@@ -131,6 +131,7 @@ You can specify params as flags
 --sync-users-gid={user gid} \
 --sync-users-groups={comma separated secondary groups names} \
 --sync-users-shell={user shell} \
+--sync-users-root={root directory} \
 sync-users
 ```
 
@@ -144,6 +145,7 @@ GITHUB_TEAM={team} \
 SYNC_USERS_GID={gid OR empty} \
 SYNC_USERS_GROUPS={comma separated groups OR empty} \
 SYNC_USERS_SHELL={user shell} \
+SYNC_USERS_ROOT={root directory} \
 /usr/local/sbin/github-authorized-keys sync-users
 ```
 
