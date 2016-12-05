@@ -194,6 +194,84 @@ https://docs.docker.com/engine/userguide/storagedriver/aufs-driver/
 
 ------------
 
+## Templating commands
+
+ Command sync-users rely on OS commands. We use templates for commands.
+ Templates could be overridden with environment variables.
+
+ Following templates are used:
+
+### Add user
+
+**Template:**
+
+  ```
+adduser {username} --disabled-password --force-badname --shell {shell}
+  ```
+
+**Valid placeholders:**
+
+1. **_{username}_** - User login name
+2. **_{shell}_**    - User shell
+
+**Environment variable:**
+
+LINUX_USER_ADD_TPL
+
+
+### Add user with primary group
+
+**Template:**
+
+  ```
+adduser {username} --disabled-password --force-badname --shell {shell} --group {group}
+  ```
+
+**Valid placeholders:**
+
+1. **_{username}_** - User login name
+2. **_{shell}_**    - User shell
+3. **_{group}_**    - User primary group name
+
+**Environment variable:**
+
+LINUX_USER_ADD_WITH_GID_TPL
+
+### Add user to secondary group
+
+**Template:**
+
+  ```
+adduser {username} {group}
+  ```
+
+**Valid placeholders:**
+
+1. **_{username}_** - User login name
+2. **_{group}_**    - User primary group name
+
+**Environment variable:**
+
+LINUX_USER_ADD_TO_GROUP_TPL
+
+### Delete user
+
+**Template:**
+
+  ```
+deluser {username}
+  ```
+
+**Valid placeholders:**
+
+1. **_{username}_** - User login name
+
+**Environment variable:**
+
+LINUX_USER_DEL_TPL
+
+------------
+
 ## Development
 
 ### Requirements
