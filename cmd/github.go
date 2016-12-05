@@ -24,7 +24,7 @@ func newAccessToken(token string) accessToken {
 
 // GithubClient - client for operate with Github API
 type GithubClient struct {
-	client github.Client
+	client *github.Client
 	owner  string
 }
 
@@ -75,7 +75,7 @@ func (c *GithubClient) getTeamMembers(team *github.Team) ([]*github.User, error)
 	return users, err
 }
 
-func newGithubClient(token, owner string) GithubClient {
+func newGithubClient(token, owner string) *GithubClient {
 	c := oauth2.NewClient(oauth2.NoContext, newAccessToken(token))
-	return GithubClient{client: *github.NewClient(c), owner: owner}
+	return &GithubClient{client: github.NewClient(c), owner: owner}
 }

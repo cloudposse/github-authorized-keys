@@ -6,6 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"strings"
+	"time"
 )
 
 // authorizeCmd represents the authorize command
@@ -29,6 +31,20 @@ To implement this add in /etc/ssh/sshd_config following string
 		githubTeamID 		:= viper.GetInt("github_team_id")
 		githubOrganization 	:= viper.GetString("github_organization")
 
+		etcdGateways := []string{}
+		if etcd := viper.GetString("etcd"); etcd != "" {
+			etcdGateways = strings.Split(etcd, ",")
+		}
+
+		if len(etcdGateways) == 0 {
+			return fmt.Errorf("ETCD gateways required: %v", strings.Join(etcdGateways, ","))
+		}
+
+		ttl, err := time.ParseDuration(viper.GetString("etcd_ttl") + "s")
+		if err != nil {
+			return fmt.Errorf("%v is not valid duration. %v", viper.GetString("etcd_ttl"), err)
+		}
+
 		// Validate user name arg
 		if len(args) <= 0 {
 			return errors.New("User name is required argument")
@@ -47,35 +63,30 @@ To implement this add in /etc/ssh/sshd_config following string
 
 		userName := args[0]
 
-		c := newGithubClient(githubAPIToken, githubOrganization)
+		c := newGithubKeys(githubAPIToken, githubOrganization, githubTeamName, githubTeamID)
+		etcdClient, _ := newEtcdCache(etcdGateways, ttl)
+		keys := proxy{fallbackCache: etcdClient, source: c}
 
-		// Load team
-		team, err := c.getTeam(githubTeamName, githubTeamID)
-		if err != nil { return err }
-
-		// Check if user is a member
-		isMember, err := c.isTeamMember(userName, team)
-		if err != nil { return err }
-		if ! isMember {
-			return fmt.Errorf("User %v is not a member of team %v", userName, *team.Name)
-		}
-
-		// Load user
-		user, err := c.getUser(userName)
-		if err != nil { return err }
 		// Get keys
-		keys, err := c.getKeys(user)
+		publicKeys, err := keys.Get(userName)
 		if err != nil { return err }
 
-		// Print keys
-		for _, k := range keys {
-			fmt.Println(*k.Key)
-		}
+		fmt.Println(publicKeys)
 
-		return err
+		return nil
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(authorizeCmd)
+
+	authorizeCmd.Flags().StringSlice("etcd", make([]string, 0),
+		"Comma separeted gateways for etcd  ( environment variable ETCD could be used instead )")
+
+	authorizeCmd.Flags().Int64("ttl", int64(24 * 60 * 60),
+		"TTL sec for etcd cache ( environment variable ETCD_TTL could be used instead )")
+
+	viper.BindPFlag("etcd", authorizeCmd.Flags().Lookup("etcd"))
+
+	viper.BindPFlag("etcd_ttl", authorizeCmd.Flags().Lookup("ttl"))
 }

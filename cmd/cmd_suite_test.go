@@ -6,6 +6,8 @@ import (
 	"testing"
 	"fmt"
 	"github.com/spf13/viper"
+	log "github.com/Sirupsen/logrus"
+	"os"
 )
 
 
@@ -22,6 +24,14 @@ func TestSuite(t *testing.T) {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+
+	log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stderr instead of stdout, could also be a file.
+	log.SetOutput(os.Stdout)
+
+	// Only log the warning severity or above.
+	log.SetLevel(log.DebugLevel)
 
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Github Authorized Keys Suite")
