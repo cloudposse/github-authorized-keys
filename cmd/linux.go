@@ -6,9 +6,8 @@ import (
 	"strings"
 
 	"github.com/valyala/fasttemplate"
+	"syscall"
 )
-
-const chrootCommand  = "chroot"
 
 type OS struct {
 	root string
@@ -51,15 +50,14 @@ func (linux *OS) getEntity(database, key string) ([]string, error) {
 // followed by the elements of arg, so arg should not include the
 // command name itself. For example, Command("echo", "hello")
 func (linux *OS) Command(name string, params ...string) *exec.Cmd {
-	cmd := chrootCommand
-	args := append( []string{linux.root, name}, params...)
-
-	if strings.Trim(linux.root, " ") == "/" {
-		cmd = name
-		args = params
+	cmd := exec.Command(name, params...)
+	if strings.Trim(linux.root, " ") != "/" {
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			Chroot: linux.root,
+		}
 	}
 
-	return exec.Command(cmd, args...)
+	return cmd
 }
 
 

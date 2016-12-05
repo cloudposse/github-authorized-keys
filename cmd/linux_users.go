@@ -46,8 +46,12 @@ type linuxUser struct {
 }
 
 func init () {
-	viper.SetDefault("linux_user_add_tpl",          "adduser --disabled-password  --gecos '' --shell {shell} {username}")
-	viper.SetDefault("linux_user_add_with_gid_tpl", "adduser --disabled-password  --gecos '' --shell {shell} --group {group} {username}")
+	// We need --force-badname because github users could contains capital letters, what is not acceptable in some distributions
+	// Really regexp to verify badname rely on environment var that set in profile.d so we rarely hit this errors.
+	//
+	// adduser wants user name be the head and flags the tail.
+	viper.SetDefault("linux_user_add_tpl",          "adduser {username} --disabled-password --force-badname --shell {shell}")
+	viper.SetDefault("linux_user_add_with_gid_tpl", "adduser {username} --disabled-password --force-badname --shell {shell} --group {group}")
 	viper.SetDefault("linux_user_add_to_group_tpl", "adduser {username} {group}")
 	viper.SetDefault("linux_user_del_tpl",          "deluser {username}")
 }
@@ -104,9 +108,10 @@ func (linux *OS) userCreate(new linuxUser) error {
 	}
 
 	cmd = linux.TemplateCommand(template, args)
-	err := cmd.Run()
-	fmt.Printf("%v\n", cmd)
+	// cmd.Run called inside CombinedOutput()
+	out, err := cmd.CombinedOutput()
 	if err != nil {
+		fmt.Printf("%v\n", string(out))
 		return err
 	}
 

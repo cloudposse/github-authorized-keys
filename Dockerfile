@@ -31,9 +31,13 @@ RUN set -ex \
 WORKDIR $GOPATH
 
 # For production run most common user add flags
-
-ENV LINUX_USER_ADD_TPL            "adduser --disabled-password  --gecos '' --shell {shell} {username}"
-ENV LINUX_USER_ADD_WITH_GID_TPL   "adduser --disabled-password  --gecos '' --shell {shell} --group {group} {username}"
+#
+# We need --force-badname because github users could contains capital letters, what is not acceptable in some distributions
+# Really regexp to verify badname rely on environment var that set in profile.d so we rarely hit this errors.
+#
+# adduser wants user name be the head and flags the tail.
+ENV LINUX_USER_ADD_TPL            "adduser {username} --disabled-password --force-badname --shell {shell}"
+ENV LINUX_USER_ADD_WITH_GID_TPL   "adduser {username} --disabled-password --force-badname --shell {shell} --group {group}"
 ENV LINUX_USER_ADD_TO_GROUP_TPL   "adduser {username} {group}"
 ENV LINUX_USER_DEL_TPL            "deluser {username}"
 
