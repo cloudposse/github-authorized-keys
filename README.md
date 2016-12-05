@@ -185,6 +185,7 @@ docker run \
 -e SYNC_USERS_GID={gid OR empty} \
 -e SYNC_USERS_GROUPS={comma separated groups OR empty} \
 -e SYNC_USERS_SHELL={user shell} \
+-e SYNC_USERS_ROOT={root directory} \
 -v /etc:/etc \
 -v /home:/home \
 github-authorized-keys sync-users
