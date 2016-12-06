@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-var _ = Describe("OS", func() {
+var _ = Describe("Linux OS", func() {
 	var (
 		validToken string
 		validOrg string
