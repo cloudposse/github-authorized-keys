@@ -1,4 +1,4 @@
-package cmd
+package key_storages
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -49,7 +49,7 @@ var _ = Describe("Proxy", func() {
 	var (
 		cacheStorage map[string]string
 		backendStorage map[string]string
-		proxyStorage proxy
+		proxyStorage Proxy
 	)
 
 	Context("backend have valid value", func() {
@@ -57,7 +57,7 @@ var _ = Describe("Proxy", func() {
 			cacheStorage = map[string]string{}
 			backendStorage = map[string]string{}
 
-			proxyStorage = proxy{
+			proxyStorage = Proxy{
 				fallbackCache:   &CacheMap{storage: &cacheStorage},
 				source: &BackendMap{storage: &backendStorage},
 			}
@@ -87,7 +87,7 @@ var _ = Describe("Proxy", func() {
 			cacheStorage = map[string]string{}
 			backendStorage = map[string]string{}
 
-			proxyStorage = proxy{
+			proxyStorage = Proxy{
 				fallbackCache:   &CacheMap{storage: &cacheStorage},
 				source: &BackendMap{storage: &backendStorage},
 			}
@@ -118,7 +118,7 @@ var _ = Describe("Proxy", func() {
 			cacheStorage = map[string]string{}
 			backendStorage = map[string]string{}
 
-			proxyStorage = proxy{
+			proxyStorage = Proxy{
 				fallbackCache:   &CacheMap{storage: &cacheStorage},
 				source: &BackendMap{storage: &backendStorage},
 			}
@@ -137,7 +137,7 @@ var _ = Describe("Proxy", func() {
 		BeforeEach(func() {
 			cacheStorage = map[string]string{}
 
-			proxyStorage = proxy{
+			proxyStorage = Proxy{
 				fallbackCache:   &CacheMap{storage: &cacheStorage},
 				source: &BackendFail{},
 			}

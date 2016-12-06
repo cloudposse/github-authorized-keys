@@ -1,4 +1,4 @@
-package cmd
+package key_storages
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -42,7 +42,7 @@ var _ = Describe("ETCD", func() {
 		Describe("constructor newEtcdCache()", func() {
 			Context("call with valid connection url", func() {
 				It("should return nil error", func() {
-					_, err := newEtcdCache(gateways, ttl)
+					_, err := NewEtcdCache(gateways, ttl)
 					Expect(err).To(BeNil())
 				})
 			})
@@ -51,7 +51,7 @@ var _ = Describe("ETCD", func() {
 		Describe("Set()", func() {
 			Context(" key => value", func() {
 				It("should return nil error", func() {
-					client, _ := newEtcdCache(gateways, ttl)
+					client, _ := NewEtcdCache(gateways, ttl)
 
 					err := client.Set(validKey, validValue)
 
@@ -66,7 +66,7 @@ var _ = Describe("ETCD", func() {
 			)
 
 			BeforeEach(func() {
-				client, _ = newEtcdCache(gateways, ttl)
+				client, _ = NewEtcdCache(gateways, ttl)
 				client.Set(validKey, validValue)
 			})
 
@@ -96,7 +96,7 @@ var _ = Describe("ETCD", func() {
 			)
 
 			BeforeEach(func() {
-				client, _ = newEtcdCache(gateways, ttl)
+				client, _ = NewEtcdCache(gateways, ttl)
 				client.Set(validKey, validValue)
 			})
 
@@ -120,7 +120,7 @@ var _ = Describe("ETCD", func() {
 		Describe("constructor newEtcdCache()", func() {
 			Context("call with valid connection url", func() {
 				It("should return nil error", func() {
-					_, err := newEtcdCache(gateways, ttl)
+					_, err := NewEtcdCache(gateways, ttl)
 					Expect(err).To(BeNil())
 				})
 			})
@@ -129,7 +129,7 @@ var _ = Describe("ETCD", func() {
 		Describe("Set()", func() {
 			Context(" key => value", func() {
 				It("should return nil error", func() {
-					client, _ := newEtcdCache(gateways, ttl)
+					client, _ := NewEtcdCache(gateways, ttl)
 
 					err := client.Set(validKey, validValue)
 
@@ -144,7 +144,7 @@ var _ = Describe("ETCD", func() {
 			)
 
 			BeforeEach(func() {
-				client, _ = newEtcdCache(gateways, ttl)
+				client, _ = NewEtcdCache(gateways, ttl)
 			})
 
 			It("should return empty value and valid error ", func() {
@@ -160,7 +160,7 @@ var _ = Describe("ETCD", func() {
 			)
 
 			BeforeEach(func() {
-				client, _ = newEtcdCache(gateways, ttl)
+				client, _ = NewEtcdCache(gateways, ttl)
 			})
 
 			It("should return empty value and valid error ", func() {

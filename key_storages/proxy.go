@@ -1,8 +1,10 @@
-package cmd
+package key_storages
 
 import (
 	log "github.com/Sirupsen/logrus"
 	"errors"
+	"time"
+	"github.com/coreos/etcd/mvcc/backend"
 )
 
 var (
@@ -24,12 +26,12 @@ type source interface {
 }
 
 
-type proxy struct {
+type Proxy struct {
 	fallbackCache fallbackCache
 	source        source
 }
 
-func (c *proxy) Get(name string) (value string, err error) {
+func (c *Proxy) Get(name string) (value string, err error) {
 	logger := log.WithFields(log.Fields{"class": "Proxy", "method": "Get"})
 
 	logger.Debugf("Backend lookup %v", name)
@@ -54,18 +56,22 @@ func (c *proxy) Get(name string) (value string, err error) {
 	}
 }
 
-func (c *proxy) lookupIn(storage source, name string) (string, error) {
+func (c *Proxy) lookupIn(storage source, name string) (string, error) {
 	return storage.Get(name)
 }
 
-func (c *proxy) saveTo(storage fallbackCache, name, value string) error {
+func (c *Proxy) saveTo(storage fallbackCache, name, value string) error {
 	logger := log.WithFields(log.Fields{"class": "Proxy", "method": "saveTo"})
 	logger.Debugf("Saving to cache %v: %v", name, value)
 	return storage.Set(name, value)
 }
 
-func (c *proxy) removeFrom(storage fallbackCache, name string) error {
+func (c *Proxy) removeFrom(storage fallbackCache, name string) error {
 	logger := log.WithFields(log.Fields{"class": "Proxy", "method": "removeFrom"})
 	logger.Debugf("Remove %v from cache", name)
 	return storage.Remove(name)
+}
+
+func NewProxy(source source, fallbackCache fallbackCache) *Proxy {
+	return Proxy{source: source, fallbackCache: fallbackCache}
 }

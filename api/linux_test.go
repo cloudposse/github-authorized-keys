@@ -1,4 +1,4 @@
-package cmd
+package api
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -28,14 +28,14 @@ var _ = Describe("Linux API", func() {
 	Describe("linuxUserExists()", func() {
 		Context("call with not existing user", func() {
 			It("should return false", func() {
-				isExists := linuxUserExists("testdsadasfsa")
+				isExists := LinuxUserExists("testdsadasfsa")
 				Expect(isExists).To(BeFalse())
 			})
 		})
 
 		Context("call for existing user", func() {
 			It("should return true", func() {
-				isExists := linuxUserExists("root")
+				isExists := LinuxUserExists("root")
 				Expect(isExists).To(BeTrue())
 			})
 		})
@@ -44,11 +44,11 @@ var _ = Describe("Linux API", func() {
 	Describe("linuxUserCreate()", func() {
 		Context("call without GID", func() {
 			var (
-				userName linuxUser
+				userName LinuxUser
 			)
 
 			BeforeEach(func() {
-				userName = linuxUser{Gid: "", Name: "test", Shell: "/bin/bash", Groups: []string{"wheel", "root"}}
+				userName = LinuxUser{Gid: "", Name: "test", Shell: "/bin/bash", Groups: []string{"wheel", "root"}}
 			})
 
 			AfterEach(func() {
@@ -56,7 +56,7 @@ var _ = Describe("Linux API", func() {
 			})
 
 			It("should create valid user", func() {
-				err := linuxUserCreate(userName)
+				err := LinuxUserCreate(userName)
 
 				Expect(err).To(BeNil())
 
@@ -83,11 +83,11 @@ var _ = Describe("Linux API", func() {
 
 		Context("call with GID", func() {
 			var (
-				userName linuxUser
+				userName LinuxUser
 			)
 
 			BeforeEach(func() {
-				userName = linuxUser{Gid: "42", Name: "test", Shell: "/bin/bash", Groups: []string{"root"}}
+				userName = LinuxUser{Gid: "42", Name: "test", Shell: "/bin/bash", Groups: []string{"root"}}
 			})
 
 			AfterEach(func() {
@@ -95,7 +95,7 @@ var _ = Describe("Linux API", func() {
 			})
 
 			It("should create valid user", func() {
-				err := linuxUserCreate(userName)
+				err := LinuxUserCreate(userName)
 
 				Expect(err).To(BeNil())
 
@@ -124,14 +124,14 @@ var _ = Describe("Linux API", func() {
 	Describe("linuxGroupExists()", func() {
 			Context("call with no existing group", func() {
 			It("should return false", func() {
-				isExists := linuxGroupExists("testdsadasfsa")
+				isExists := LinuxGroupExists("testdsadasfsa")
 				Expect(isExists).To(BeFalse())
 			})
 		})
 
 		Context("call with existing group", func() {
 			It("should return true", func() {
-				isExists := linuxGroupExists("wheel")
+				isExists := LinuxGroupExists("wheel")
 				Expect(isExists).To(BeTrue())
 			})
 		})
@@ -141,14 +141,14 @@ var _ = Describe("Linux API", func() {
 	Describe("linuxGroupExistsByID()", func() {
 		Context("call with no existing group", func() {
 			It("should return false", func() {
-				isExists := linuxGroupExistsByID("43")
+				isExists := LinuxGroupExistsByID("43")
 				Expect(isExists).To(BeFalse())
 			})
 		})
 
 		Context("call with existing group", func() {
 			It("should return true", func() {
-				isExists := linuxGroupExistsByID("42")
+				isExists := LinuxGroupExistsByID("42")
 				Expect(isExists).To(BeTrue())
 			})
 		})

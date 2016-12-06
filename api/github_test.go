@@ -1,4 +1,4 @@
-package cmd
+package api
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -26,8 +26,8 @@ var _ = Describe("GithubClient", func() {
 	Describe("getTeam()", func() {
 		Context("call with valid token, org, team name and team id ", func() {
 			It("should return nil error and valid team", func() {
-				c := newGithubClient(validToken, validOrg)
-				team, err := c.getTeam(validTeamName, validTeamID)
+				c := NewGithubClient(validToken, validOrg)
+				team, err := c.GetTeam(validTeamName, validTeamID)
 
 				Expect(err).To(BeNil())
 
@@ -39,8 +39,8 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with invalid team name AND valid token, org, team id", func() {
 			It("should return nil error and valid team", func() {
-				c := newGithubClient(validToken, validOrg)
-				team, err := c.getTeam("dasdasd", validTeamID)
+				c := NewGithubClient(validToken, validOrg)
+				team, err := c.GetTeam("dasdasd", validTeamID)
 
 				Expect(err).To(BeNil())
 
@@ -52,8 +52,8 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with invalid team name && team id AND valid token, org", func() {
 			It("should return valid error and nil team", func() {
-				c := newGithubClient(validToken, validOrg)
-				team, err := c.getTeam("dasdasd", 0)
+				c := NewGithubClient(validToken, validOrg)
+				team, err := c.GetTeam("dasdasd", 0)
 
 				Expect(err).NotTo(BeNil())
 				Expect(err.Error()).To(Equal("Team with such name or id not found"))
@@ -64,8 +64,8 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with invalid token AND valid org, team name, team id", func() {
 			It("should return valid error and nil team", func() {
-				c := newGithubClient("11111111111111111111111111", validOrg)
-				team, err := c.getTeam(validTeamName, validTeamID)
+				c := NewGithubClient("11111111111111111111111111", validOrg)
+				team, err := c.GetTeam(validTeamName, validTeamID)
 
 				Expect(err).NotTo(BeNil())
 				Expect(err.Error()).To(Equal("Access denied"))
@@ -76,8 +76,8 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with invalid org AND valid token, team name, team id", func() {
 			It("should return valid error and nil team", func() {
-				c := newGithubClient(validToken, "dsadsad")
-				team, err := c.getTeam(validTeamName, validTeamID)
+				c := NewGithubClient(validToken, "dsadsad")
+				team, err := c.GetTeam(validTeamName, validTeamID)
 
 				Expect(err).NotTo(BeNil())
 				Expect(err.Error()).To(Equal("Access denied"))
@@ -91,9 +91,9 @@ var _ = Describe("GithubClient", func() {
 	Describe("isTeamMember()", func() {
 		Context("call with user that is member of the team", func() {
 			It("should return nil error and true value", func() {
-				c := newGithubClient(validToken, validOrg)
-				team, _ := c.getTeam(validTeamName, validTeamID)
-				isMember, err := c.isTeamMember(validUser, team)
+				c := NewGithubClient(validToken, validOrg)
+				team, _ := c.GetTeam(validTeamName, validTeamID)
+				isMember, err := c.IsTeamMember(validUser, team)
 
 				Expect(err).To(BeNil())
 
@@ -103,9 +103,9 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with user that is not member of the team", func() {
 			It("should return nil error and false value", func() {
-				c := newGithubClient(validToken, validOrg)
-				team, _ := c.getTeam(validTeamName, validTeamID)
-				isMember, err := c.isTeamMember("dasda", team)
+				c := NewGithubClient(validToken, validOrg)
+				team, _ := c.GetTeam(validTeamName, validTeamID)
+				isMember, err := c.IsTeamMember("dasda", team)
 
 				Expect(err).To(BeNil())
 
@@ -118,7 +118,7 @@ var _ = Describe("GithubClient", func() {
 	Describe("getUser()", func() {
 		Context("call with valid user", func() {
 			It("should return nil error and not nil user", func() {
-				c := newGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg)
 				user, err := c.getUser(validUser)
 
 				Expect(err).To(BeNil())
@@ -129,7 +129,7 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with invalid user", func() {
 			It("should return error and nil user", func() {
-				c := newGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg)
 				user, err := c.getUser("dasdddds232dasdas")
 
 				Expect(err).NotTo(BeNil())
@@ -143,9 +143,9 @@ var _ = Describe("GithubClient", func() {
 	Describe("getKeys()", func() {
 		Context("call with valid user", func() {
 			It("should return nil error and no empty list of keys", func() {
-				c := newGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg)
 				user, _ := c.getUser(validUser)
-				keys, err := c.getKeys(user)
+				keys, _, err := c.GetKeys(user.Login)
 
 				Expect(err).To(BeNil())
 
@@ -157,10 +157,10 @@ var _ = Describe("GithubClient", func() {
 	Describe("getTeamMembers()", func() {
 		Context("call with valid team", func() {
 			It("should return nil error and no empty list of members", func() {
-				c := newGithubClient(validToken, validOrg)
-				team, _ := c.getTeam(validTeamName, validTeamID)
+				c := NewGithubClient(validToken, validOrg)
+				team, _ := c.GetTeam(validTeamName, validTeamID)
 
-				members, err := c.getTeamMembers(team)
+				members, err := c.GetTeamMembers(team)
 
 				Expect(err).To(BeNil())
 

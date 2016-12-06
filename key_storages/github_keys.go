@@ -1,13 +1,15 @@
-package cmd
+package key_storages
 
 import (
 	"errors"
 	"strings"
 	log "github.com/Sirupsen/logrus"
+
+	"github.com/cloudposse/github-authorized-keys/api"
 )
 
 type githubKeys struct {
-	client *GithubClient
+	client *api.GithubClient
 	team string
 	teamID int
 }
@@ -26,14 +28,14 @@ func (s *githubKeys) Get(user string) (value string, err error) {
 	logger := log.WithFields(log.Fields{"class": "GithubClient", "method": "Get"})
 
 	// Load team
-	team, err := s.client.getTeam(s.team, s.teamID)
+	team, err := s.client.GetTeam(s.team, s.teamID)
 	if err != nil {
 		err = ErrStorageKeyNotFound
 		return
 	}
 
 	// Check if user is a member
-	isMember, err := s.client.isTeamMember(user, team)
+	isMember, err := s.client.IsTeamMember(user, team)
 	if err != nil {
 		err = ErrStorageKeyNotFound
 		return
@@ -45,7 +47,7 @@ func (s *githubKeys) Get(user string) (value string, err error) {
 	}
 
 
-	keys, response, err := s.client.client.Users.ListKeys(user, nil)
+	keys, response, err := s.client.GetKeys(user, nil)
 
 	logger.Debugf("Response: %v", response)
 	logger.Debugf("Response.StatusCode: %v", response.StatusCode)
@@ -71,6 +73,6 @@ func (s *githubKeys) Get(user string) (value string, err error) {
 	}
 }
 
-func newGithubKeys(token, owner, team string, teamID int) *githubKeys {
-	return &githubKeys{client: newGithubClient(token, owner), team: team, teamID: teamID}
+func NewGithubKeys(token, owner, team string, teamID int) *githubKeys {
+	return &githubKeys{client: api.NewGithubClient(token, owner), team: team, teamID: teamID}
 }

@@ -1,4 +1,4 @@
-package cmd
+package key_storages
 
 import (
 	"github.com/coreos/etcd/client"
@@ -61,7 +61,7 @@ func (c *etcdCache) Remove(name string) (err error) {
 	return
 }
 
-func newEtcdCache(gateways []string, ttl time.Duration) (*etcdCache, error) {
+func NewEtcdCache(gateways []string, ttl time.Duration) (*etcdCache, error) {
 	cfg := client.Config{
 		Endpoints:               gateways,
 		Transport:               client.DefaultTransport,

@@ -1,4 +1,4 @@
-package cmd
+package api
 
 import (
 	"os/user"
@@ -13,7 +13,7 @@ const(
 	deleteUserCommand = "deluser"
 )
 
-type linuxUser struct {
+type LinuxUser struct {
 	Name     string
 	Gid      string // primary group ID
 	Groups   []string
@@ -21,13 +21,13 @@ type linuxUser struct {
 }
 
 
-func linuxUserExists(userName string) bool {
+func LinuxUserExists(userName string) bool {
 	user, _ := user.Lookup(userName)
 	return user != nil
 }
 
 
-func linuxUserCreate(new linuxUser) error {
+func LinuxUserCreate(new LinuxUser) error {
 	var cmd *exec.Cmd
 
 	if new.Gid == "" {
@@ -53,17 +53,17 @@ func linuxUserCreate(new linuxUser) error {
 	return nil
 }
 
-func linuxUserDelete(new linuxUser) error {
+func linuxUserDelete(new LinuxUser) error {
 	cmd := exec.Command(deleteUserCommand, new.Name)
 	return cmd.Run()
 }
 
-func linuxGroupExists(groupName string) bool {
+func LinuxGroupExists(groupName string) bool {
 	group, _ := user.LookupGroup(groupName)
 	return group != nil
 }
 
-func linuxGroupExistsByID(groupID string) bool {
+func LinuxGroupExistsByID(groupID string) bool {
 	group, _ := user.LookupGroupId(groupID)
 	return group != nil
 }

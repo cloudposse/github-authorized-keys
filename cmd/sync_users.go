@@ -7,6 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/cloudposse/github-authorized-keys/api"
 )
 
 // syncUsersCmd represents the sync-users command
@@ -45,14 +47,14 @@ Run on schedule following command to create user asap.
 		}
 
 		// If user GID is not empty validate that group with such id exists
-		if userGID != "" && linuxGroupExistsByID(userGID) {
+		if userGID != "" && api.LinuxGroupExistsByID(userGID) {
 			return fmt.Errorf("Group with ID %v does not exists", userGID)
 		}
 		// Validate linux group exists
 		nonExistedGroups := make([]string, 0)
 
 		for _, group := range userGroups {
-			if ! linuxGroupExists(group) {
+			if ! api.LinuxGroupExists(group) {
 				nonExistedGroups = append(nonExistedGroups, group)
 			}
 		}
@@ -64,13 +66,13 @@ Run on schedule following command to create user asap.
 
 		//-------------------------------------------------------------------
 
-		c := newGithubClient(githubAPIToken, githubOrganization)
+		c := api.NewGithubClient(githubAPIToken, githubOrganization)
 		// Load team
-		team, err := c.getTeam(githubTeamName, githubTeamID)
+		team, err := c.GetTeam(githubTeamName, githubTeamID)
 		if err != nil { return err }
 
 		// Get all members
-		githubUsers, err := c.getTeamMembers(team)
+		githubUsers, err := c.GetTeamMembers(team)
 		if err != nil { return err }
 
 		// Here we will store user name for users that got error during creation
@@ -78,9 +80,9 @@ Run on schedule following command to create user asap.
 
 		for _, githubUser := range githubUsers {
 			// Create only non existed users
-			if ! linuxUserExists(*githubUser.Login) {
+			if ! api.LinuxUserExists(*githubUser.Login) {
 
-				linuxUser := linuxUser{Name: *githubUser.Login, Shell: userShell, Groups: userGroups}
+				linuxUser := api.LinuxUser{Name: *githubUser.Login, Shell: userShell, Groups: userGroups}
 
 				// If we have defined GID set it please
 				if userGID != "" {
@@ -88,7 +90,7 @@ Run on schedule following command to create user asap.
 				}
 
 				// Create user and store it's name if there was error during creation
-				if err := linuxUserCreate(linuxUser); err != nil {
+				if err := api.LinuxUserCreate(linuxUser); err != nil {
 					notCreatedUsers = append(notCreatedUsers, linuxUser.Name)
 				}
 			}

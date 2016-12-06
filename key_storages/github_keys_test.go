@@ -1,4 +1,4 @@
-package cmd
+package key_storages
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -27,7 +27,7 @@ var _ = Describe("GithubKeys as backend storage", func() {
 		var c *githubKeys
 
 		BeforeEach(func() {
-			c = newGithubKeys(validToken, validOrg, validTeamName, validTeamID)
+			c = NewGithubKeys(validToken, validOrg, validTeamName, validTeamID)
 		})
 
 		Context("backend have valid value", func() {
@@ -58,7 +58,7 @@ var _ = Describe("GithubKeys as backend storage", func() {
 		var c *githubKeys
 
 		BeforeEach(func() {
-			c = newGithubKeys(validToken, validOrg, validTeamName, validTeamID)
+			c = NewGithubKeys(validToken, validOrg, validTeamName, validTeamID)
 			c.client.client.BaseURL.Host = "github.ru"
 		})
 

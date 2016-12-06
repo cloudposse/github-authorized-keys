@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/viper"
 	"strings"
 	"time"
+
+	"github.com/cloudposse/github-authorized-keys/key_storages"
 )
 
 // authorizeCmd represents the authorize command
@@ -63,9 +65,9 @@ To implement this add in /etc/ssh/sshd_config following string
 
 		userName := args[0]
 
-		c := newGithubKeys(githubAPIToken, githubOrganization, githubTeamName, githubTeamID)
-		etcdClient, _ := newEtcdCache(etcdGateways, ttl)
-		keys := proxy{fallbackCache: etcdClient, source: c}
+		c := key_storages.NewGithubKeys(githubAPIToken, githubOrganization, githubTeamName, githubTeamID)
+		etcdClient, _ := key_storages.NewEtcdCache(etcdGateways, ttl)
+		keys := key_storages.NewProxy(c, etcdClient)
 
 		// Get keys
 		publicKeys, err := keys.Get(userName)
