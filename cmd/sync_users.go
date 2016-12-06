@@ -46,7 +46,7 @@ Run on schedule following command to create user asap.
 
 		root := viper.GetString("sync_users_root")
 
-		linux := NewOs(root)
+		linux := NewLinux(root)
 
 		// If user GID is not empty validate that group with such id exists
 		if userGID != "" && linux.groupExistsByID(userGID) {

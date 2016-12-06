@@ -25,7 +25,7 @@ const(
 
 )
 
-func (linux *OS) groupLookup(groupName string) (*user.Group, error) {
+func (linux *Linux) groupLookup(groupName string) (*user.Group, error) {
 	groupInfo, err := linux.getEntity("group", groupName)
 
 	if err != nil {
@@ -44,7 +44,7 @@ func (linux *OS) groupLookup(groupName string) (*user.Group, error) {
 	return &group, err
 }
 
-func (linux *OS) groupLookupByID(groupID string) (*user.Group, error) {
+func (linux *Linux) groupLookupByID(groupID string) (*user.Group, error) {
 	groupInfo, err := linux.getEntity("group", groupID)
 
 	if err != nil {
@@ -63,12 +63,12 @@ func (linux *OS) groupLookupByID(groupID string) (*user.Group, error) {
 	return &group, err
 }
 
-func (linux *OS) groupExists(groupName string) bool {
+func (linux *Linux) groupExists(groupName string) bool {
 	group, _ := linux.groupLookup(groupName)
 	return group != nil
 }
 
-func (linux *OS) groupExistsByID(groupID string) bool {
+func (linux *Linux) groupExistsByID(groupID string) bool {
 	group, _ := linux.groupLookupByID(groupID)
 	return group != nil
 }

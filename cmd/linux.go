@@ -8,21 +8,21 @@ import (
 	"github.com/valyala/fasttemplate"
 	"syscall"
 )
-
-type OS struct {
+// Linux - linux os with root dir
+type Linux struct {
 	root string
 }
 
-// Creates object allow interact with operating system
+// NewLinux - creates object allow interact with operating system
 //
 // rootDir - Path to directory contains linux root.
 //
 // Returns: OS object
-func NewOs(rootDir string) OS {
-	return OS{root: rootDir}
+func NewLinux(rootDir string) Linux {
+	return Linux{root: rootDir}
 }
 
-func (linux *OS) getEntity(database, key string) ([]string, error) {
+func (linux *Linux) getEntity(database, key string) ([]string, error) {
 	getent := linux.Command("getent", database, key)
 
 	var b2 bytes.Buffer
@@ -49,7 +49,7 @@ func (linux *OS) getEntity(database, key string) ([]string, error) {
 // The returned Cmd's Args field is constructed from the command name
 // followed by the elements of arg, so arg should not include the
 // command name itself. For example, Command("echo", "hello")
-func (linux *OS) Command(name string, params ...string) *exec.Cmd {
+func (linux *Linux) Command(name string, params ...string) *exec.Cmd {
 	cmd := exec.Command(name, params...)
 	if strings.Trim(linux.root, " ") != "/" {
 		cmd.SysProcAttr = &syscall.SysProcAttr{
@@ -60,8 +60,8 @@ func (linux *OS) Command(name string, params ...string) *exec.Cmd {
 	return cmd
 }
 
-
-func (linux *OS) TemplateCommand(template string, args map[string]interface{}) *exec.Cmd {
+// TemplateCommand - creates command based on template and args with placeholders.
+func (linux *Linux) TemplateCommand(template string, args map[string]interface{}) *exec.Cmd {
 	t := fasttemplate.New(template, "{", "}")
 	cmd := strings.Split(t.ExecuteString(args), " ")
 	return linux.Command(cmd[0], cmd[1:]...)

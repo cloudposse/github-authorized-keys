@@ -56,12 +56,12 @@ func init () {
 	viper.SetDefault("linux_user_del_tpl",          "deluser {username}")
 }
 
-func (linux *OS) userExists(userName string) bool {
+func (linux *Linux) userExists(userName string) bool {
 	user, _ := linux.userLookup(userName)
 	return user != nil
 }
 
-func (linux *OS) userLookup(userName string) (*user.User, error) {
+func (linux *Linux) userLookup(userName string) (*user.User, error) {
 	userInfo, err := linux.getEntity("passwd", userName)
 
 	if err != nil {
@@ -83,7 +83,7 @@ func (linux *OS) userLookup(userName string) (*user.User, error) {
 	return &user, err
 }
 
-func (linux *OS) userCreate(new linuxUser) error {
+func (linux *Linux) userCreate(new linuxUser) error {
 
 	createUserCommandTemplate        := viper.GetString("linux_user_add_tpl")
 	createUserWithGIDCommandTemplate := viper.GetString("linux_user_add_with_gid_tpl")
@@ -128,7 +128,7 @@ func (linux *OS) userCreate(new linuxUser) error {
 	return nil
 }
 
-func (linux *OS) userDelete(new linuxUser) error {
+func (linux *Linux) userDelete(new linuxUser) error {
 	deleteUserCommandTemplate := viper.GetString("linux_user_del_tpl")
 
 
@@ -137,7 +137,7 @@ func (linux *OS) userDelete(new linuxUser) error {
 	return cmd.Run()
 }
 
-func (linux *OS) userShell(userName string) string {
+func (linux *Linux) userShell(userName string) string {
 	userInfo, err := linux.getEntity("passwd", userName)
 
 	if err != nil || len(userInfo) != countOfColumnsInPasswd {
