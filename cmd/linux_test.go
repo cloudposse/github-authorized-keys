@@ -27,7 +27,7 @@ var _ = Describe("OS", func() {
 	})
 
 	Describe("userLookup()", func() {
-		Context("call with not existing user", func() {
+		Context("call with non-existing user", func() {
 			It("should return nil user and error", func() {
 				linux := NewOs("/")
 
@@ -62,7 +62,7 @@ var _ = Describe("OS", func() {
 	})
 
 	Describe("userExists()", func() {
-		Context("call with not existing user", func() {
+		Context("call with non-existing user", func() {
 			It("should return false", func() {
 				linux := NewOs("/")
 				isFound := linux.userExists("testdsadasfsa")
@@ -164,7 +164,7 @@ var _ = Describe("OS", func() {
 
 
 	Describe("groupLookup()", func() {
-		Context("call with not existing group", func() {
+		Context("call with non-existing group", func() {
 			It("should return nil group and error", func() {
 				linux := NewOs("/")
 
@@ -210,7 +210,7 @@ var _ = Describe("OS", func() {
 	})
 
 	Describe("groupLookupById()", func() {
-		Context("call with not existing group", func() {
+		Context("call with non-existing group", func() {
 			It("should return nil group and error", func() {
 				linux := NewOs("/")
 
