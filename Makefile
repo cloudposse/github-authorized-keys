@@ -1,4 +1,5 @@
 GO	:= $(shell which go)
+GLIDE	:= $(shell which glide)
 APP	?= github-authorized-keys
 INSTALL_DIR ?= /usr/local/sbin
 
@@ -10,21 +11,19 @@ build: $(GO)
 .PHONY: test
 ## Run tests
 test: $(GO)
-	$(GO) test -v github.com/cloudposse/github-authorized-keys/cmd
+	$(GO) test -v github.com/cloudposse/github-authorized-keys/api \
+	              github.com/cloudposse/github-authorized-keys/key_storages
 
 
 .PHONY: deps
 ## Install dependencies
-deps: $(GO)
-	$(GO) get -d -v "github.com/google/go-github/github"
-	$(GO) get -d -v "golang.org/x/oauth2"
-	$(GO) get -d -v "github.com/spf13/cobra/cobra"
-	$(GO) get -d -v "github.com/coreos/etcd/client"
-	$(GO) get -d -v "github.com/Sirupsen/logrus"
+deps: $(GLIDE)
+	$(GLIDE) update
 
 ## Clean compiled binary
 clean:
 	rm -f $(APP)
+	$(GLIDE) remove all
 
 ## Install cli
 install: $(APP)
@@ -35,16 +34,18 @@ install: $(APP)
 ## Lint code
 lint: $(GO)
 	golint cmd/*
+	golint api/*
+	golint key_storages/*
 	golint *.go
 	$(GO) vet -v cmd/*
+	$(GO) vet -v api/*
+	$(GO) vet -v key_storages/*
 	$(GO) vet -v *.go
 
 .PHONY: deps-dev
 ## Install development dependencies
 deps-dev: $(GO)
 	$(GO) get -d -v "github.com/golang/lint"
-	$(GO) get -d -v "github.com/onsi/ginkgo/ginkgo"
-	$(GO) get -d -v "github.com/onsi/gomega"
 	$(GO) install -v "github.com/golang/lint/golint"
 
 ## This help screen

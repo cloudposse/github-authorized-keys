@@ -60,7 +60,7 @@ func (c *GithubClient) IsTeamMember(user string, team *github.Team) (bool, error
 	return result, err
 }
 
-
+//
 func (c *GithubClient) GetKeys(userName string) ([]*github.Key, *github.Response, error) {
 	return c.client.Users.ListKeys(userName, nil)
 }

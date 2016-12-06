@@ -4,7 +4,6 @@ import (
 	"github.com/coreos/etcd/client"
 	"time"
 	"golang.org/x/net/context"
-	"net"
 )
 
 type etcdCache struct {
@@ -54,7 +53,7 @@ func (c *etcdCache) Remove(name string) (err error) {
 	kapi := client.NewKeysAPI(c.client)
 	_, err = kapi.Delete(context.Background(), name, nil)
 
-	if _, ok := err.(*net.OpError); ok {
+	if _, ok := err.(*client.ClusterError); ok {
 		err = ErrStorageConnectionFailed
 	}
 

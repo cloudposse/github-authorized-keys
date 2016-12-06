@@ -145,7 +145,7 @@ var _ = Describe("GithubClient", func() {
 			It("should return nil error and no empty list of keys", func() {
 				c := NewGithubClient(validToken, validOrg)
 				user, _ := c.getUser(validUser)
-				keys, _, err := c.GetKeys(user.Login)
+				keys, _, err := c.GetKeys(*user.Login)
 
 				Expect(err).To(BeNil())
 

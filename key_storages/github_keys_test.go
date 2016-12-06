@@ -4,6 +4,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/viper"
+	"github.com/jarcoal/httpmock"
 )
 
 var _ = Describe("GithubKeys as backend storage", func() {
@@ -58,8 +59,13 @@ var _ = Describe("GithubKeys as backend storage", func() {
 		var c *githubKeys
 
 		BeforeEach(func() {
+			httpmock.Activate()
 			c = NewGithubKeys(validToken, validOrg, validTeamName, validTeamID)
-			c.client.client.BaseURL.Host = "github.ru"
+
+		})
+
+		AfterEach(func() {
+			defer httpmock.DeactivateAndReset()
 		})
 
 		It("should return valid error and empty string", func() {

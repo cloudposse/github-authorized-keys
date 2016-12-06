@@ -79,6 +79,7 @@ It is possible to run this command as simple cli application or in docker contai
 #### Requirements
 
   [Go lang 1.7.x](https://golang.org/)
+  [glide](https://github.com/Masterminds/glide)
 
 #### Install
 
@@ -199,6 +200,7 @@ https://docs.docker.com/engine/userguide/storagedriver/aufs-driver/
 ### Requirements
 
   * [Go lang 1.7.x](https://golang.org/)
+  * [glide](https://github.com/Masterminds/glide)
   * [Make](https://en.wikipedia.org/wiki/Make_(software))
   * [Docker](https://docs.docker.com/engine/installation) (optional)
   * [Docker compose](https://docs.docker.com/compose/install/) (optional)

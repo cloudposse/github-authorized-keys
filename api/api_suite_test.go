@@ -1,4 +1,4 @@
-package cmd
+package api
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -34,5 +34,5 @@ func TestSuite(t *testing.T) {
 	log.SetLevel(log.DebugLevel)
 
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Github Authorized Keys Suite")
+	RunSpecs(t, "API tools suite")
 }

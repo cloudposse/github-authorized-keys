@@ -12,8 +12,6 @@ services:
       - SYNC_USERS_SHELL=/bin/bash
     volumes:
       - "/etc:/etc"
-    links:
-      - "etcd:etcd"
     command: sync-users
     restart: always
   etcd:

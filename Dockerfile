@@ -10,13 +10,17 @@ ARG TEST_GITHUB_ORGANIZATION=
 ARG TEST_GITHUB_TEAM=
 ARG TEST_GITHUB_TEAM_ID=
 ARG TEST_GITHUB_USER=
+ARG TEST_ETCD_ENDPOINTS=
+ARG TEST_ETCD_TTL=
 
 RUN set -ex \
 	&& apk add --no-cache --virtual .build-deps \
 		git \
 		make \
+		curl \
+		&& curl https://glide.sh/get | sh \
 		&& make deps \
-		&& if [ $RUN_TESTS -eq 1 ]; then make deps-dev && make test ; fi \
+		&& if [ $RUN_TESTS -eq 1 ]; then make test ; fi \
 		&& go-wrapper install \
 		&& rm -rf  /go/src \
 		&& apk del .build-deps
@@ -27,6 +31,9 @@ ENV GITHUB_API_TOKEN=
 ENV GITHUB_ORGANIZATION=
 ENV GITHUB_TEAM=
 ENV GITHUB_TEAM_ID=
+
+ENV ETCD_ENDPOINTS=
+ENV ETCD_TTL=
 
 ENV SYNC_USERS_GID=
 ENV SYNC_USERS_GROUPS=

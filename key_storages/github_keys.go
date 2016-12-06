@@ -47,7 +47,7 @@ func (s *githubKeys) Get(user string) (value string, err error) {
 	}
 
 
-	keys, response, err := s.client.GetKeys(user, nil)
+	keys, response, err := s.client.GetKeys(user)
 
 	logger.Debugf("Response: %v", response)
 	logger.Debugf("Response.StatusCode: %v", response.StatusCode)

@@ -5,9 +5,11 @@ import (
 	. "github.com/onsi/gomega"
 	"time"
 	"github.com/spf13/viper"
+	"strings"
 )
 
 var _ = Describe("ETCD", func() {
+
 	const (
 		validKey = "TestKey"
 		validValue = "TestValue"
@@ -25,8 +27,6 @@ var _ = Describe("ETCD", func() {
 	)
 
 	BeforeEach(func() {
-		viper.SetDefault("etcd", "http://etcd:2379")
-
 		validToken = viper.GetString("github_api_token")
 		validOrg = viper.GetString("github_organization")
 		validUser = viper.GetString("github_user")
@@ -34,14 +34,22 @@ var _ = Describe("ETCD", func() {
 		ttl = 10 * time.Millisecond
 	})
 
+
+
 	Describe("with valid connection url", func() {
 		BeforeEach(func() {
-			gateways = []string{viper.GetString("etcd")}
+			gateways = []string{}
+			if etcd := viper.GetString("etcd_endpoints"); etcd != "" {
+				gateways = strings.Split(etcd, ",")
+			}
 		})
 
 		Describe("constructor newEtcdCache()", func() {
 			Context("call with valid connection url", func() {
 				It("should return nil error", func() {
+					if len(gateways) == 0 {
+						Skip("Specify TEST_ETCD_ENDPOINTS to run this test")
+					}
 					_, err := NewEtcdCache(gateways, ttl)
 					Expect(err).To(BeNil())
 				})
@@ -51,6 +59,10 @@ var _ = Describe("ETCD", func() {
 		Describe("Set()", func() {
 			Context(" key => value", func() {
 				It("should return nil error", func() {
+					if len(gateways) == 0 {
+						Skip("Specify TEST_ETCD_ENDPOINTS to run this test")
+					}
+
 					client, _ := NewEtcdCache(gateways, ttl)
 
 					err := client.Set(validKey, validValue)
@@ -67,11 +79,16 @@ var _ = Describe("ETCD", func() {
 
 			BeforeEach(func() {
 				client, _ = NewEtcdCache(gateways, ttl)
-				client.Set(validKey, validValue)
+
 			})
 
 			Context("call with existed key", func() {
 				It("should return valid value and nil error ", func() {
+					if len(gateways) == 0 {
+						Skip("Specify TEST_ETCD_ENDPOINTS to run this test")
+					}
+
+					client.Set(validKey, validValue)
 					value, err := client.Get(validKey)
 					Expect(err).To(BeNil())
 					Expect(value).To(Equal(validValue))
@@ -80,6 +97,11 @@ var _ = Describe("ETCD", func() {
 
 			Context("call with existed key after ttl expired", func() {
 				It("should return empty value and error ", func() {
+					if len(gateways) == 0 {
+						Skip("Specify TEST_ETCD_ENDPOINTS to run this test")
+					}
+
+					client.Set(validKey, validValue)
 					time.Sleep(time.Second)
 					value, err := client.Get(validKey)
 
@@ -97,11 +119,16 @@ var _ = Describe("ETCD", func() {
 
 			BeforeEach(func() {
 				client, _ = NewEtcdCache(gateways, ttl)
-				client.Set(validKey, validValue)
 			})
 
 			Context("call with removed existed key", func() {
 				It("should return empty value and valid error ", func() {
+					if len(gateways) == 0 {
+						Skip("Specify TEST_ETCD_ENDPOINTS to run this test")
+					}
+
+					client.Set(validKey, validValue)
+
 					client.Remove(validKey)
 					value, err := client.Get(validKey)
 					Expect(err).NotTo(BeNil())

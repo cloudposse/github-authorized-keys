@@ -3,8 +3,6 @@ package key_storages
 import (
 	log "github.com/Sirupsen/logrus"
 	"errors"
-	"time"
-	"github.com/coreos/etcd/mvcc/backend"
 )
 
 var (
@@ -73,5 +71,5 @@ func (c *Proxy) removeFrom(storage fallbackCache, name string) error {
 }
 
 func NewProxy(source source, fallbackCache fallbackCache) *Proxy {
-	return Proxy{source: source, fallbackCache: fallbackCache}
+	return &Proxy{source: source, fallbackCache: fallbackCache}
 }
