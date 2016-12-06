@@ -235,6 +235,7 @@ adduser {username} --disabled-password --force-badname --shell {shell} --group {
 1. **_{username}_** - User login name
 2. **_{shell}_**    - User shell
 3. **_{group}_**    - User primary group name
+4. **_{gid}_**      - User primary group id
 
 **Environment variable:**
 

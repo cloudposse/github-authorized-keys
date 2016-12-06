@@ -99,12 +99,12 @@ func (linux *Linux) userCreate(new linuxUser) error {
 	}
 
 	if new.Gid != "" {
-		primaryGroup, err := linux.groupLookupByID(new.Gid)
-		if err != nil { return err }
-
 		template = createUserWithGIDCommandTemplate
+		args["gid"]   = new.Gid
 
-		args["group"] = primaryGroup.Name
+		if primaryGroup, err := linux.groupLookupByID(new.Gid); err == nil {
+			args["group"] = primaryGroup.Name
+		}
 	}
 
 	cmd = linux.TemplateCommand(template, args)

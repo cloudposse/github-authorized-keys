@@ -48,10 +48,6 @@ Run on schedule following command to create user asap.
 
 		linux := NewLinux(root)
 
-		// If user GID is not empty validate that group with such id exists
-		if userGID != "" && linux.groupExistsByID(userGID) {
-			return fmt.Errorf("Group with ID %v does not exists", userGID)
-		}
 		// Validate linux group exists
 		nonExistedGroups := make([]string, 0)
 
