@@ -26,14 +26,14 @@ Run on schedule following command to create user asap.
 		githubTeamID 		:= viper.GetInt("github_team_id")
 		githubOrganization 	:= viper.GetString("github_organization")
 
-		userGID 	:= viper.GetString("sync_users_gid")
+		userGID := viper.GetString("sync_users_gid")
 
 		userGroups := []string{}
 		if groups := viper.GetString("sync_users_groups"); groups != "" {
 			userGroups = strings.Split(groups, ",")
 		}
 
-		userShell 	:= viper.GetString("sync_users_shell")
+		userShell := viper.GetString("sync_users_shell")
 
 		if githubAPIToken == "" {
 			return errors.New("Github API Token is required")
@@ -44,15 +44,15 @@ Run on schedule following command to create user asap.
 			return errors.New("Team name or Team id should be specified")
 		}
 
-		// If user GID is not empty validate that group with such id exists
-		if userGID != "" && linuxGroupExistsByID(userGID) {
-			return fmt.Errorf("Group with ID %v does not exists", userGID)
-		}
+		root := viper.GetString("sync_users_root")
+
+		linux := NewLinux(root)
+
 		// Validate linux group exists
 		nonExistedGroups := make([]string, 0)
 
 		for _, group := range userGroups {
-			if ! linuxGroupExists(group) {
+			if ! linux.groupExists(group) {
 				nonExistedGroups = append(nonExistedGroups, group)
 			}
 		}
@@ -78,7 +78,7 @@ Run on schedule following command to create user asap.
 
 		for _, githubUser := range githubUsers {
 			// Create only non existed users
-			if ! linuxUserExists(*githubUser.Login) {
+			if ! linux.userExists(*githubUser.Login) {
 
 				linuxUser := linuxUser{Name: *githubUser.Login, Shell: userShell, Groups: userGroups}
 
@@ -88,7 +88,9 @@ Run on schedule following command to create user asap.
 				}
 
 				// Create user and store it's name if there was error during creation
-				if err := linuxUserCreate(linuxUser); err != nil {
+				if err := linux.userCreate(linuxUser); err != nil {
+					// @TODO: Replace with logger
+					fmt.Printf("%v\n", err)
 					notCreatedUsers = append(notCreatedUsers, linuxUser.Name)
 				}
 			}
@@ -115,7 +117,11 @@ func init() {
 	syncUsersCmd.Flags().StringP("sync-users-shell", "s", "/bin/bash",
 		"User shell                                    ( environment variable SYNC_USERS_SHELL  could be used instead )")
 
+	syncUsersCmd.Flags().StringP("sync-users-root", "r", "/",
+		"Root directory used for chroot                ( environment variable SYNC_USERS_ROOT  could be used instead )")
+
 	viper.BindPFlag("sync_users_gid",    syncUsersCmd.Flags().Lookup("sync-users-gid"))
 	viper.BindPFlag("sync_users_groups", syncUsersCmd.Flags().Lookup("sync-users-groups"))
 	viper.BindPFlag("sync_users_shell",  syncUsersCmd.Flags().Lookup("sync-users-shell"))
+	viper.BindPFlag("sync_users_root",  syncUsersCmd.Flags().Lookup("sync-users-root"))
 }

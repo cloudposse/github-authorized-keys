@@ -11,6 +11,13 @@ ARG TEST_GITHUB_TEAM=
 ARG TEST_GITHUB_TEAM_ID=
 ARG TEST_GITHUB_USER=
 
+# We do tests on alpine so use alpine adduser flags
+
+ENV TEST_LINUX_USER_ADD_TPL            "adduser -D -s {shell} {username}"
+ENV TEST_LINUX_USER_ADD_WITH_GID_TPL   "adduser -D -s {shell} -G {group} {username}"
+ENV TEST_LINUX_USER_ADD_TO_GROUP_TPL   "adduser {username} {group}"
+ENV TEST_LINUX_USER_DEL_TPL            "deluser {username}"
+
 RUN set -ex \
 	&& apk add --no-cache --virtual .build-deps \
 		git \
@@ -22,6 +29,17 @@ RUN set -ex \
 		&& apk del .build-deps
 
 WORKDIR $GOPATH
+
+# For production run most common user add flags
+#
+# We need --force-badname because github users could contains capital letters, what is not acceptable in some distributions
+# Really regexp to verify badname rely on environment var that set in profile.d so we rarely hit this errors.
+#
+# adduser wants user name be the head and flags the tail.
+ENV LINUX_USER_ADD_TPL            "adduser {username} --disabled-password --force-badname --shell {shell}"
+ENV LINUX_USER_ADD_WITH_GID_TPL   "adduser {username} --disabled-password --force-badname --shell {shell} --group {group}"
+ENV LINUX_USER_ADD_TO_GROUP_TPL   "adduser {username} {group}"
+ENV LINUX_USER_DEL_TPL            "deluser {username}"
 
 ENV GITHUB_API_TOKEN=
 ENV GITHUB_ORGANIZATION=

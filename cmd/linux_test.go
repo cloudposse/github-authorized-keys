@@ -6,9 +6,10 @@ import (
 	"github.com/spf13/viper"
 	"os/user"
 	"strconv"
+	"fmt"
 )
 
-var _ = Describe("Linux API", func() {
+var _ = Describe("Linux", func() {
 	var (
 		validToken string
 		validOrg string
@@ -25,38 +26,77 @@ var _ = Describe("Linux API", func() {
 		validUser = viper.GetString("github_user")
 	})
 
-	Describe("linuxUserExists()", func() {
-		Context("call with not existing user", func() {
-			It("should return false", func() {
-				isExists := linuxUserExists("testdsadasfsa")
-				Expect(isExists).To(BeFalse())
+	Describe("userLookup()", func() {
+		Context("call with non-existing user", func() {
+			It("should return nil user and error", func() {
+				linux := NewLinux("/")
+
+				userName := "testdsadasfsa"
+
+				user, err := linux.userLookup(userName)
+
+				Expect(err).NotTo(BeNil())
+
+				Expect(err.Error()).To(Equal(fmt.Sprintf("user: unknown user %v", userName)))
+
+				Expect(user).To(BeNil())
 			})
 		})
 
-		Context("call for existing user", func() {
-			It("should return true", func() {
-				isExists := linuxUserExists("root")
-				Expect(isExists).To(BeTrue())
+		Context("call with existing user", func() {
+			It("should return valid user", func() {
+				linux := NewLinux("/")
+				user, err := linux.userLookup("root")
+
+				Expect(err).To(BeNil())
+
+				Expect(user).NotTo(BeNil())
+
+				Expect(user.Gid).To(Equal("0"))
+				Expect(user.HomeDir).To(Equal("/root"))
+				Expect(user.Name).To(Equal("root"))
+				Expect(user.Uid).To(Equal("0"))
+				Expect(user.Username).To(Equal("root"))
 			})
 		})
 	})
 
-	Describe("linuxUserCreate()", func() {
+	Describe("userExists()", func() {
+		Context("call with non-existing user", func() {
+			It("should return false", func() {
+				linux := NewLinux("/")
+				isFound := linux.userExists("testdsadasfsa")
+				Expect(isFound).To(BeFalse())
+			})
+		})
+
+		Context("call with existing user", func() {
+			It("should return true", func() {
+				linux := NewLinux("/")
+				isFound := linux.userExists("root")
+				Expect(isFound).To(BeTrue())
+			})
+		})
+	})
+
+	Describe("userCreate()", func() {
 		Context("call without GID", func() {
 			var (
 				userName linuxUser
+				linux Linux
 			)
 
 			BeforeEach(func() {
 				userName = linuxUser{Gid: "", Name: "test", Shell: "/bin/bash", Groups: []string{"wheel", "root"}}
+				linux = NewLinux("/")
 			})
 
 			AfterEach(func() {
-				linuxUserDelete(userName)
+				linux.userDelete(userName)
 			})
 
 			It("should create valid user", func() {
-				err := linuxUserCreate(userName)
+				err := linux.userCreate(userName)
 
 				Expect(err).To(BeNil())
 
@@ -75,7 +115,7 @@ var _ = Describe("Linux API", func() {
 					Expect(gids).To(ContainElement(string(linuxGroup.Gid)))
 				}
 
-				shell := linuxUserShell(userName.Name)
+				shell := linux.userShell(userName.Name)
 
 				Expect(shell).To(Equal(userName.Shell))
 			})
@@ -84,18 +124,20 @@ var _ = Describe("Linux API", func() {
 		Context("call with GID", func() {
 			var (
 				userName linuxUser
+				linux Linux
 			)
 
 			BeforeEach(func() {
 				userName = linuxUser{Gid: "42", Name: "test", Shell: "/bin/bash", Groups: []string{"root"}}
+				linux = NewLinux("/")
 			})
 
 			AfterEach(func() {
-				linuxUserDelete(userName)
+				linux.userDelete(userName)
 			})
 
 			It("should create valid user", func() {
-				err := linuxUserCreate(userName)
+				err := linux.userCreate(userName)
 
 				Expect(err).To(BeNil())
 
@@ -113,7 +155,7 @@ var _ = Describe("Linux API", func() {
 					Expect(gids).To(ContainElement(string(linuxGroup.Gid)))
 				}
 
-				shell := linuxUserShell(userName.Name)
+				shell := linux.userShell(userName.Name)
 
 				Expect(shell).To(Equal(userName.Shell))
 			})
@@ -121,43 +163,139 @@ var _ = Describe("Linux API", func() {
 	})
 
 
-	Describe("linuxGroupExists()", func() {
+	Describe("groupLookup()", func() {
+		Context("call with non-existing group", func() {
+			It("should return nil group and error", func() {
+				linux := NewLinux("/")
+
+				groupName := "testdsadasfsa"
+
+				group, err := linux.groupLookup(groupName)
+
+				Expect(err).NotTo(BeNil())
+
+				Expect(err.Error()).To(Equal(fmt.Sprintf("group: unknown group %v", groupName)))
+
+				Expect(group).To(BeNil())
+			})
+		})
+
+		Context("call with existing group", func() {
+			It("should return valid group", func() {
+				linux := NewLinux("/")
+				group, err := linux.groupLookup("wheel")
+
+				Expect(err).To(BeNil())
+
+				Expect(group).NotTo(BeNil())
+
+				Expect(group.Gid).To(Equal("10"))
+				Expect(group.Name).To(Equal("wheel"))
+			})
+		})
+
+		Context("call with existing group with users", func() {
+			It("should return valid group", func() {
+				linux := NewLinux("/")
+				group, err := linux.groupLookup("root")
+
+				Expect(err).To(BeNil())
+
+				Expect(group).NotTo(BeNil())
+
+				Expect(group.Gid).To(Equal("0"))
+				Expect(group.Name).To(Equal("root"))
+			})
+		})
+	})
+
+	Describe("groupLookupById()", func() {
+		Context("call with non-existing group", func() {
+			It("should return nil group and error", func() {
+				linux := NewLinux("/")
+
+				groupID := "843"
+
+				group, err := linux.groupLookupByID(groupID)
+
+				Expect(err).NotTo(BeNil())
+
+				Expect(err.Error()).To(Equal(fmt.Sprintf("group: unknown groupid %v", groupID)))
+
+				Expect(group).To(BeNil())
+			})
+		})
+
+		Context("call with existing group", func() {
+			It("should return valid group", func() {
+				linux := NewLinux("/")
+				group, err := linux.groupLookup("10")
+
+				Expect(err).To(BeNil())
+
+				Expect(group).NotTo(BeNil())
+
+				Expect(group.Gid).To(Equal("10"))
+				Expect(group.Name).To(Equal("wheel"))
+			})
+		})
+
+		Context("call with existing group with users", func() {
+			It("should return valid group", func() {
+				linux := NewLinux("/")
+				group, err := linux.groupLookup("0")
+
+				Expect(err).To(BeNil())
+
+				Expect(group).NotTo(BeNil())
+
+				Expect(group.Gid).To(Equal("0"))
+				Expect(group.Name).To(Equal("root"))
+			})
+		})
+	})
+
+	Describe("groupExists()", func() {
 			Context("call with no existing group", func() {
 			It("should return false", func() {
-				isExists := linuxGroupExists("testdsadasfsa")
-				Expect(isExists).To(BeFalse())
+				linux := NewLinux("/")
+				isFound := linux.groupExists("testdsadasfsa")
+				Expect(isFound).To(BeFalse())
 			})
 		})
 
 		Context("call with existing group", func() {
 			It("should return true", func() {
-				isExists := linuxGroupExists("wheel")
-				Expect(isExists).To(BeTrue())
+				linux := NewLinux("/")
+				isFound := linux.groupExists("wheel")
+				Expect(isFound).To(BeTrue())
 			})
 		})
 	})
 
-
-	Describe("linuxGroupExistsByID()", func() {
+	Describe("groupExistsByID()", func() {
 		Context("call with no existing group", func() {
 			It("should return false", func() {
-				isExists := linuxGroupExistsByID("43")
-				Expect(isExists).To(BeFalse())
+				linux := NewLinux("/")
+				isFound := linux.groupExistsByID("843")
+				Expect(isFound).To(BeFalse())
 			})
 		})
 
 		Context("call with existing group", func() {
 			It("should return true", func() {
-				isExists := linuxGroupExistsByID("42")
-				Expect(isExists).To(BeTrue())
+				linux := NewLinux("/")
+				isFound := linux.groupExistsByID("42")
+				Expect(isFound).To(BeTrue())
 			})
 		})
 	})
 
-	Describe("linuxUserShell()", func() {
+	Describe("userShell()", func() {
 		Context("call with existing user", func() {
 			It("should return /bin/ash", func() {
-				shell := linuxUserShell("root")
+				linux := NewLinux("/")
+				shell := linux.userShell("root")
 				Expect(shell).To(Equal("/bin/ash"))
 			})
 		})
