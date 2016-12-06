@@ -65,16 +65,16 @@ var _ = Describe("OS", func() {
 		Context("call with not existing user", func() {
 			It("should return false", func() {
 				linux := NewOs("/")
-				isExists := linux.userExists("testdsadasfsa")
-				Expect(isExists).To(BeFalse())
+				isFound := linux.userExists("testdsadasfsa")
+				Expect(isFound).To(BeFalse())
 			})
 		})
 
 		Context("call with existing user", func() {
 			It("should return true", func() {
 				linux := NewOs("/")
-				isExists := linux.userExists("root")
-				Expect(isExists).To(BeTrue())
+				isFound := linux.userExists("root")
+				Expect(isFound).To(BeTrue())
 			})
 		})
 	})
@@ -259,16 +259,16 @@ var _ = Describe("OS", func() {
 			Context("call with no existing group", func() {
 			It("should return false", func() {
 				linux := NewOs("/")
-				isExists := linux.groupExists("testdsadasfsa")
-				Expect(isExists).To(BeFalse())
+				isFound := linux.groupExists("testdsadasfsa")
+				Expect(isFound).To(BeFalse())
 			})
 		})
 
 		Context("call with existing group", func() {
 			It("should return true", func() {
 				linux := NewOs("/")
-				isExists := linux.groupExists("wheel")
-				Expect(isExists).To(BeTrue())
+				isFound := linux.groupExists("wheel")
+				Expect(isFound).To(BeTrue())
 			})
 		})
 	})
@@ -277,16 +277,16 @@ var _ = Describe("OS", func() {
 		Context("call with no existing group", func() {
 			It("should return false", func() {
 				linux := NewOs("/")
-				isExists := linux.groupExistsByID("843")
-				Expect(isExists).To(BeFalse())
+				isFound := linux.groupExistsByID("843")
+				Expect(isFound).To(BeFalse())
 			})
 		})
 
 		Context("call with existing group", func() {
 			It("should return true", func() {
 				linux := NewOs("/")
-				isExists := linux.groupExistsByID("42")
-				Expect(isExists).To(BeTrue())
+				isFound := linux.groupExistsByID("42")
+				Expect(isFound).To(BeTrue())
 			})
 		})
 	})
