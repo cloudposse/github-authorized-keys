@@ -1,101 +1,69 @@
 package api
 
 import (
-	"os/user"
 	"os/exec"
 	"bytes"
 	"strings"
-	"fmt"
+
+	"github.com/valyala/fasttemplate"
+	"syscall"
 )
 
-const(
-	createUserCommand = "adduser"
-	deleteUserCommand = "deluser"
-)
-
-type LinuxUser struct {
-	Name     string
-	Gid      string // primary group ID
-	Groups   []string
-	Shell    string
+// Linux - linux os with root dir
+type Linux struct {
+	root string
 }
 
-
-func LinuxUserExists(userName string) bool {
-	user, _ := user.Lookup(userName)
-	return user != nil
+// NewLinux - creates object allow interact with operating system
+//
+// rootDir - Path to directory contains linux root.
+//
+// Returns: OS object
+func NewLinux(rootDir string) Linux {
+	return Linux{root: rootDir}
 }
 
-
-func LinuxUserCreate(new LinuxUser) error {
-	var cmd *exec.Cmd
-
-	if new.Gid == "" {
-		cmd = exec.Command(createUserCommand, "-s", new.Shell, "-D", new.Name)
-	} else {
-		primaryGroup, err := user.LookupGroupId(new.Gid)
-		if err != nil { return err }
-
-		cmd = exec.Command(createUserCommand, "-s", new.Shell, "-G", primaryGroup.Name, "-D", new.Name)
-	}
-
-	err := cmd.Run()
-	if err != nil { return err }
-	fmt.Printf("Created user %v\n", new.Name)
-
-	for _, group := range new.Groups {
-		cmd := exec.Command(createUserCommand, new.Name, group)
-		err := cmd.Run()
-		if err != nil { return err }
-		fmt.Printf("Added user %v to group %v\n", new.Name, group)
-	}
-
-	return nil
-}
-
-func linuxUserDelete(new LinuxUser) error {
-	cmd := exec.Command(deleteUserCommand, new.Name)
-	return cmd.Run()
-}
-
-func LinuxGroupExists(groupName string) bool {
-	group, _ := user.LookupGroup(groupName)
-	return group != nil
-}
-
-func LinuxGroupExistsByID(groupID string) bool {
-	group, _ := user.LookupGroupId(groupID)
-	return group != nil
-}
-
-func linuxUserShell(userName string) string {
-	const(
-		// Passwd file contains one row per user
-		// Format of the row consists of 7 columns
-		// https://en.wikipedia.org/wiki/Passwd#Password_file
-		countOfColumnsInPasswd = 7
-
-		// User shell stored in 6 column (started numeration from 0)
-		shellColumnNumberInPasswd = 6
-
-	)
-
-	getent := exec.Command("getent", "passwd", userName)
+func (linux *Linux) getEntity(database, key string) ([]string, error) {
+	getent := linux.Command("getent", database, key)
 
 	var b2 bytes.Buffer
 	getent.Stdout = &b2
 
 	err := getent.Run()
-	if err != nil { return "" }
+	if err != nil { return []string{}, err }
 
-	userPasswd := strings.Trim(string(b2.Bytes()), "\n")
+	row := strings.Trim(string(b2.Bytes()), "\n")
 
-	userPasswdSlice := strings.Split(userPasswd,":")
+	columns := strings.Split(row, ":")
+	return columns, nil
+}
 
-	if len(userPasswdSlice) != countOfColumnsInPasswd {
-		return ""
+// Command returns the Cmd struct to execute the named program with
+// the given arguments in context of OS
+//
+// It sets only the Path and Args in the returned structure.
+//
+// If name contains no path separators, Command uses LookPath to
+// resolve the path to a complete name if possible. Otherwise it uses
+// name directly.
+//
+// The returned Cmd's Args field is constructed from the command name
+// followed by the elements of arg, so arg should not include the
+// command name itself. For example, Command("echo", "hello")
+func (linux *Linux) Command(name string, params ...string) *exec.Cmd {
+	cmd := exec.Command(name, params...)
+	if strings.Trim(linux.root, " ") != "/" {
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			Chroot: linux.root,
+		}
 	}
 
+	return cmd
+}
 
-	return userPasswdSlice[shellColumnNumberInPasswd]
+// TemplateCommand - creates command based on template and args with placeholders.
+func (linux *Linux) TemplateCommand(template string, args map[string]interface{}) *exec.Cmd {
+	t := fasttemplate.New(template, "{", "}")
+	cmd := strings.Split(t.ExecuteString(args), " ")
+	return linux.Command(cmd[0], cmd[1:]...)
 }

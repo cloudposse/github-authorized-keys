@@ -28,6 +28,9 @@ import:
 - package: github.com/Sirupsen/logrus
   version: v0.11.0
 
+- package: github.com/valyala/fasttemplate
+  version: 3b874956e03f1636d171bda64b130f9135f42cff
+
 testImport:
 - package: github.com/onsi/ginkgo/ginkgo
   version: 00054c0bb96fc880d4e0be1b90937fad438c5290

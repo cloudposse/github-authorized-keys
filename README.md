@@ -165,7 +165,7 @@ github-authorized-keys authorize {user}
 
 #### Create users
 
-Creates users on
+Creates users in linux OS
 
 ##### Use as CLI
 
@@ -179,6 +179,7 @@ You can specify params as flags
 --sync-users-gid={user gid} \
 --sync-users-groups={comma separated secondary groups names} \
 --sync-users-shell={user shell} \
+--sync-users-root={root directory - default "/"} \
 sync-users
 ```
 
@@ -192,6 +193,7 @@ GITHUB_TEAM={team} \
 SYNC_USERS_GID={gid OR empty} \
 SYNC_USERS_GROUPS={comma separated groups OR empty} \
 SYNC_USERS_SHELL={user shell} \
+SYNC_USERS_ROOT={root directory - default "/"} \
 /usr/local/sbin/github-authorized-keys sync-users
 ```
 
@@ -207,14 +209,89 @@ docker run \
 -e SYNC_USERS_GID={gid OR empty} \
 -e SYNC_USERS_GROUPS={comma separated groups OR empty} \
 -e SYNC_USERS_SHELL={user shell} \
--v /etc:/etc \
--v /home:/home \
+-e SYNC_USERS_ROOT={root directory} \
+-v /:/{root directory} \
 github-authorized-keys sync-users
 ```
 
-You have to share ``/etc`` because ``adduser`` command backup ``/etc/passwd`` to  ``/etc/passwd-`` with system call
-fire EXDEV error if backup are on different layers.
-https://docs.docker.com/engine/userguide/storagedriver/aufs-driver/
+You have to share host ``/`` into ``/{root directory}`` ``adduser`` command could differs on different Linux distribs
+
+##### Templating commands
+
+ Command sync-users rely on OS commands to mange users. We use templates for commands.
+ Templates could be overridden with environment variables.
+
+ Following templates are used:
+
+###### Add user
+
+**Default template:**
+
+  ```
+adduser {username} --disabled-password --force-badname --shell {shell}
+  ```
+
+**Valid placeholders:**
+
+1. **_{username}_** - User login name
+2. **_{shell}_**    - User shell
+
+**Environment variable:**
+
+LINUX_USER_ADD_TPL
+
+
+###### Add user with primary group
+
+**Default template:**
+
+  ```
+adduser {username} --disabled-password --force-badname --shell {shell} --group {group}
+  ```
+
+**Valid placeholders:**
+
+1. **_{username}_** - User login name
+2. **_{shell}_**    - User shell
+3. **_{group}_**    - User primary group name
+4. **_{gid}_**      - User primary group id
+
+**Environment variable:**
+
+LINUX_USER_ADD_WITH_GID_TPL
+
+###### Add user to secondary group
+
+**Default template:**
+
+  ```
+adduser {username} {group}
+  ```
+
+**Valid placeholders:**
+
+1. **_{username}_** - User login name
+2. **_{group}_**    - User primary group name
+
+**Environment variable:**
+
+LINUX_USER_ADD_TO_GROUP_TPL
+
+###### Delete user
+
+**Template:**
+
+  ```
+deluser {username}
+  ```
+
+**Valid placeholders:**
+
+1. **_{username}_** - User login name
+
+**Environment variable:**
+
+LINUX_USER_DEL_TPL
 
 ------------
 
