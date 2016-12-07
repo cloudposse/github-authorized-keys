@@ -66,12 +66,12 @@ To implement this add in /etc/ssh/sshd_config following string
 
 		if len(etcdEndpoints) > 0 {
 			// add "s" suffix because duration should be in seconds.
-			ttl, err := time.ParseDuration(viper.GetString("etcd_ttl") + "s")
+			etcdTTL, err := time.ParseDuration(viper.GetString("etcd_ttl") + "s")
 			if err != nil {
 				return fmt.Errorf("%v is not valid duration. %v", viper.GetString("etcd_ttl"), err)
 			}
 
-			fallbackStorage, _ := keyStorages.NewEtcdCache(etcdEndpoints, ttl)
+			fallbackStorage, _ := keyStorages.NewEtcdCache(etcdEndpoints, etcdTTL)
 			keys = keyStorages.NewProxy(sourceStorage, fallbackStorage)
 
 		} else {
