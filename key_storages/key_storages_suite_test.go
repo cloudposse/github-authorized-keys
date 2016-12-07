@@ -1,4 +1,4 @@
-package key_storages
+package keyStorages
 
 import (
 	. "github.com/onsi/ginkgo"

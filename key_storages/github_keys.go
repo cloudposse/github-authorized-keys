@@ -1,4 +1,4 @@
-package key_storages
+package keyStorages
 
 import (
 	"errors"
@@ -8,14 +8,15 @@ import (
 	"github.com/cloudposse/github-authorized-keys/api"
 )
 
-type githubKeys struct {
+// GithubKeys - github api as key storage
+type GithubKeys struct {
 	client *api.GithubClient
 	team string
 	teamID int
 }
 
-// Get {user} ssh keys
-func (s *githubKeys) Get(user string) (value string, err error) {
+// Get - fetch {user} ssh keys
+func (s *GithubKeys) Get(user string) (value string, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			value = ""
@@ -73,6 +74,7 @@ func (s *githubKeys) Get(user string) (value string, err error) {
 	}
 }
 
-func NewGithubKeys(token, owner, team string, teamID int) *githubKeys {
-	return &githubKeys{client: api.NewGithubClient(token, owner), team: team, teamID: teamID}
+// NewGithubKeys - constructor for github key storage
+func NewGithubKeys(token, owner, team string, teamID int) *GithubKeys {
+	return &GithubKeys{client: api.NewGithubClient(token, owner), team: team, teamID: teamID}
 }

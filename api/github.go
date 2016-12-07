@@ -28,6 +28,7 @@ type GithubClient struct {
 	owner  string
 }
 
+// GetTeam - return team structure based on name or id
 func (c *GithubClient) GetTeam(name string, id int) (*github.Team, error) {
 	teams, response, err := c.client.Organizations.ListTeams(c.owner, nil)
 
@@ -55,22 +56,25 @@ func (c *GithubClient) getUser(name string) (*github.User, error) {
 	return user, err
 }
 
+// IsTeamMember - check if {user} is a membmer of {team}
 func (c *GithubClient) IsTeamMember(user string, team *github.Team) (bool, error) {
 	result, _, err := c.client.Organizations.IsTeamMember(*team.ID, user)
 	return result, err
 }
 
-//
+// GetKeys - return array of user's {userName} public keys
 func (c *GithubClient) GetKeys(userName string) ([]*github.Key, *github.Response, error) {
 	return c.client.Users.ListKeys(userName, nil)
 }
 
-
+// GetTeamMembers - return array of user's that are {team} members
 func (c *GithubClient) GetTeamMembers(team *github.Team) ([]*github.User, error) {
 	users, _, err := c.client.Organizations.ListTeamMembers(*team.ID, nil)
 	return users, err
 }
 
+
+// NewGithubClient - constructor of GithubClient structure
 func NewGithubClient(token, owner string) *GithubClient {
 	c := oauth2.NewClient(oauth2.NoContext, newAccessToken(token))
 	return &GithubClient{client: github.NewClient(c), owner: owner}

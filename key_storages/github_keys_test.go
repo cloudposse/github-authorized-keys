@@ -1,4 +1,4 @@
-package key_storages
+package keyStorages
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -25,7 +25,7 @@ var _ = Describe("GithubKeys as backend storage", func() {
 	})
 
 	Describe("when github.com up", func() {
-		var c *githubKeys
+		var c *GithubKeys
 
 		BeforeEach(func() {
 			c = NewGithubKeys(validToken, validOrg, validTeamName, validTeamID)
@@ -56,7 +56,7 @@ var _ = Describe("GithubKeys as backend storage", func() {
 
 	Describe("when github.com down", func() {
 
-		var c *githubKeys
+		var c *GithubKeys
 
 		BeforeEach(func() {
 			httpmock.Activate()

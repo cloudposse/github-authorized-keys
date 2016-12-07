@@ -12,7 +12,7 @@ import (
 	"github.com/cloudposse/github-authorized-keys/key_storages"
 )
 
-// Default ttl - 1day in seconds = 24 hours * 60 minutes * 60 seconds
+// ETCDTTLDefault - default ttl - 1day in seconds = 24 hours * 60 minutes * 60 seconds
 const ETCDTTLDefault = int64(24 * 60 * 60)
 
 // authorizeCmd represents the authorize command
@@ -54,9 +54,9 @@ To implement this add in /etc/ssh/sshd_config following string
 		//-----------------------------------------------------------------
 
 
-		var keys *key_storages.Proxy
+		var keys *keyStorages.Proxy
 
-		sourceStorage := key_storages.NewGithubKeys(githubAPIToken, githubOrganization, githubTeamName, githubTeamID)
+		sourceStorage := keyStorages.NewGithubKeys(githubAPIToken, githubOrganization, githubTeamName, githubTeamID)
 
 
 		etcdEndpoints := []string{}
@@ -71,13 +71,13 @@ To implement this add in /etc/ssh/sshd_config following string
 				return fmt.Errorf("%v is not valid duration. %v", viper.GetString("etcd_ttl"), err)
 			}
 
-			fallbackStorage, _ := key_storages.NewEtcdCache(etcdEndpoints, ttl)
-			keys = key_storages.NewProxy(sourceStorage, fallbackStorage)
+			fallbackStorage, _ := keyStorages.NewEtcdCache(etcdEndpoints, ttl)
+			keys = keyStorages.NewProxy(sourceStorage, fallbackStorage)
 
 		} else {
 
-			fallbackStorage := &key_storages.NilStorage{}
-			keys = key_storages.NewProxy(sourceStorage, fallbackStorage)
+			fallbackStorage := &keyStorages.NilStorage{}
+			keys = keyStorages.NewProxy(sourceStorage, fallbackStorage)
 		}
 
 		userName := args[0]
@@ -97,7 +97,7 @@ func init() {
 	RootCmd.AddCommand(authorizeCmd)
 
 	authorizeCmd.Flags().StringSlice("etcd-endpoints", make([]string, 0),
-		"Comma separeted gateways for etcd  ( environment variable ETCD_ENDPOINTS could be used instead )")
+		"Comma separeted etcd endpoints ( environment variable ETCD_ENDPOINTS could be used instead )")
 
 	authorizeCmd.Flags().Int64("etcd-ttl", ETCDTTLDefault,
 		"TTL sec for etcd cache ( environment variable ETCD_TTL could be used instead )")

@@ -1,4 +1,4 @@
-package key_storages
+package keyStorages
 
 import (
 	log "github.com/Sirupsen/logrus"
@@ -23,12 +23,15 @@ type source interface {
 	Get(key string) (string, error)
 }
 
-
+// Proxy - key storage fallback proxy.
+// 	Always deal with source key storage first, and sync values with fallback cache storage
+//      If source key storage is unavailable fallback to cache storage
 type Proxy struct {
 	fallbackCache fallbackCache
 	source        source
 }
 
+// Get - fetch value from key storage
 func (c *Proxy) Get(name string) (value string, err error) {
 	logger := log.WithFields(log.Fields{"class": "Proxy", "method": "Get"})
 
@@ -70,6 +73,8 @@ func (c *Proxy) removeFrom(storage fallbackCache, name string) error {
 	return storage.Remove(name)
 }
 
+
+// NewProxy - constructor to create Proxy object
 func NewProxy(source source, fallbackCache fallbackCache) *Proxy {
 	return &Proxy{source: source, fallbackCache: fallbackCache}
 }
