@@ -1,19 +1,19 @@
 package keyStorages
 
 import (
+	"github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/viper"
-	"github.com/jarcoal/httpmock"
 )
 
 var _ = Describe("GithubKeys as backend storage", func() {
 	var (
-		validToken string
-		validOrg string
+		validToken    string
+		validOrg      string
 		validTeamName string
-		validTeamID int
-		validUser string
+		validTeamID   int
+		validUser     string
 	)
 
 	BeforeEach(func() {

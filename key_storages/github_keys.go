@@ -2,8 +2,8 @@ package keyStorages
 
 import (
 	"errors"
-	"strings"
 	log "github.com/Sirupsen/logrus"
+	"strings"
 
 	"github.com/cloudposse/github-authorized-keys/api"
 )
@@ -11,7 +11,7 @@ import (
 // GithubKeys - github api as key storage
 type GithubKeys struct {
 	client *api.GithubClient
-	team string
+	team   string
 	teamID int
 }
 
@@ -42,11 +42,10 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 		return
 	}
 
-	if ! isMember {
+	if !isMember {
 		err = ErrStorageKeyNotFound
 		return
 	}
-
 
 	keys, response, err := s.client.GetKeys(user)
 
@@ -54,23 +53,23 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 	logger.Debugf("Response.StatusCode: %v", response.StatusCode)
 
 	switch response.StatusCode {
-		case 200:
-			result := []string{}
-			for _, value := range keys {
-				result = append(result, *value.Key)
-			}
-			value = strings.Join(result, "\n")
-			return
+	case 200:
+		result := []string{}
+		for _, value := range keys {
+			result = append(result, *value.Key)
+		}
+		value = strings.Join(result, "\n")
+		return
 
-		case 404:
-			value = ""
-			err = ErrStorageKeyNotFound
-			return
+	case 404:
+		value = ""
+		err = ErrStorageKeyNotFound
+		return
 
-		default:
-			value = ""
-			err = errors.New("Access denied")
-			return
+	default:
+		value = ""
+		err = errors.New("Access denied")
+		return
 	}
 }
 

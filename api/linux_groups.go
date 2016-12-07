@@ -1,11 +1,11 @@
 package api
 
 import (
-	"os/user"
 	"errors"
+	"os/user"
 )
 
-const(
+const (
 	// Group file contains one row per group
 	// Format of the row consists at least of  3 columns
 	// https://en.wikipedia.org/wiki/Group_identifier
@@ -22,7 +22,6 @@ const(
 
 	// Group GID stored in 3 column
 	usersColumnNumberInGroup = 3
-
 )
 
 func (linux *Linux) groupLookup(groupName string) (*user.Group, error) {
@@ -37,7 +36,7 @@ func (linux *Linux) groupLookup(groupName string) (*user.Group, error) {
 	}
 
 	group := user.Group{
-		Gid: groupInfo[gidColumnNumberInGroup],
+		Gid:  groupInfo[gidColumnNumberInGroup],
 		Name: groupInfo[nameColumnNumberInGroup],
 	}
 
@@ -56,7 +55,7 @@ func (linux *Linux) groupLookupByID(groupID string) (*user.Group, error) {
 	}
 
 	group := user.Group{
-		Gid: groupInfo[gidColumnNumberInGroup],
+		Gid:  groupInfo[gidColumnNumberInGroup],
 		Name: groupInfo[nameColumnNumberInGroup],
 	}
 

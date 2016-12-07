@@ -1,8 +1,8 @@
 package keyStorages
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"errors"
+	log "github.com/Sirupsen/logrus"
 )
 
 var (
@@ -10,13 +10,13 @@ var (
 	ErrStorageKeyNotFound = errors.New("Storage: Key not found")
 
 	// ErrStorageConnectionFailed - returned when there was connection error to storage (source or fallback cache)
-	ErrStorageConnectionFailed =    errors.New("Storage: Connection failed")
+	ErrStorageConnectionFailed = errors.New("Storage: Connection failed")
 )
 
 type fallbackCache interface {
 	Get(key string) (string, error)
-	Set(key, value string) (error)
-	Remove(key string) (error)
+	Set(key, value string) error
+	Remove(key string) error
 }
 
 type source interface {
@@ -40,20 +40,20 @@ func (c *Proxy) Get(name string) (value string, err error) {
 	value, err = c.lookupIn(c.source, name)
 
 	switch err {
-		case nil:
-			logger.Debugf("Backend found %v", name)
-			c.saveTo(c.fallbackCache, name, value)
-			return
+	case nil:
+		logger.Debugf("Backend found %v", name)
+		c.saveTo(c.fallbackCache, name, value)
+		return
 
-		case ErrStorageKeyNotFound:
-			c.removeFrom(c.fallbackCache, name)
-			return
+	case ErrStorageKeyNotFound:
+		c.removeFrom(c.fallbackCache, name)
+		return
 
-		default:
-			logger.Debug("Backend failed")
-			logger.Debug("Fallback to cache")
-			value, err = c.fallbackCache.Get(name)
-			return
+	default:
+		logger.Debug("Backend failed")
+		logger.Debug("Fallback to cache")
+		value, err = c.fallbackCache.Get(name)
+		return
 	}
 }
 
@@ -72,7 +72,6 @@ func (c *Proxy) removeFrom(storage fallbackCache, name string) error {
 	logger.Debugf("Remove %v from cache", name)
 	return storage.Remove(name)
 }
-
 
 // NewProxy - constructor to create Proxy object
 func NewProxy(source source, fallbackCache fallbackCache) *Proxy {

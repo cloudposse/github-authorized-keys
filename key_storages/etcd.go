@@ -2,14 +2,14 @@ package keyStorages
 
 import (
 	"github.com/coreos/etcd/client"
-	"time"
 	"golang.org/x/net/context"
 	"strings"
+	"time"
 )
 
 // ETCDCache - ETCD based key storage used as cache
 type ETCDCache struct {
-	client client.Client
+	client  client.Client
 	options *client.SetOptions
 	// Prefix path ( starts from / and  without ending / ) to etcd data structure
 	prefix string
@@ -18,8 +18,7 @@ type ETCDCache struct {
 // Get - fetch value from key storage
 func (c *ETCDCache) Get(key string) (value string, err error) {
 	kapi := client.NewKeysAPI(c.client)
-	resp, err := kapi.Get(context.Background(), c.prefix + "/" + key, nil)
-
+	resp, err := kapi.Get(context.Background(), c.prefix+"/"+key, nil)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -29,13 +28,13 @@ func (c *ETCDCache) Get(key string) (value string, err error) {
 	}()
 
 	switch err {
-		case nil:
-			value = resp.Node.Value
-		default:
-			value = ""
-			if err.(client.Error).Code == 100 {
-				err = ErrStorageKeyNotFound
-			}
+	case nil:
+		value = resp.Node.Value
+	default:
+		value = ""
+		if err.(client.Error).Code == 100 {
+			err = ErrStorageKeyNotFound
+		}
 
 	}
 
@@ -45,8 +44,7 @@ func (c *ETCDCache) Get(key string) (value string, err error) {
 // Set - save value into key storage
 func (c *ETCDCache) Set(key, value string) (err error) {
 	kapi := client.NewKeysAPI(c.client)
-	_, err = kapi.Set(context.Background(), c.prefix + "/" + key, value, c.options)
-
+	_, err = kapi.Set(context.Background(), c.prefix+"/"+key, value, c.options)
 
 	if _, ok := err.(*client.ClusterError); ok {
 		err = ErrStorageConnectionFailed
@@ -58,7 +56,7 @@ func (c *ETCDCache) Set(key, value string) (err error) {
 // Remove - remove value by key from key storage
 func (c *ETCDCache) Remove(key string) (err error) {
 	kapi := client.NewKeysAPI(c.client)
-	_, err = kapi.Delete(context.Background(), c.prefix + "/" + key, nil)
+	_, err = kapi.Delete(context.Background(), c.prefix+"/"+key, nil)
 
 	if _, ok := err.(*client.ClusterError); ok {
 		err = ErrStorageConnectionFailed
@@ -70,8 +68,8 @@ func (c *ETCDCache) Remove(key string) (err error) {
 // NewEtcdCache - constructor for etcd based key storage
 func NewEtcdCache(endpoints []string, prefix string, ttl time.Duration) (*ETCDCache, error) {
 	cfg := client.Config{
-		Endpoints:               endpoints,
-		Transport:               client.DefaultTransport,
+		Endpoints: endpoints,
+		Transport: client.DefaultTransport,
 		// set timeout per request to fail fast when the target endpoint is unavailable
 		HeaderTimeoutPerRequest: time.Second,
 	}
@@ -84,7 +82,7 @@ func NewEtcdCache(endpoints []string, prefix string, ttl time.Duration) (*ETCDCa
 	options := &client.SetOptions{TTL: ttl}
 
 	if prefix == "" {
-		prefix  = "/"
+		prefix = "/"
 	}
 
 	// Ensure start from / and remove ending /

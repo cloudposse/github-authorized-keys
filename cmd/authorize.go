@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -19,8 +19,7 @@ const ETCDTTLDefault = int64(24 * 60 * 60)
 var authorizeCmd = &cobra.Command{
 	Use:   "authorize [user]",
 	Short: "Outputs user public key if the user is member of github team",
-	Long:
-`
+	Long: `
 Outputs [user] public key if [user] is member of github team.
 
 Could be used as provider for ssh AuthorizedKeysCommand.
@@ -31,16 +30,15 @@ To implement this add in /etc/ssh/sshd_config following string
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		githubAPIToken 		:= viper.GetString("github_api_token")
-		githubTeamName 		:= viper.GetString("github_team")
-		githubTeamID 		:= viper.GetInt("github_team_id")
-		githubOrganization 	:= viper.GetString("github_organization")
-
+		githubAPIToken := viper.GetString("github_api_token")
+		githubTeamName := viper.GetString("github_team")
+		githubTeamID := viper.GetInt("github_team_id")
+		githubOrganization := viper.GetString("github_organization")
 
 		// Validate user name arg
 		if len(args) <= 0 {
 			return errors.New("User name is required argument")
-		}  else if len(args) > 1 {
+		} else if len(args) > 1 {
 			return errors.New("Can only authorize a single user at a time")
 		}
 
@@ -53,11 +51,9 @@ To implement this add in /etc/ssh/sshd_config following string
 		}
 		//-----------------------------------------------------------------
 
-
 		var keys *keyStorages.Proxy
 
 		sourceStorage := keyStorages.NewGithubKeys(githubAPIToken, githubOrganization, githubTeamName, githubTeamID)
-
 
 		etcdEndpoints := []string{}
 		if etcd := viper.GetString("etcdctl_endpoint"); etcd != "" {
@@ -84,10 +80,11 @@ To implement this add in /etc/ssh/sshd_config following string
 
 		userName := args[0]
 
-
 		// Get keys
 		publicKeys, err := keys.Get(userName)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 
 		fmt.Println(publicKeys)
 
@@ -106,7 +103,6 @@ func init() {
 
 	authorizeCmd.Flags().Int64("etcdctl-ttl", ETCDTTLDefault,
 		"TTL sec for etcd cache               ( environment variable ETCDCTL_TTL could be used instead )")
-
 
 	viper.BindPFlag("etcdctl_endpoint", authorizeCmd.Flags().Lookup("etcdctl-endpoint"))
 

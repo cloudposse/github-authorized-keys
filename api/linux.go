@@ -1,8 +1,8 @@
 package api
 
 import (
-	"os/exec"
 	"bytes"
+	"os/exec"
 	"strings"
 
 	"github.com/valyala/fasttemplate"
@@ -30,7 +30,9 @@ func (linux *Linux) getEntity(database, key string) ([]string, error) {
 	getent.Stdout = &b2
 
 	err := getent.Run()
-	if err != nil { return []string{}, err }
+	if err != nil {
+		return []string{}, err
+	}
 
 	row := strings.Trim(string(b2.Bytes()), "\n")
 

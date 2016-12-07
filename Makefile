@@ -39,6 +39,10 @@ lint: $(GO)
 	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 golint
 	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 $(GO) vet -v
 
+.PHONY: fmt
+fmt: $(GO)
+	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 gofmt -w -l -s
+
 .PHONY: deps-dev
 ## Install development dependencies
 deps-dev: $(GO)

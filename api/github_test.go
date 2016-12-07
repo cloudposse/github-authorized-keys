@@ -8,11 +8,11 @@ import (
 
 var _ = Describe("GithubClient", func() {
 	var (
-		validToken string
-		validOrg string
+		validToken    string
+		validOrg      string
 		validTeamName string
-		validTeamID int
-		validUser string
+		validTeamID   int
+		validUser     string
 	)
 
 	BeforeEach(func() {

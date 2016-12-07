@@ -1,21 +1,21 @@
 package api
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/viper"
 	"os/user"
 	"strconv"
-	"fmt"
 )
 
 var _ = Describe("Linux", func() {
 	var (
-		validToken string
-		validOrg string
+		validToken    string
+		validOrg      string
 		validTeamName string
-		validTeamID int
-		validUser string
+		validTeamID   int
+		validUser     string
 	)
 
 	BeforeEach(func() {
@@ -83,7 +83,7 @@ var _ = Describe("Linux", func() {
 		Context("call without GID", func() {
 			var (
 				userName LinuxUser
-				linux Linux
+				linux    Linux
 			)
 
 			BeforeEach(func() {
@@ -104,10 +104,10 @@ var _ = Describe("Linux", func() {
 
 				Expect(osUser.Username).To(Equal(userName.Name))
 
-				value, _ := strconv.ParseInt(osUser.Gid, 10, 64);
+				value, _ := strconv.ParseInt(osUser.Gid, 10, 64)
 				Expect(value > 0).To(BeTrue())
 
-				gids, _:= osUser.GroupIds()
+				gids, _ := osUser.GroupIds()
 
 				for _, group := range userName.Groups {
 					linuxGroup, err := user.LookupGroup(group)
@@ -124,7 +124,7 @@ var _ = Describe("Linux", func() {
 		Context("call with GID", func() {
 			var (
 				userName LinuxUser
-				linux Linux
+				linux    Linux
 			)
 
 			BeforeEach(func() {
@@ -147,7 +147,7 @@ var _ = Describe("Linux", func() {
 
 				Expect(string(osUser.Gid)).To(Equal(userName.Gid))
 
-				gids, _:= osUser.GroupIds()
+				gids, _ := osUser.GroupIds()
 
 				for _, group := range userName.Groups {
 					linuxGroup, err := user.LookupGroup(group)
@@ -161,7 +161,6 @@ var _ = Describe("Linux", func() {
 			})
 		})
 	})
-
 
 	Describe("groupLookup()", func() {
 		Context("call with non-existing group", func() {
@@ -256,7 +255,7 @@ var _ = Describe("Linux", func() {
 	})
 
 	Describe("groupExists()", func() {
-			Context("call with no existing group", func() {
+		Context("call with no existing group", func() {
 			It("should return false", func() {
 				linux := NewLinux("/")
 				isFound := linux.GroupExists("testdsadasfsa")

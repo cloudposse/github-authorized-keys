@@ -10,13 +10,11 @@ import (
 
 var cfgFile string
 
-
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "github-authorized-keys",
 	Short: "Use GitHub teams to manage system user accounts and authorized_keys",
-	Long:
-`
+	Long: `
 Use GitHub teams to manage system user accounts and authorized_keys.
 
 Config:
@@ -47,9 +45,9 @@ func init() {
 	RootCmd.PersistentFlags().StringP("github-team", "n", "", "Github team name")
 	RootCmd.PersistentFlags().IntP("github-team-id", "i", 0, "Github team id")
 
-	viper.BindPFlag("github_api_token",   RootCmd.PersistentFlags().Lookup("github-api-token"))
-	viper.BindPFlag("github_organization",     RootCmd.PersistentFlags().Lookup("github-organization"))
-	viper.BindPFlag("github_team",    RootCmd.PersistentFlags().Lookup("github-team"))
+	viper.BindPFlag("github_api_token", RootCmd.PersistentFlags().Lookup("github-api-token"))
+	viper.BindPFlag("github_organization", RootCmd.PersistentFlags().Lookup("github-organization"))
+	viper.BindPFlag("github_team", RootCmd.PersistentFlags().Lookup("github-team"))
 	viper.BindPFlag("github_team_id", RootCmd.PersistentFlags().Lookup("github-team-id"))
 }
 
@@ -60,8 +58,8 @@ func initConfig() {
 	}
 
 	viper.SetConfigName(".github-authorized-keys") // name of config file (without extension)
-	viper.AddConfigPath("$HOME")  // adding home directory as first search path
-	viper.AutomaticEnv()          // read in environment variables that match
+	viper.AddConfigPath("$HOME")                   // adding home directory as first search path
+	viper.AutomaticEnv()                           // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {

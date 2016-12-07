@@ -1,7 +1,7 @@
 package keyStorages
 
 // NilStorage - empty key storage
-type NilStorage struct {}
+type NilStorage struct{}
 
 // Get - always return not found
 func (c *NilStorage) Get(name string) (value string, err error) {

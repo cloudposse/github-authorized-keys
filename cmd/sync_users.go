@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -15,18 +15,17 @@ import (
 var syncUsersCmd = &cobra.Command{
 	Use:   "sync-users",
 	Short: "Create linux users for github team members",
-	Long:
-`Create user for each of github team member.
+	Long: `Create user for each of github team member.
 Run on schedule following command to create user asap.
 -------------------------------------
 |  github-authorized-keys sync-users|
 -------------------------------------
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		githubAPIToken 		:= viper.GetString("github_api_token")
-		githubTeamName 		:= viper.GetString("github_team")
-		githubTeamID 		:= viper.GetInt("github_team_id")
-		githubOrganization 	:= viper.GetString("github_organization")
+		githubAPIToken := viper.GetString("github_api_token")
+		githubTeamName := viper.GetString("github_team")
+		githubTeamID := viper.GetInt("github_team_id")
+		githubOrganization := viper.GetString("github_organization")
 
 		userGID := viper.GetString("sync_users_gid")
 
@@ -54,7 +53,7 @@ Run on schedule following command to create user asap.
 		nonExistedGroups := make([]string, 0)
 
 		for _, group := range userGroups {
-			if ! linux.GroupExists(group) {
+			if !linux.GroupExists(group) {
 				nonExistedGroups = append(nonExistedGroups, group)
 			}
 		}
@@ -69,18 +68,22 @@ Run on schedule following command to create user asap.
 		c := api.NewGithubClient(githubAPIToken, githubOrganization)
 		// Load team
 		team, err := c.GetTeam(githubTeamName, githubTeamID)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 
 		// Get all members
 		githubUsers, err := c.GetTeamMembers(team)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 
 		// Here we will store user name for users that got error during creation
 		notCreatedUsers := make([]string, 0)
 
 		for _, githubUser := range githubUsers {
 			// Create only non existed users
-			if ! linux.UserExists(*githubUser.Login) {
+			if !linux.UserExists(*githubUser.Login) {
 
 				linuxUser := api.LinuxUser{Name: *githubUser.Login, Shell: userShell, Groups: userGroups}
 
@@ -96,7 +99,7 @@ Run on schedule following command to create user asap.
 					notCreatedUsers = append(notCreatedUsers, linuxUser.Name)
 				}
 			}
- 		}
+		}
 
 		// Report error if we there was at least one error during user creation
 		if len(notCreatedUsers) > 0 {
@@ -122,8 +125,8 @@ func init() {
 	syncUsersCmd.Flags().StringP("sync-users-root", "r", "/",
 		"Root directory used for chroot                ( environment variable SYNC_USERS_ROOT  could be used instead )")
 
-	viper.BindPFlag("sync_users_gid",    syncUsersCmd.Flags().Lookup("sync-users-gid"))
+	viper.BindPFlag("sync_users_gid", syncUsersCmd.Flags().Lookup("sync-users-gid"))
 	viper.BindPFlag("sync_users_groups", syncUsersCmd.Flags().Lookup("sync-users-groups"))
-	viper.BindPFlag("sync_users_shell",  syncUsersCmd.Flags().Lookup("sync-users-shell"))
-	viper.BindPFlag("sync_users_root",  syncUsersCmd.Flags().Lookup("sync-users-root"))
+	viper.BindPFlag("sync_users_shell", syncUsersCmd.Flags().Lookup("sync-users-shell"))
+	viper.BindPFlag("sync_users_root", syncUsersCmd.Flags().Lookup("sync-users-root"))
 }

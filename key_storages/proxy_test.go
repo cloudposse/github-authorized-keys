@@ -11,18 +11,18 @@ type CacheMap struct {
 
 func (c *CacheMap) Get(name string) (string, error) {
 	val, ok := (*c.storage)[name]
-	if ! ok {
+	if !ok {
 		return "", ErrStorageKeyNotFound
 	}
-	return	val, nil
+	return val, nil
 }
 
-func (c *CacheMap) Set(name, value string) (error) {
+func (c *CacheMap) Set(name, value string) error {
 	(*c.storage)[name] = value
 	return nil
 }
 
-func (c *CacheMap) Remove(name string) (error) {
+func (c *CacheMap) Remove(name string) error {
 	delete(*c.storage, name)
 	return nil
 }
@@ -33,13 +33,13 @@ type BackendMap struct {
 
 func (c *BackendMap) Get(name string) (string, error) {
 	val, ok := (*c.storage)[name]
-	if ! ok {
+	if !ok {
 		return "", ErrStorageKeyNotFound
 	}
-	return	val, nil
+	return val, nil
 }
 
-type BackendFail struct {}
+type BackendFail struct{}
 
 func (c *BackendFail) Get(name string) (string, error) {
 	return "", ErrStorageConnectionFailed
@@ -47,9 +47,9 @@ func (c *BackendFail) Get(name string) (string, error) {
 
 var _ = Describe("Proxy", func() {
 	var (
-		cacheStorage map[string]string
+		cacheStorage   map[string]string
 		backendStorage map[string]string
-		proxyStorage Proxy
+		proxyStorage   Proxy
 	)
 
 	Context("backend have valid value", func() {
@@ -58,8 +58,8 @@ var _ = Describe("Proxy", func() {
 			backendStorage = map[string]string{}
 
 			proxyStorage = Proxy{
-				fallbackCache:   &CacheMap{storage: &cacheStorage},
-				source: &BackendMap{storage: &backendStorage},
+				fallbackCache: &CacheMap{storage: &cacheStorage},
+				source:        &BackendMap{storage: &backendStorage},
 			}
 
 			backendStorage["goruha"] = "TestValue"
@@ -88,8 +88,8 @@ var _ = Describe("Proxy", func() {
 			backendStorage = map[string]string{}
 
 			proxyStorage = Proxy{
-				fallbackCache:   &CacheMap{storage: &cacheStorage},
-				source: &BackendMap{storage: &backendStorage},
+				fallbackCache: &CacheMap{storage: &cacheStorage},
+				source:        &BackendMap{storage: &backendStorage},
 			}
 
 			cacheStorage["goruha"] = "TestValue"
@@ -119,8 +119,8 @@ var _ = Describe("Proxy", func() {
 			backendStorage = map[string]string{}
 
 			proxyStorage = Proxy{
-				fallbackCache:   &CacheMap{storage: &cacheStorage},
-				source: &BackendMap{storage: &backendStorage},
+				fallbackCache: &CacheMap{storage: &cacheStorage},
+				source:        &BackendMap{storage: &backendStorage},
 			}
 		})
 
@@ -138,8 +138,8 @@ var _ = Describe("Proxy", func() {
 			cacheStorage = map[string]string{}
 
 			proxyStorage = Proxy{
-				fallbackCache:   &CacheMap{storage: &cacheStorage},
-				source: &BackendFail{},
+				fallbackCache: &CacheMap{storage: &cacheStorage},
+				source:        &BackendFail{},
 			}
 
 			cacheStorage["goruha"] = "TestValue"

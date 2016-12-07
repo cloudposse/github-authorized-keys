@@ -73,7 +73,6 @@ func (c *GithubClient) GetTeamMembers(team *github.Team) ([]*github.User, error)
 	return users, err
 }
 
-
 // NewGithubClient - constructor of GithubClient structure
 func NewGithubClient(token, owner string) *GithubClient {
 	c := oauth2.NewClient(oauth2.NoContext, newAccessToken(token))

@@ -3,28 +3,28 @@ package keyStorages
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"time"
 	"github.com/spf13/viper"
 	"strings"
+	"time"
 )
 
 var _ = Describe("ETCD", func() {
 
 	const (
-		validKey = "TestKey"
-		validValue = "TestValue"
+		validKey       = "TestKey"
+		validValue     = "TestValue"
 		testETCDPrefix = "/github-authorized-keys/tests"
 	)
 
 	var (
 		validToken string
-		validOrg string
-		validUser string
+		validOrg   string
+		validUser  string
 	)
 
 	var (
 		endpoints []string
-		ttl time.Duration
+		ttl       time.Duration
 	)
 
 	BeforeEach(func() {
@@ -34,8 +34,6 @@ var _ = Describe("ETCD", func() {
 
 		ttl = 10 * time.Millisecond
 	})
-
-
 
 	Describe("with valid connection url", func() {
 		BeforeEach(func() {
@@ -176,9 +174,9 @@ var _ = Describe("ETCD", func() {
 			})
 
 			It("should return empty value and valid error ", func() {
-					value, err := client.Get(validKey)
-					Expect(err).To(Equal(ErrStorageConnectionFailed))
-					Expect(value).To(Equal(""))
+				value, err := client.Get(validKey)
+				Expect(err).To(Equal(ErrStorageConnectionFailed))
+				Expect(value).To(Equal(""))
 			})
 		})
 
@@ -192,8 +190,8 @@ var _ = Describe("ETCD", func() {
 			})
 
 			It("should return empty value and valid error ", func() {
-					err := client.Remove(validKey)
-					Expect(err).To(Equal(ErrStorageConnectionFailed))
+				err := client.Remove(validKey)
+				Expect(err).To(Equal(ErrStorageConnectionFailed))
 			})
 		})
 	})
