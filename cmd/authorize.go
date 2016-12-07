@@ -60,15 +60,15 @@ To implement this add in /etc/ssh/sshd_config following string
 
 
 		etcdEndpoints := []string{}
-		if etcd := viper.GetString("etcd_endpoints"); etcd != "" {
+		if etcd := viper.GetString("etcdctl_endpoint"); etcd != "" {
 			etcdEndpoints = strings.Split(etcd, ",")
 		}
 
 		if len(etcdEndpoints) > 0 {
 			// add "s" suffix because duration should be in seconds.
-			etcdTTL, err := time.ParseDuration(viper.GetString("etcd_ttl") + "s")
+			etcdTTL, err := time.ParseDuration(viper.GetString("etcdctl_ttl") + "s")
 			if err != nil {
-				return fmt.Errorf("%v is not valid duration. %v", viper.GetString("etcd_ttl"), err)
+				return fmt.Errorf("%v is not valid duration. %v", viper.GetString("etcdctl_ttl"), err)
 			}
 
 			fallbackStorage, _ := keyStorages.NewEtcdCache(etcdEndpoints, etcdTTL)
@@ -96,13 +96,13 @@ To implement this add in /etc/ssh/sshd_config following string
 func init() {
 	RootCmd.AddCommand(authorizeCmd)
 
-	authorizeCmd.Flags().StringSlice("etcd-endpoints", make([]string, 0),
-		"Comma separeted etcd endpoints ( environment variable ETCD_ENDPOINTS could be used instead )")
+	authorizeCmd.Flags().StringSlice("etcdctl-endpoint", make([]string, 0),
+		"Comma separeted etcd endpoints ( environment variable ETCDCTL_ENDPOINT could be used instead )")
 
-	authorizeCmd.Flags().Int64("etcd-ttl", ETCDTTLDefault,
-		"TTL sec for etcd cache ( environment variable ETCD_TTL could be used instead )")
+	authorizeCmd.Flags().Int64("etcdctl-ttl", ETCDTTLDefault,
+		"TTL sec for etcd cache ( environment variable ETCDCTL_TTL could be used instead )")
 
-	viper.BindPFlag("etcd_endpoints", authorizeCmd.Flags().Lookup("etcd-endpoints"))
+	viper.BindPFlag("etcdctl_endpoint", authorizeCmd.Flags().Lookup("etcdctl-endpoint"))
 
-	viper.BindPFlag("etcd_ttl", authorizeCmd.Flags().Lookup("etcd-ttl"))
+	viper.BindPFlag("etcdctl_ttl", authorizeCmd.Flags().Lookup("etcdctl-ttl"))
 }

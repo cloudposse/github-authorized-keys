@@ -11,9 +11,12 @@ build: $(GO)
 .PHONY: test
 ## Run tests
 test: $(GO)
-	$(GO) test -v github.com/cloudposse/github-authorized-keys/api \
-	              github.com/cloudposse/github-authorized-keys/key_storages
-
+  ## Find tests in all dirs expect vendor dir and dirs starts from . ##
+  ## Convert local dir path to package absolute name ##
+  ## Run tests ##
+	find !  -path "\./\.*" ! -path "\./vendor*" -type d | \
+	sed -e "s/\./github.com\/cloudposse\/github-authorized-keys/g" | \
+	xargs -n 1 $(GO) test -v
 
 .PHONY: deps
 ## Install dependencies

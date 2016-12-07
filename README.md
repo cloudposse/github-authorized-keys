@@ -132,8 +132,8 @@ You can specify params as flags
 --github-api-token={token} \
 --github-organization={organization} \
 --github-team={team} \
---etcd-endpoints={etcd endpoints comma separeted - optional} \
---etcd-ttl={etcd ttl - default 1 day} \
+--etcdctl-endpoint={etcd endpoints comma separeted - optional} \
+--etcdctl-ttl={etcd ttl - default 1 day} \
 authorize {user}
 ```
 
@@ -144,8 +144,8 @@ or as environment variables
 GITHUB_API_TOKEN={token} \
 GITHUB_ORGANIZATION={organization} \
 GITHUB_TEAM={team} \
-ETCD_ENDPOINTS={etcd endpoints comma separeted - optional} \
-ETCD_TTL={etcd ttl - default 1 day} \
+ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional} \
+ETCDCTL_TTL={etcd ttl - default 1 day} \
 /usr/local/sbin/github-authorized-keys authorize {user}
 ```
 
@@ -158,8 +158,8 @@ docker run \
 -e GITHUB_API_TOKEN={token} \
 -e GITHUB_ORGANIZATION={organization} \
 -e GITHUB_TEAM={team} \
--e ETCD_ENDPOINTS={etcd endpoints comma separeted - optional} \
--e ETCD_TTL={etcd ttl - default 1 day} \
+-e ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional} \
+-e ETCDCTL_TTL={etcd ttl - default 1 day} \
 github-authorized-keys authorize {user}
 ```
 
@@ -373,8 +373,8 @@ TEST_GITHUB_ORGANIZATION={organization name} \
 TEST_GITHUB_TEAM={team name} \
 TEST_GITHUB_TEAM_ID={team id} \
 TEST_GITHUB_USER={user} \
-TEST_ETCD_ENDPOINTS={etcd endpoints comma separeted - optional}
-TEST_ETCD_TTL={etcd ttl - default 1 day}
+TEST_ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional}
+TEST_ETCDCTL_TTL={etcd ttl - default 1 day}
 make test
 ```
 
@@ -411,6 +411,6 @@ docker build \
 --build-arg  TEST_GITHUB_TEAM={team} \
 --build-arg  TEST_GITHUB_TEAM_ID={team_id} \
 --build-arg  TEST_GITHUB_USER={user}
---build-arg  TEST_ETCD_ENDPOINTS={etcd endpoints comma separeted - optional}
---build-arg  TEST_ETCD_TTL={etcd ttl - default 1 day}
+--build-arg  TEST_ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional}
+--build-arg  TEST_ETCDCTL_TTL={etcd ttl - default 1 day}
 ```

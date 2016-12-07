@@ -96,7 +96,7 @@ Vagrant.configure("2") do |config|
     sed -i -- 's/#DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4"/DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4"/g' /etc/default/docker
     service docker restart
 
-    printf "#!/bin/bash \n /usr/bin/docker run --network=host -e ETCD_ENDPOINTS=http://127.0.0.1:2379 -e GITHUB_API_TOKEN=#{github_api_token} -e GITHUB_ORGANIZATION=#{github_organization} -e GITHUB_TEAM=#{github_team} vagrant_github-authorized-keys authorize \\$1" > /usr/local/bin/github-authorized-keys
+    printf "#!/bin/bash \n /usr/bin/docker run --network=host -e ETCDCTL_ENDPOINT=http://127.0.0.1:2379 -e GITHUB_API_TOKEN=#{github_api_token} -e GITHUB_ORGANIZATION=#{github_organization} -e GITHUB_TEAM=#{github_team} vagrant_github-authorized-keys authorize \\$1" > /usr/local/bin/github-authorized-keys
 
     chmod +x /usr/local/bin/github-authorized-keys
 

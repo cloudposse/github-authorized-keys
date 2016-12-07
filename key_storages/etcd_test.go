@@ -39,7 +39,7 @@ var _ = Describe("ETCD", func() {
 	Describe("with valid connection url", func() {
 		BeforeEach(func() {
 			endpoints = []string{}
-			if etcd := viper.GetString("etcd_endpoints"); etcd != "" {
+			if etcd := viper.GetString("etcdctl_endpoint"); etcd != "" {
 				endpoints = strings.Split(etcd, ",")
 			}
 		})
@@ -48,7 +48,7 @@ var _ = Describe("ETCD", func() {
 			Context("call with valid connection url", func() {
 				It("should return nil error", func() {
 					if len(endpoints) == 0 {
-						Skip("Specify TEST_ETCD_ENDPOINTS to run this test")
+						Skip("Specify TEST_ETCDCTL_ENDPOINT to run this test")
 					}
 					_, err := NewEtcdCache(endpoints, ttl)
 					Expect(err).To(BeNil())
@@ -60,7 +60,7 @@ var _ = Describe("ETCD", func() {
 			Context(" key => value", func() {
 				It("should return nil error", func() {
 					if len(endpoints) == 0 {
-						Skip("Specify TEST_ETCD_ENDPOINTS to run this test")
+						Skip("Specify TEST_ETCDCTL_ENDPOINT to run this test")
 					}
 
 					client, _ := NewEtcdCache(endpoints, ttl)
@@ -85,7 +85,7 @@ var _ = Describe("ETCD", func() {
 			Context("call with existed key", func() {
 				It("should return valid value and nil error ", func() {
 					if len(endpoints) == 0 {
-						Skip("Specify TEST_ETCD_ENDPOINTS to run this test")
+						Skip("Specify TEST_ETCDCTL_ENDPOINT to run this test")
 					}
 
 					client.Set(validKey, validValue)
@@ -98,7 +98,7 @@ var _ = Describe("ETCD", func() {
 			Context("call with existed key after ttl expired", func() {
 				It("should return empty value and error ", func() {
 					if len(endpoints) == 0 {
-						Skip("Specify TEST_ETCD_ENDPOINTS to run this test")
+						Skip("Specify TEST_ETCDCTL_ENDPOINT to run this test")
 					}
 
 					client.Set(validKey, validValue)
@@ -124,7 +124,7 @@ var _ = Describe("ETCD", func() {
 			Context("call with removed existed key", func() {
 				It("should return empty value and valid error ", func() {
 					if len(endpoints) == 0 {
-						Skip("Specify TEST_ETCD_ENDPOINTS to run this test")
+						Skip("Specify TEST_ETCDCTL_ENDPOINT to run this test")
 					}
 
 					client.Set(validKey, validValue)
