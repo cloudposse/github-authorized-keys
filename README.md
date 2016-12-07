@@ -72,32 +72,59 @@ You can check what is going with ssh inside vagrant box
 ## Getting started
 
 Tool is writen on go lang and provides a command line interface.
-It is possible to run this command as simple cli application or in docker container.
+It is possible to use this command as simple cli application or in docker container.
 
-### Run as cli
+### Requirements
 
-#### Requirements
+#### Use as CLI
 
-  [Go lang 1.7.x](https://golang.org/)
-  [glide](https://github.com/Masterminds/glide)
+  * [Go lang 1.7.x](https://golang.org/)
+  * [glide](https://github.com/Masterminds/glide)
 
-#### Install
+#### Use in containers
 
-  Compile with command
-  ```
+  * [Docker](https://docs.docker.com/engine/installation)
+
+### Install
+
+#### Use as CLI
+
+
+Compile with command
+```
 make deps
 make build
 make install
-  ```
+```
 
 After installation you could find command as
 ```
 /usr/local/sbin/github-authorized-keys
 ```
 
-#### Run
+#### Use in containers
 
-##### Authorize command
+  Build docker image
+
+ ```
+ docker build ./ -t github-authorized-keys
+ ```
+
+### Run
+
+
+#### Authorize command
+
+Authorize command used as provider of public ssh keys for sshd.
+You need to config  AuthorizedKeysCommand in sshd_config to call authorize command (using shell wrapper).
+
+Authorize command use ETCD to temporary cache user's public keys.
+If github.com is not available command fallback to ETCD storage.
+
+ETCD endpoints param is optional, if not specify caching and fallback disabled.
+
+##### Use as CLI
+
 You can specify params as flags
 
 ```
@@ -105,6 +132,8 @@ You can specify params as flags
 --github-api-token={token} \
 --github-organization={organization} \
 --github-team={team} \
+--etcd-endpoints={etcd endpoints comma separeted - optional} \
+--etcd-ttl={etcd ttl - default 1 day} \
 authorize {user}
 ```
 
@@ -115,12 +144,30 @@ or as environment variables
 GITHUB_API_TOKEN={token} \
 GITHUB_ORGANIZATION={organization} \
 GITHUB_TEAM={team} \
+ETCD_ENDPOINTS={etcd endpoints comma separeted - optional} \
+ETCD_TTL={etcd ttl - default 1 day} \
 /usr/local/sbin/github-authorized-keys authorize {user}
 ```
 
 or you can mix that approaches
 
-##### Create users
+##### Use in containers
+
+```
+docker run \
+-e GITHUB_API_TOKEN={token} \
+-e GITHUB_ORGANIZATION={organization} \
+-e GITHUB_TEAM={team} \
+-e ETCD_ENDPOINTS={etcd endpoints comma separeted - optional} \
+-e ETCD_TTL={etcd ttl - default 1 day} \
+github-authorized-keys authorize {user}
+```
+
+#### Create users
+
+Creates users on
+
+##### Use as CLI
 
 You can specify params as flags
 
@@ -150,31 +197,7 @@ SYNC_USERS_SHELL={user shell} \
 
 or you can mix that approaches
 
-### Run in containers
-
-#### Requirements
-
-  [Docker](https://docs.docker.com/engine/installation)
-
-#### Build docker image
-```
-docker build ./ -t github-authorized-keys
-```
-
-### Run docker image
-
-#### Authorize command
-
-```
-docker run \
--e GITHUB_API_TOKEN={token} \
--e GITHUB_ORGANIZATION={organization} \
--e GITHUB_TEAM={team} \
-github-authorized-keys authorize {user}
-```
-
-
-#### Create users
+##### Use in containers
 
 ```
 docker run \
@@ -225,6 +248,14 @@ docker exec -it github-authorized-keys sh
 
 Source code is shared into ``/go/src/github.com/cloudposse/github-authorized-keys`` directory.
 
+**Install dev tools inside container**
+
+```
+apk update
+apk add git make curl
+curl https://glide.sh/get | sh
+```
+
 
 ### Install go libs dependencies
 
@@ -265,6 +296,8 @@ TEST_GITHUB_ORGANIZATION={organization name} \
 TEST_GITHUB_TEAM={team name} \
 TEST_GITHUB_TEAM_ID={team id} \
 TEST_GITHUB_USER={user} \
+TEST_ETCD_ENDPOINTS={etcd endpoints comma separeted - optional}
+TEST_ETCD_TTL={etcd ttl - default 1 day}
 make test
 ```
 
@@ -301,4 +334,6 @@ docker build \
 --build-arg  TEST_GITHUB_TEAM={team} \
 --build-arg  TEST_GITHUB_TEAM_ID={team_id} \
 --build-arg  TEST_GITHUB_USER={user}
+--build-arg  TEST_ETCD_ENDPOINTS={etcd endpoints comma separeted - optional}
+--build-arg  TEST_ETCD_TTL={etcd ttl - default 1 day}
 ```

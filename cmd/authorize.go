@@ -97,7 +97,7 @@ func init() {
 	RootCmd.AddCommand(authorizeCmd)
 
 	authorizeCmd.Flags().StringSlice("etcd-endpoints", make([]string, 0),
-		"Comma separeted gateways for etcd  ( environment variable ETCD could be used instead )")
+		"Comma separeted gateways for etcd  ( environment variable ETCD_ENDPOINTS could be used instead )")
 
 	authorizeCmd.Flags().Int64("etcd-ttl", ETCDTTLDefault,
 		"TTL sec for etcd cache ( environment variable ETCD_TTL could be used instead )")
