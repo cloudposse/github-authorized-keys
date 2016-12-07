@@ -33,14 +33,8 @@ install: $(APP)
 .PHONY: lint
 ## Lint code
 lint: $(GO)
-	golint cmd/*
-	golint api/*
-	golint key_storages/*
-	golint *.go
-	$(GO) vet -v cmd/*
-	$(GO) vet -v api/*
-	$(GO) vet -v key_storages/*
-	$(GO) vet -v *.go
+	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 golint
+	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 $(GO) vet -v
 
 .PHONY: deps-dev
 ## Install development dependencies
