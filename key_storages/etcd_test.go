@@ -13,6 +13,7 @@ var _ = Describe("ETCD", func() {
 	const (
 		validKey = "TestKey"
 		validValue = "TestValue"
+		testETCDPrefix = "/github-authorized-keys/tests"
 	)
 
 	var (
@@ -50,7 +51,7 @@ var _ = Describe("ETCD", func() {
 					if len(endpoints) == 0 {
 						Skip("Specify TEST_ETCDCTL_ENDPOINT to run this test")
 					}
-					_, err := NewEtcdCache(endpoints, ttl)
+					_, err := NewEtcdCache(endpoints, testETCDPrefix, ttl)
 					Expect(err).To(BeNil())
 				})
 			})
@@ -63,7 +64,7 @@ var _ = Describe("ETCD", func() {
 						Skip("Specify TEST_ETCDCTL_ENDPOINT to run this test")
 					}
 
-					client, _ := NewEtcdCache(endpoints, ttl)
+					client, _ := NewEtcdCache(endpoints, testETCDPrefix, ttl)
 
 					err := client.Set(validKey, validValue)
 
@@ -78,7 +79,7 @@ var _ = Describe("ETCD", func() {
 			)
 
 			BeforeEach(func() {
-				client, _ = NewEtcdCache(endpoints, ttl)
+				client, _ = NewEtcdCache(endpoints, testETCDPrefix, ttl)
 
 			})
 
@@ -118,7 +119,7 @@ var _ = Describe("ETCD", func() {
 			)
 
 			BeforeEach(func() {
-				client, _ = NewEtcdCache(endpoints, ttl)
+				client, _ = NewEtcdCache(endpoints, testETCDPrefix, ttl)
 			})
 
 			Context("call with removed existed key", func() {
@@ -147,7 +148,7 @@ var _ = Describe("ETCD", func() {
 		Describe("constructor newEtcdCache()", func() {
 			Context("call with valid connection url", func() {
 				It("should return nil error", func() {
-					_, err := NewEtcdCache(endpoints, ttl)
+					_, err := NewEtcdCache(endpoints, testETCDPrefix, ttl)
 					Expect(err).To(BeNil())
 				})
 			})
@@ -156,7 +157,7 @@ var _ = Describe("ETCD", func() {
 		Describe("Set()", func() {
 			Context(" key => value", func() {
 				It("should return nil error", func() {
-					client, _ := NewEtcdCache(endpoints, ttl)
+					client, _ := NewEtcdCache(endpoints, testETCDPrefix, ttl)
 
 					err := client.Set(validKey, validValue)
 
@@ -171,7 +172,7 @@ var _ = Describe("ETCD", func() {
 			)
 
 			BeforeEach(func() {
-				client, _ = NewEtcdCache(endpoints, ttl)
+				client, _ = NewEtcdCache(endpoints, testETCDPrefix, ttl)
 			})
 
 			It("should return empty value and valid error ", func() {
@@ -187,7 +188,7 @@ var _ = Describe("ETCD", func() {
 			)
 
 			BeforeEach(func() {
-				client, _ = NewEtcdCache(endpoints, ttl)
+				client, _ = NewEtcdCache(endpoints, testETCDPrefix, ttl)
 			})
 
 			It("should return empty value and valid error ", func() {

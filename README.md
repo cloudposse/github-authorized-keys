@@ -134,6 +134,7 @@ You can specify params as flags
 --github-team={team} \
 --etcdctl-endpoint={etcd endpoints comma separeted - optional} \
 --etcdctl-ttl={etcd ttl - default 1 day} \
+--etcdctl-prefix={prefix or path to store data - default /github-authorized-keys} \
 authorize {user}
 ```
 
@@ -146,6 +147,7 @@ GITHUB_ORGANIZATION={organization} \
 GITHUB_TEAM={team} \
 ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional} \
 ETCDCTL_TTL={etcd ttl - default 1 day} \
+ETCDCTL_PREFIX={prefix or path to store data - default /github-authorized-keys} \
 /usr/local/sbin/github-authorized-keys authorize {user}
 ```
 
@@ -160,6 +162,7 @@ docker run \
 -e GITHUB_TEAM={team} \
 -e ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional} \
 -e ETCDCTL_TTL={etcd ttl - default 1 day} \
+-e ETCDCTL_PREFIX={prefix or path to store data - default /github-authorized-keys} \
 github-authorized-keys authorize {user}
 ```
 
@@ -374,7 +377,6 @@ TEST_GITHUB_TEAM={team name} \
 TEST_GITHUB_TEAM_ID={team id} \
 TEST_GITHUB_USER={user} \
 TEST_ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional}
-TEST_ETCDCTL_TTL={etcd ttl - default 1 day}
 make test
 ```
 
@@ -412,5 +414,4 @@ docker build \
 --build-arg  TEST_GITHUB_TEAM_ID={team_id} \
 --build-arg  TEST_GITHUB_USER={user}
 --build-arg  TEST_ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional}
---build-arg  TEST_ETCDCTL_TTL={etcd ttl - default 1 day}
 ```

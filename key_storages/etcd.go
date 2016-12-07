@@ -4,18 +4,21 @@ import (
 	"github.com/coreos/etcd/client"
 	"time"
 	"golang.org/x/net/context"
+	"strings"
 )
 
 // ETCDCache - ETCD based key storage used as cache
 type ETCDCache struct {
 	client client.Client
 	options *client.SetOptions
+	// Prefix path ( starts from / and  without ending / ) to etcd data structure
+	prefix string
 }
 
 // Get - fetch value from key storage
 func (c *ETCDCache) Get(key string) (value string, err error) {
 	kapi := client.NewKeysAPI(c.client)
-	resp, err := kapi.Get(context.Background(), key, nil)
+	resp, err := kapi.Get(context.Background(), c.prefix + "/" + key, nil)
 
 
 	defer func() {
@@ -42,7 +45,7 @@ func (c *ETCDCache) Get(key string) (value string, err error) {
 // Set - save value into key storage
 func (c *ETCDCache) Set(key, value string) (err error) {
 	kapi := client.NewKeysAPI(c.client)
-	_, err = kapi.Set(context.Background(), key, value, c.options)
+	_, err = kapi.Set(context.Background(), c.prefix + "/" + key, value, c.options)
 
 
 	if _, ok := err.(*client.ClusterError); ok {
@@ -55,7 +58,7 @@ func (c *ETCDCache) Set(key, value string) (err error) {
 // Remove - remove value by key from key storage
 func (c *ETCDCache) Remove(key string) (err error) {
 	kapi := client.NewKeysAPI(c.client)
-	_, err = kapi.Delete(context.Background(), key, nil)
+	_, err = kapi.Delete(context.Background(), c.prefix + "/" + key, nil)
 
 	if _, ok := err.(*client.ClusterError); ok {
 		err = ErrStorageConnectionFailed
@@ -65,7 +68,7 @@ func (c *ETCDCache) Remove(key string) (err error) {
 }
 
 // NewEtcdCache - constructor for etcd based key storage
-func NewEtcdCache(endpoints []string, ttl time.Duration) (*ETCDCache, error) {
+func NewEtcdCache(endpoints []string, prefix string, ttl time.Duration) (*ETCDCache, error) {
 	cfg := client.Config{
 		Endpoints:               endpoints,
 		Transport:               client.DefaultTransport,
@@ -80,5 +83,12 @@ func NewEtcdCache(endpoints []string, ttl time.Duration) (*ETCDCache, error) {
 
 	options := &client.SetOptions{TTL: ttl}
 
-	return &ETCDCache{client: c, options: options}, err
+	if prefix == "" {
+		prefix  = "/"
+	}
+
+	// Ensure start from / and remove ending /
+	prefix = "/" + strings.Trim(prefix, "/")
+
+	return &ETCDCache{client: c, prefix: prefix, options: options}, err
 }

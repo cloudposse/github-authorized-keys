@@ -71,7 +71,9 @@ To implement this add in /etc/ssh/sshd_config following string
 				return fmt.Errorf("%v is not valid duration. %v", viper.GetString("etcdctl_ttl"), err)
 			}
 
-			fallbackStorage, _ := keyStorages.NewEtcdCache(etcdEndpoints, etcdTTL)
+			etcdPrefix := viper.GetString("etcdctl_prefix")
+
+			fallbackStorage, _ := keyStorages.NewEtcdCache(etcdEndpoints, etcdPrefix, etcdTTL)
 			keys = keyStorages.NewProxy(sourceStorage, fallbackStorage)
 
 		} else {
@@ -97,12 +99,18 @@ func init() {
 	RootCmd.AddCommand(authorizeCmd)
 
 	authorizeCmd.Flags().StringSlice("etcdctl-endpoint", make([]string, 0),
-		"Comma separeted etcd endpoints ( environment variable ETCDCTL_ENDPOINT could be used instead )")
+		"Comma separeted etcd endpoints       ( environment variable ETCDCTL_ENDPOINT could be used instead )")
+
+	authorizeCmd.Flags().String("etcdctl-prefix", "/github-authorized-keys",
+		"Path in etcd structure to place data ( environment variable ETCDCTL_PREFIX could be used instead )")
 
 	authorizeCmd.Flags().Int64("etcdctl-ttl", ETCDTTLDefault,
-		"TTL sec for etcd cache ( environment variable ETCDCTL_TTL could be used instead )")
+		"TTL sec for etcd cache               ( environment variable ETCDCTL_TTL could be used instead )")
+
 
 	viper.BindPFlag("etcdctl_endpoint", authorizeCmd.Flags().Lookup("etcdctl-endpoint"))
 
 	viper.BindPFlag("etcdctl_ttl", authorizeCmd.Flags().Lookup("etcdctl-ttl"))
+
+	viper.BindPFlag("etcdctl_prefix", authorizeCmd.Flags().Lookup("etcdctl-prefix"))
 }
