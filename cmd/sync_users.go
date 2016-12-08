@@ -113,5 +113,4 @@ Run on schedule following command to create user asap.
 func init() {
 	RootCmd.AddCommand(syncUsersCmd)
 
-
 }

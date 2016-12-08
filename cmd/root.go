@@ -4,59 +4,63 @@ import (
 	"fmt"
 	"os"
 
+	"errors"
+	"github.com/gin-gonic/gin"
+	"github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/gin-gonic/gin"
 	"strings"
-	"github.com/cloudposse/github-authorized-keys/api"
 	"time"
 )
 
 var cfgFile string
 
-
 type config struct {
-	githubAPIToken string
-	githubOrganization string
-	githubTeamName string
-	githubTeamID int
+	GithubAPIToken     string
+	GithubOrganization string
+	GithubTeamName     string
+	GithubTeamID       int
 
-	etcdEndpoints 	[]string
-	etcdTTL       string
+	EtcdEndpoints []string
+	EtcdTTL       time.Duration
+	EtcdPrefix    string
 
-	userGID    string
-	userGroups []string
-	userShell  string
-	root   string
+	UserGID    string
+	UserGroups []string
+	UserShell  string
+	Root       string
 }
 
 type flag struct {
-	short string
-	flagType string
-	option string
+	short        string
+	flagType     string
+	option       string
 	defaultValue interface{}
-	description string
+	description  string
 }
 
 func (f *flag) flag() string {
 	return strings.Replace(f.option, "_", "-", -1)
 }
 
+// ETCDTTLDefault - default ttl - 1day in seconds = 24 hours * 60 minutes * 60 seconds
+const ETCDTTLDefault = int64(24 * 60 * 60)
 
 var flags = []flag{
-flag{"t", "string",  "github_api_token",    "", 		       "Github API token    ( environment variable GITHUB_API_TOKEN could be used instead ) (read more https://github.com/blog/1509-personal-api-tokens)"},
-flag{"o", "string",  "github_organization", "", 		       "Github organization ( environment variable GITHUB_ORGANIZATION could be used instead )"},
-flag{"n", "string",  "github_team",         "", 		       "Github team name    ( environment variable GITHUB_TEAM could be used instead )"},
-flag{"i", "int",     "github_team_id",       0, 		       "Github team id 	    ( environment variable GITHUB_TEAM_ID could be used instead )"},
+	{"t", "string", "github_api_token", "", "Github API token    ( environment variable GITHUB_API_TOKEN could be used instead ) (read more https://github.com/blog/1509-personal-api-tokens)"},
+	{"o", "string", "github_organization", "", "Github organization ( environment variable GITHUB_ORGANIZATION could be used instead )"},
+	{"n", "string", "github_team", "", "Github team name    ( environment variable GITHUB_TEAM could be used instead )"},
+	{"i", "int", "github_team_id", 0, "Github team id 	    ( environment variable GITHUB_TEAM_ID could be used instead )"},
 
-flag{"g", "string",  "sync_users_gid",      "", 		       "Primary group id    ( environment variable SYNC_USERS_GID could be used instead )"},
-flag{"G", "strings", "sync_users_groups",   []string{}, 	       "CSV groups name     ( environment variable SYNC_USERS_GROUPS could be used instead )"},
-flag{"s", "string",  "sync_users_shell",    "/bin/bash",	       "User shell 	    ( environment variable SYNC_USERS_SHELL could be used instead )"},
-flag{"r", "string",  "sync_users_root",     "/",		       "Root directory 	    ( environment variable SYNC_USERS_ROOT could be used instead )"},
+	{"g", "string", "sync_users_gid", "", "Primary group id    ( environment variable SYNC_USERS_GID could be used instead )"},
+	{"G", "strings", "sync_users_groups", []string{}, "CSV groups name     ( environment variable SYNC_USERS_GROUPS could be used instead )"},
+	{"s", "string", "sync_users_shell", "/bin/bash", "User shell 	    ( environment variable SYNC_USERS_SHELL could be used instead )"},
+	{"r", "string", "sync_users_root", "/", "Root directory 	    ( environment variable SYNC_USERS_ROOT could be used instead )"},
 
-flag{"e", "strings", "etcdctl_endpoint",    []string{},		       "CSV etcd endpoints  ( environment variable ETCDCTL_ENDPOINT could be used instead )"},
-flag{"p", "string",  "etcdctl_prefix",      "/github-authorized-keys", "Path for etcd data  ( environment variable ETCDCTL_PREFIX could be used instead )"},
-flag{"l", "int64",   "etcdctl_ttl",    	    ETCDTTLDefault,	       "ETCD value's ttl    ( environment variable ETCDCTL_TTL could be used instead )"},
+	{"e", "strings", "etcdctl_endpoint", []string{}, "CSV etcd endpoints  ( environment variable ETCDCTL_ENDPOINT could be used instead )"},
+	{"p", "string", "etcdctl_prefix", "/github-authorized-keys", "Path for etcd data  ( environment variable ETCDCTL_PREFIX could be used instead )"},
+	{"l", "int64", "etcdctl_ttl", ETCDTTLDefault, "ETCD value's ttl    ( environment variable ETCDCTL_TTL could be used instead )"},
 }
 
 // RootCmd represents the base command when called without any subcommands
@@ -74,34 +78,66 @@ Config:
   			OR
   		   Github team id   | flag --github-team-id OR Environment variable GITHUB_TEAM_ID
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		router := gin.Default()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		etcdTTL, err := time.ParseDuration(viper.GetString("etcdctl_ttl") + "s")
 
-		cfg := config {
-			githubAPIToken: 	viper.GetString("github_api_token"),
-			githubOrganization: 	viper.GetString("github_organization"),
-			githubTeamName:		viper.GetString("github_team"),
-			githubTeamID:		viper.GetInt("github_team_id"),
-
-			etcdEndpoints:	fixStringSlice(viper.GetString("etcdctl_endpoint")),
-			etcdTTL: 	viper.GetString("etcdctl_ttl"),
-
-			userGID: viper.GetString("sync_users_gid"),
-			userGroups: fixStringSlice(viper.GetString("sync_users_groups")),
-			userShell: viper.GetString("sync_users_shell"),
-			root: viper.GetString("sync_users_root"),
+		if err != nil {
+			return err
 		}
 
+		cfg := config{
+			GithubAPIToken:     viper.GetString("github_api_token"),
+			GithubOrganization: viper.GetString("github_organization"),
+			GithubTeamName:     viper.GetString("github_team"),
+			GithubTeamID:       viper.GetInt("github_team_id"),
 
-		
+			EtcdEndpoints: fixStringSlice(viper.GetString("etcdctl_endpoint")),
+			EtcdTTL:       etcdTTL,
+
+			UserGID:    viper.GetString("sync_users_gid"),
+			UserGroups: fixStringSlice(viper.GetString("sync_users_groups")),
+			UserShell:  viper.GetString("sync_users_shell"),
+			Root:       viper.GetString("sync_users_root"),
+		}
+
+		err = validation.StructRules{}.
+			Add("GithubAPIToken", validation.Required.Error("is required")).
+			Add("GithubOrganization", validation.Required.Error("is required")).
+			Add("EtcdEndpoints", is.URL).
+			/*		// Should be valid duration in seconds
+					Add("etcdTTL", func(value string) error {
+							_, err := time.ParseDuration(value + "s")
+							return err
+					}).*/
+			// performs validation
+			Validate(cfg)
+
+		if err != nil {
+			return err
+		}
+
+		// Validate Github Team exists
+		if cfg.GithubTeamName == "" && cfg.GithubTeamID == 0 {
+			return errors.New("Team name or Team id should be specified")
+		}
+
+		router := gin.Default()
 
 		router.GET("/authorize/:name", func(c *gin.Context) {
 			name := c.Param("name")
-			c.JSON(200, gin.H{
-				"message": "Authorize "+name,
-			})
+			key, err := authorize(cfg, name)
+			if err == nil {
+				c.String(200, "%v", key)
+			} else {
+				c.String(404, "")
+			}
 		})
+
 		router.Run()
+
+
+		
+		return nil
 	},
 }
 
@@ -136,7 +172,6 @@ func init() {
 			RootCmd.Flags().StringP(f.flag(), f.short, f.defaultValue.(string), f.description)
 			break
 
-
 		}
 		viper.BindPFlag(f.option, RootCmd.Flags().Lookup(f.flag()))
 	}
@@ -158,7 +193,6 @@ func initConfig() {
 	}
 }
 
-
 func fixStringSlice(s string) []string {
 	result := []string{}
 	if s != "" {
@@ -166,6 +200,3 @@ func fixStringSlice(s string) []string {
 	}
 	return result
 }
-
-
-
