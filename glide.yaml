@@ -24,6 +24,10 @@ import:
   version: v0.11.0
 - package: github.com/valyala/fasttemplate
   version: 3b874956e03f1636d171bda64b130f9135f42cff
+- package: github.com/gin-gonic/gin
+  version: v1.1.4
+- package: github.com/go-ozzo/ozzo-validation
+  version: v2.0
 testImport:
 - package: github.com/onsi/ginkgo
   version: 00054c0bb96fc880d4e0be1b90937fad438c5290

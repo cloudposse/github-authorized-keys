@@ -6,9 +6,58 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/gin-gonic/gin"
+	"strings"
+	"github.com/cloudposse/github-authorized-keys/api"
+	"time"
 )
 
 var cfgFile string
+
+
+type config struct {
+	githubAPIToken string
+	githubOrganization string
+	githubTeamName string
+	githubTeamID int
+
+	etcdEndpoints 	[]string
+	etcdTTL       string
+
+	userGID    string
+	userGroups []string
+	userShell  string
+	root   string
+}
+
+type flag struct {
+	short string
+	flagType string
+	option string
+	defaultValue interface{}
+	description string
+}
+
+func (f *flag) flag() string {
+	return strings.Replace(f.option, "_", "-", -1)
+}
+
+
+var flags = []flag{
+flag{"t", "string",  "github_api_token",    "", 		       "Github API token    ( environment variable GITHUB_API_TOKEN could be used instead ) (read more https://github.com/blog/1509-personal-api-tokens)"},
+flag{"o", "string",  "github_organization", "", 		       "Github organization ( environment variable GITHUB_ORGANIZATION could be used instead )"},
+flag{"n", "string",  "github_team",         "", 		       "Github team name    ( environment variable GITHUB_TEAM could be used instead )"},
+flag{"i", "int",     "github_team_id",       0, 		       "Github team id 	    ( environment variable GITHUB_TEAM_ID could be used instead )"},
+
+flag{"g", "string",  "sync_users_gid",      "", 		       "Primary group id    ( environment variable SYNC_USERS_GID could be used instead )"},
+flag{"G", "strings", "sync_users_groups",   []string{}, 	       "CSV groups name     ( environment variable SYNC_USERS_GROUPS could be used instead )"},
+flag{"s", "string",  "sync_users_shell",    "/bin/bash",	       "User shell 	    ( environment variable SYNC_USERS_SHELL could be used instead )"},
+flag{"r", "string",  "sync_users_root",     "/",		       "Root directory 	    ( environment variable SYNC_USERS_ROOT could be used instead )"},
+
+flag{"e", "strings", "etcdctl_endpoint",    []string{},		       "CSV etcd endpoints  ( environment variable ETCDCTL_ENDPOINT could be used instead )"},
+flag{"p", "string",  "etcdctl_prefix",      "/github-authorized-keys", "Path for etcd data  ( environment variable ETCDCTL_PREFIX could be used instead )"},
+flag{"l", "int64",   "etcdctl_ttl",    	    ETCDTTLDefault,	       "ETCD value's ttl    ( environment variable ETCDCTL_TTL could be used instead )"},
+}
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -25,6 +74,35 @@ Config:
   			OR
   		   Github team id   | flag --github-team-id OR Environment variable GITHUB_TEAM_ID
 `,
+	Run: func(cmd *cobra.Command, args []string) {
+		router := gin.Default()
+
+		cfg := config {
+			githubAPIToken: 	viper.GetString("github_api_token"),
+			githubOrganization: 	viper.GetString("github_organization"),
+			githubTeamName:		viper.GetString("github_team"),
+			githubTeamID:		viper.GetInt("github_team_id"),
+
+			etcdEndpoints:	fixStringSlice(viper.GetString("etcdctl_endpoint")),
+			etcdTTL: 	viper.GetString("etcdctl_ttl"),
+
+			userGID: viper.GetString("sync_users_gid"),
+			userGroups: fixStringSlice(viper.GetString("sync_users_groups")),
+			userShell: viper.GetString("sync_users_shell"),
+			root: viper.GetString("sync_users_root"),
+		}
+
+
+		
+
+		router.GET("/authorize/:name", func(c *gin.Context) {
+			name := c.Param("name")
+			c.JSON(200, gin.H{
+				"message": "Authorize "+name,
+			})
+		})
+		router.Run()
+	},
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -39,16 +117,29 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.github-authorized-keys.yaml)")
-	RootCmd.PersistentFlags().StringP("github-api-token", "t", "", "Github API token (read more https://github.com/blog/1509-personal-api-tokens)")
-	RootCmd.PersistentFlags().StringP("github-organization", "o", "", "Github organization")
-	RootCmd.PersistentFlags().StringP("github-team", "n", "", "Github team name")
-	RootCmd.PersistentFlags().IntP("github-team-id", "i", 0, "Github team id")
+	// Config file
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
+		"Config file (default is $HOME/.github-authorized-keys.yaml)")
 
-	viper.BindPFlag("github_api_token", RootCmd.PersistentFlags().Lookup("github-api-token"))
-	viper.BindPFlag("github_organization", RootCmd.PersistentFlags().Lookup("github-organization"))
-	viper.BindPFlag("github_team", RootCmd.PersistentFlags().Lookup("github-team"))
-	viper.BindPFlag("github_team_id", RootCmd.PersistentFlags().Lookup("github-team-id"))
+	for _, f := range flags {
+		switch f.flagType {
+		case "strings":
+			RootCmd.Flags().StringSliceP(f.flag(), f.short, f.defaultValue.([]string), f.description)
+			break
+		case "int":
+			RootCmd.Flags().IntP(f.flag(), f.short, f.defaultValue.(int), f.description)
+			break
+		case "int64":
+			RootCmd.Flags().Int64P(f.flag(), f.short, f.defaultValue.(int64), f.description)
+			break
+		default:
+			RootCmd.Flags().StringP(f.flag(), f.short, f.defaultValue.(string), f.description)
+			break
+
+
+		}
+		viper.BindPFlag(f.option, RootCmd.Flags().Lookup(f.flag()))
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -66,3 +157,15 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }
+
+
+func fixStringSlice(s string) []string {
+	result := []string{}
+	if s != "" {
+		result = strings.Split(s, ",")
+	}
+	return result
+}
+
+
+

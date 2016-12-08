@@ -113,20 +113,5 @@ Run on schedule following command to create user asap.
 func init() {
 	RootCmd.AddCommand(syncUsersCmd)
 
-	syncUsersCmd.Flags().StringP("sync-users-gid", "g", "",
-		"User's primary group id                       ( environment variable SYNC_USERS_GID    could be used instead )")
 
-	syncUsersCmd.Flags().StringSliceP("sync-users-groups", "G", make([]string, 0),
-		"Comma separeted user's secondary groups name  ( environment variable SYNC_USERS_GROUPS could be used instead )")
-
-	syncUsersCmd.Flags().StringP("sync-users-shell", "s", "/bin/bash",
-		"User shell                                    ( environment variable SYNC_USERS_SHELL  could be used instead )")
-
-	syncUsersCmd.Flags().StringP("sync-users-root", "r", "/",
-		"Root directory used for chroot                ( environment variable SYNC_USERS_ROOT  could be used instead )")
-
-	viper.BindPFlag("sync_users_gid", syncUsersCmd.Flags().Lookup("sync-users-gid"))
-	viper.BindPFlag("sync_users_groups", syncUsersCmd.Flags().Lookup("sync-users-groups"))
-	viper.BindPFlag("sync_users_shell", syncUsersCmd.Flags().Lookup("sync-users-shell"))
-	viper.BindPFlag("sync_users_root", syncUsersCmd.Flags().Lookup("sync-users-root"))
 }
