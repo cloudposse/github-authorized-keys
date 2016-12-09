@@ -2,50 +2,22 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-
-	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/go-ozzo/ozzo-validation"
-	"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/cloudposse/github-authorized-keys/config"
+	"github.com/cloudposse/github-authorized-keys/jobs"
+	"github.com/cloudposse/github-authorized-keys/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"strings"
+	"os"
 	"time"
 )
 
 var cfgFile string
 
-type config struct {
-	GithubAPIToken     string
-	GithubOrganization string
-	GithubTeamName     string
-	GithubTeamID       int
-
-	EtcdEndpoints []string
-	EtcdTTL       time.Duration
-	EtcdPrefix    string
-
-	UserGID    string
-	UserGroups []string
-	UserShell  string
-	Root       string
-}
-
-type flag struct {
-	short        string
-	flagType     string
-	option       string
-	defaultValue interface{}
-	description  string
-}
-
-func (f *flag) flag() string {
-	return strings.Replace(f.option, "_", "-", -1)
-}
-
 // ETCDTTLDefault - default ttl - 1day in seconds = 24 hours * 60 minutes * 60 seconds
 const ETCDTTLDefault = int64(24 * 60 * 60)
+
+// SyncUsersIntervalDefault - default interval between synchronize users - 5 minutes in seconds = 5 minutes * 60 seconds
+const SyncUsersIntervalDefault = int64(5 * 60)
 
 var flags = []flag{
 	{"t", "string", "github_api_token", "", "Github API token    ( environment variable GITHUB_API_TOKEN could be used instead ) (read more https://github.com/blog/1509-personal-api-tokens)"},
@@ -55,12 +27,15 @@ var flags = []flag{
 
 	{"g", "string", "sync_users_gid", "", "Primary group id    ( environment variable SYNC_USERS_GID could be used instead )"},
 	{"G", "strings", "sync_users_groups", []string{}, "CSV groups name     ( environment variable SYNC_USERS_GROUPS could be used instead )"},
-	{"s", "string", "sync_users_shell", "/bin/bash", "User shell 	    ( environment variable SYNC_USERS_SHELL could be used instead )"},
+	{"s", "string", "sync_users_shell", "/bin/bash", "User shell 	       ( environment variable SYNC_USERS_SHELL could be used instead )"},
 	{"r", "string", "sync_users_root", "/", "Root directory 	    ( environment variable SYNC_USERS_ROOT could be used instead )"},
+	{"c", "int64", "sync_users_interval", SyncUsersIntervalDefault, "Sync each x sec     ( environment variable SYNC_USERS_INTERVAL could be used instead )"},
 
 	{"e", "strings", "etcdctl_endpoint", []string{}, "CSV etcd endpoints  ( environment variable ETCDCTL_ENDPOINT could be used instead )"},
 	{"p", "string", "etcdctl_prefix", "/github-authorized-keys", "Path for etcd data  ( environment variable ETCDCTL_PREFIX could be used instead )"},
 	{"l", "int64", "etcdctl_ttl", ETCDTTLDefault, "ETCD value's ttl    ( environment variable ETCDCTL_TTL could be used instead )"},
+
+	{"a", "bool", "integrate_ssh", false, "Integrate with ssh  ( environment variable INTEGRATE_SSH could be used instead )"},
 }
 
 // RootCmd represents the base command when called without any subcommands
@@ -85,7 +60,7 @@ Config:
 			return err
 		}
 
-		cfg := config{
+		cfg := config.Config{
 			GithubAPIToken:     viper.GetString("github_api_token"),
 			GithubOrganization: viper.GetString("github_organization"),
 			GithubTeamName:     viper.GetString("github_team"),
@@ -98,46 +73,19 @@ Config:
 			UserGroups: fixStringSlice(viper.GetString("sync_users_groups")),
 			UserShell:  viper.GetString("sync_users_shell"),
 			Root:       viper.GetString("sync_users_root"),
+			Interval:   uint64(viper.GetInt64("sync_users_interval")),
+
+			IntegrateWithSSH: viper.GetBool("integrate_ssh"),
 		}
 
-		err = validation.StructRules{}.
-			Add("GithubAPIToken", validation.Required.Error("is required")).
-			Add("GithubOrganization", validation.Required.Error("is required")).
-			Add("EtcdEndpoints", is.URL).
-			/*		// Should be valid duration in seconds
-					Add("etcdTTL", func(value string) error {
-							_, err := time.ParseDuration(value + "s")
-							return err
-					}).*/
-			// performs validation
-			Validate(cfg)
+		err = cfg.Validate()
 
-		if err != nil {
-			return err
+		if err == nil {
+			jobs.Run(cfg)
+			server.Run(cfg)
 		}
 
-		// Validate Github Team exists
-		if cfg.GithubTeamName == "" && cfg.GithubTeamID == 0 {
-			return errors.New("Team name or Team id should be specified")
-		}
-
-		router := gin.Default()
-
-		router.GET("/authorize/:name", func(c *gin.Context) {
-			name := c.Param("name")
-			key, err := authorize(cfg, name)
-			if err == nil {
-				c.String(200, "%v", key)
-			} else {
-				c.String(404, "")
-			}
-		})
-
-		router.Run()
-
-
-		
-		return nil
+		return err
 	},
 }
 
@@ -155,25 +103,10 @@ func init() {
 
 	// Config file
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
-		"Config file (default is $HOME/.github-authorized-keys.yaml)")
+		"Config file         (default is $HOME/.github-authorized-keys.yaml)")
 
 	for _, f := range flags {
-		switch f.flagType {
-		case "strings":
-			RootCmd.Flags().StringSliceP(f.flag(), f.short, f.defaultValue.([]string), f.description)
-			break
-		case "int":
-			RootCmd.Flags().IntP(f.flag(), f.short, f.defaultValue.(int), f.description)
-			break
-		case "int64":
-			RootCmd.Flags().Int64P(f.flag(), f.short, f.defaultValue.(int64), f.description)
-			break
-		default:
-			RootCmd.Flags().StringP(f.flag(), f.short, f.defaultValue.(string), f.description)
-			break
-
-		}
-		viper.BindPFlag(f.option, RootCmd.Flags().Lookup(f.flag()))
+		createCmdFlags(RootCmd, f)
 	}
 }
 
@@ -191,12 +124,4 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
-}
-
-func fixStringSlice(s string) []string {
-	result := []string{}
-	if s != "" {
-		result = strings.Split(s, ",")
-	}
-	return result
 }

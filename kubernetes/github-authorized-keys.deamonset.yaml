@@ -1,0 +1,57 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: github-authorized-keys-deamonset
+  namespace: kube-system
+  labels:
+    subsystem: github-authorized-keys
+    role: sync-users
+spec:
+  template:
+    metadata:
+      labels:
+        subsystem: github-authorized-keys
+        role: sync-users
+    spec:
+      hostNetwork: true
+      dnsPolicy: Default
+      containers:
+        - name: sync-users
+          image: 313021614177.dkr.ecr.us-west-2.amazonaws.com/cloudposse/github-authorized-keys:latest
+          env:
+            - name: GITHUB_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-authorized-keys-secrets
+                  key: github_api_token
+            - name: GITHUB_ORGANIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: github-authorized-keys-secrets
+                  key: github_organization
+            - name: GITHUB_TEAM
+              valueFrom:
+                secretKeyRef:
+                  name: github-authorized-keys-secrets
+                  key: github_team
+            - name: SYNC_USERS_GROUPS
+              valueFrom:
+                secretKeyRef:
+                  name: github-authorized-keys-secrets
+                  key: sync_users_groups
+            - name: SYNC_USERS_SHELL
+              valueFrom:
+                secretKeyRef:
+                  name: github-authorized-keys-secrets
+                  key: sync_users_shell
+            - name: SYNC_USERS_ROOT
+              value: /host
+            - name: INTEGRATE_SSH
+              value: "true"
+          volumeMounts:
+            - name: host-root
+              mountPath: /host
+      volumes:
+        - name: host-root
+          hostPath:
+            path: /

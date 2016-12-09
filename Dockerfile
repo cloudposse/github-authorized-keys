@@ -19,6 +19,8 @@ ENV TEST_LINUX_USER_ADD_WITH_GID_TPL   "adduser -D -s {shell} -G {group} {userna
 ENV TEST_LINUX_USER_ADD_TO_GROUP_TPL   "adduser {username} {group}"
 ENV TEST_LINUX_USER_DEL_TPL            "deluser {username}"
 
+ENV GIN_MODE=release
+
 RUN set -ex \
 	&& apk add --no-cache --virtual .build-deps \
 		git \
@@ -44,6 +46,8 @@ ENV LINUX_USER_ADD_WITH_GID_TPL   "adduser {username} --disabled-password --forc
 ENV LINUX_USER_ADD_TO_GROUP_TPL   "adduser {username} {group}"
 ENV LINUX_USER_DEL_TPL            "deluser {username}"
 
+ENV SSH_RESTART_TPL               "/usr/sbin/service ssh force-reload"
+
 ENV GITHUB_API_TOKEN=
 ENV GITHUB_ORGANIZATION=
 ENV GITHUB_TEAM=
@@ -56,5 +60,10 @@ ENV ETCDCTL_PREFIX=/github-authorized-keys
 ENV SYNC_USERS_GID=
 ENV SYNC_USERS_GROUPS=
 ENV SYNC_USERS_SHELL=/bin/bash
+ENV SYNC_USERS_INTERVAL=
+
+ENV INTEGRATE_SSH=false
+
+EXPOSE 301
 
 ENTRYPOINT ["github-authorized-keys"]
