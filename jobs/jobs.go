@@ -102,7 +102,7 @@ func sshIntegrate(cfg config.Config) {
 	logger.Info("Ensure AuthorizedKeysCommand line in sshd_config")
 	linux.FileEnsureLine("/etc/ssh/sshd_config", "AuthorizedKeysCommand /bin/github-authorized-keys")
 
-	logger.Info("Ensure AuthorizedKeysCommand line in sshd_config")
+	logger.Info("Ensure AuthorizedKeysCommandUser line in sshd_config")
 	linux.FileEnsureLine("/etc/ssh/sshd_config", "AuthorizedKeysCommandUser root")
 
 	logger.Info("Restart ssh")

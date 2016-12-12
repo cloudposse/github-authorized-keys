@@ -210,17 +210,36 @@ or you can mix that approaches
 
 #### Authorize
 
-To integrate system with ssh you need to config AuthorizedKeysCommand in sshd_config to call authorize command (using shell wrapper).
+To make ssh authorize based on github authorized key tool required some sshd_config changes.
 
-In case of running in container you have to share host ``/`` into ``/{root directory}`` because  ``adduser`` command could differs on different Linux distribs and we need to use host one.
-Also that means you need to specify  sync-users-root param to point to that directory.
+##### Update sshd_config in automated mode
 
+This changes could be done automatically on startup by setting ``--integrate-ssh`` flag or
+``INTEGRATE_SSH`` environment variable ``true``
+
+After ssd_config changed system restart ssh daemon.
+This operation could differs for different distributive so you can specify that command with ``SSH_RESTART_TPL``
+environment variable - default value is ``/usr/sbin/service ssh force-reload``
+
+##### Update sshd_config manually
+
+To integrate system with ssh you need to config AuthorizedKeysCommand and AuthorizedKeysCommandUser.
+For OpenSSH >= 6.9 you can use
+
+`````
+AuthorizedKeysCommand /usr/bin/curl http://localhost:301/users/%u/authorized_keys
+`````
+
+For older versions you'll need to use a shell wrapper that run ``curl`` command with correct url
+
+``AuthorizedKeysCommandUser`` could be any valid user.
+
+#### ETCD fallback cache
 
 Authorization REST API use ETCD to temporary cache user's public keys.
 If github.com is not available command fallback to ETCD storage.
 
 ETCD endpoints param is optional, if not specify caching and fallback disabled.
-
 
 #### Create users
 
