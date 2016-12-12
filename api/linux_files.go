@@ -68,7 +68,7 @@ func (linux *Linux) FileEnsureLine(filePath string, line string) (err error) {
 		fileContent, err := linux.FileGet(filePath)
 		if err == nil {
 			if !strings.Contains(fileContent, line) {
-				logger.Debugf("File %v miss target string", filePath)
+				logger.Debugf("File %v does not contain target string", filePath)
 				err = linux.FileSet(filePath, fileContent+"\n"+line)
 			} else {
 				logger.Debugf("File %v contains target string", filePath)
