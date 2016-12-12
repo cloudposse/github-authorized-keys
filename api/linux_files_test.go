@@ -227,7 +227,7 @@ RIGHT CONTENT`))
 				linux.FileDelete("/tmp/zzz")
 			})
 
-			It("should does not nothing with file", func() {
+			It("should do nothing with file", func() {
 				linux.FileEnsureLine("/tmp/zzz", "RIGHT CONTENT")
 				content, _ := linux.FileGet("/tmp/zzz")
 
