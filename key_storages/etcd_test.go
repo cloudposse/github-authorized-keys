@@ -94,7 +94,7 @@ var _ = Describe("ETCD", func() {
 				})
 			})
 
-			Context("call with existed key after ttl expired", func() {
+			Context("call with existing key after ttl expired", func() {
 				It("should return empty value and error ", func() {
 					if len(endpoints) == 0 {
 						Skip("Specify TEST_ETCDCTL_ENDPOINT to run this test")
