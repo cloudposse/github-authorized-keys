@@ -71,7 +71,7 @@ func (linux *Linux) FileEnsureLine(filePath string, line string) (err error) {
 				logger.Debugf("File %v miss target string", filePath)
 				err = linux.FileSet(filePath, fileContent+"\n"+line)
 			} else {
-				logger.Debugf("File %v contain target string", filePath)
+				logger.Debugf("File %v contains target string", filePath)
 			}
 		} else {
 			logger.Debugf("Can not read file %v", filePath)
