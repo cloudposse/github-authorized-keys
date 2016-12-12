@@ -6,7 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"regexp"
+	"fmt"
 )
+
+type operationOnFileContent func(string) error
 
 func (linux *Linux) FileExists(filePath string) bool {
 	file, err := os.Open(linux.applyChroot(filePath))
@@ -30,7 +34,7 @@ func (linux *Linux) FileDelete(filePath string) error {
 	return os.ErrNotExist
 }
 
-func (linux *Linux) FileEnsure(filePath string, content string) error {
+func (linux *Linux) FileEnsure(filePath, content string) error {
 	logger := log.WithFields(log.Fields{"class": "Linux", "method": "FileEnsure"})
 
 	if !linux.FileExists(filePath) {
@@ -58,27 +62,57 @@ func (linux *Linux) FileGet(filePath string) (string, error) {
 	return "", os.ErrNotExist
 }
 
-func (linux *Linux) FileSet(filePath string, content string) error {
+func (linux *Linux) FileSet(filePath, content string) error {
 	return ioutil.WriteFile(linux.applyChroot(filePath), []byte(content), 0777)
 }
 
-func (linux *Linux) FileEnsureLine(filePath string, line string) (err error) {
-	logger := log.WithFields(log.Fields{"class": "Linux", "method": "FileEnsureLine"})
+func (linux *Linux) FileEnsureLine(filePath string, line string) error {
+	return linux.FileEnsureLineMatch(filePath, "^"+line+"$", line)
+}
+
+
+func (linux *Linux) FileEnsureLineMatch(filePath, matcher, line string) error {
+	logger := log.WithFields(log.Fields{"class": "Linux", "method": "FileEnsureLineMatch"})
+
+	return linux.doOnFileContent(func(fileContent string) error {
+		re := regexp.MustCompile(matcher)
+
+		matchedStrings := re.FindAllString(fileContent, -1)
+
+		if (len(matchedStrings) > 1) {
+			return fmt.Errorf("Match regexp /%v/ is too wide - %v matches found.", matcher, matchedStrings)
+		}
+
+		matchedString :=  ""
+		if (len(matchedStrings) == 1) {
+			matchedString = matchedStrings[0]
+		}
+
+		if matchedString == "" {
+			logger.Debugf("File %v does not contain target string", filePath)
+			return linux.FileSet(filePath, fileContent+"\n"+line)
+		} else if (matchedString != line) {
+			newFileContent := re.ReplaceAllLiteralString(fileContent, line)
+			return linux.FileSet(filePath, newFileContent)
+		}
+		logger.Debugf("File %v contains target string", filePath)
+		return nil
+
+	}, filePath, logger)
+}
+
+func (linux *Linux) doOnFileContent(f operationOnFileContent, filePath string, logger *log.Entry) (finalError error) {
 	if linux.FileExists(filePath) {
 		fileContent, err := linux.FileGet(filePath)
 		if err == nil {
-			if !strings.Contains(fileContent, line) {
-				logger.Debugf("File %v does not contain target string", filePath)
-				err = linux.FileSet(filePath, fileContent+"\n"+line)
-			} else {
-				logger.Debugf("File %v contains target string", filePath)
-			}
+			finalError = f(fileContent)
 		} else {
+			finalError = err
 			logger.Debugf("Can not read file %v", filePath)
 		}
 	} else {
 		logger.Debugf("File %v not fould", filePath)
-		err = os.ErrNotExist
+		finalError = os.ErrNotExist
 	}
 
 	return

@@ -209,9 +209,10 @@ var _ = Describe("Linux files", func() {
 			})
 
 			It("should add target string into file", func() {
-				linux.FileEnsureLine("/tmp/zzz", "RIGHT CONTENT")
+				err := linux.FileEnsureLine("/tmp/zzz", "RIGHT CONTENT")
 				content, _ := linux.FileGet("/tmp/zzz")
 
+				Expect(err).To(BeNil())
 				Expect(content).To(Equal(
 					`RIGHT22 CONTENT
 RIGHT CONTENT`))
@@ -228,12 +229,94 @@ RIGHT CONTENT`))
 			})
 
 			It("should do nothing with file", func() {
-				linux.FileEnsureLine("/tmp/zzz", "RIGHT CONTENT")
+				err := linux.FileEnsureLine("/tmp/zzz", "RIGHT CONTENT")
 				content, _ := linux.FileGet("/tmp/zzz")
 
+				Expect(err).To(BeNil())
 				Expect(content).To(Equal("RIGHT CONTENT"))
 			})
 		})
 
 	})
+
+	Describe("FileEnsureLineMatcher()", func() {
+		Context("call with file that does not contain target string", func() {
+			BeforeEach(func() {
+				linux.FileEnsure("/tmp/zzz", "RIGHT22 CONTENT")
+			})
+
+			AfterEach(func() {
+				linux.FileDelete("/tmp/zzz")
+			})
+
+			It("should add target string into file", func() {
+				err := linux.FileEnsureLineMatch("/tmp/zzz", "RIGHT\\s.*", "RIGHT CONTENT")
+				content, _ := linux.FileGet("/tmp/zzz")
+
+				Expect(err).To(BeNil())
+				Expect(content).To(Equal(
+					`RIGHT22 CONTENT
+RIGHT CONTENT`))
+			})
+		})
+
+		Context("call with file that contains target string", func() {
+			BeforeEach(func() {
+				linux.FileEnsure("/tmp/zzz", "RIGHT CONTENT")
+			})
+
+			AfterEach(func() {
+				linux.FileDelete("/tmp/zzz")
+			})
+
+			It("should do nothing with file", func() {
+				err := linux.FileEnsureLineMatch("/tmp/zzz", "RIGHT\\s.*", "RIGHT CONTENT")
+				content, _ := linux.FileGet("/tmp/zzz")
+
+				Expect(err).To(BeNil())
+				Expect(content).To(Equal("RIGHT CONTENT"))
+			})
+		})
+
+
+		Context("call with file that contains string that satisfies match but differs from traget", func() {
+			BeforeEach(func() {
+				linux.FileEnsure("/tmp/zzz", "RIGHT CONTENT22")
+			})
+
+			AfterEach(func() {
+				linux.FileDelete("/tmp/zzz")
+			})
+
+			It("should do replace matched string with target string", func() {
+				err := linux.FileEnsureLineMatch("/tmp/zzz", "RIGHT\\s.*", "RIGHT CONTENT")
+				content, _ := linux.FileGet("/tmp/zzz")
+
+				Expect(err).To(BeNil())
+				Expect(content).To(Equal("RIGHT CONTENT"))
+			})
+		})
+
+		Context("call with too common matcher", func() {
+			BeforeEach(func() {
+				linux.FileEnsure("/tmp/zzz", "RIGHT CONTENT23")
+				linux.FileEnsureLine("/tmp/zzz", "RIGHT CONTENT")
+			})
+
+			AfterEach(func() {
+				linux.FileDelete("/tmp/zzz")
+			})
+
+			It("should retrun valid error", func() {
+				err := linux.FileEnsureLineMatch("/tmp/zzz", ".*", "RIGHT CONTENT")
+				linux.FileGet("/tmp/zzz")
+
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("Match regexp /.*/ is too wide - [RIGHT CONTENT23 RIGHT CONTENT] matches found."))
+			})
+		})
+
+
+	})
+
 })
