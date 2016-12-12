@@ -133,6 +133,8 @@ You can specify params as flags
 --etcdctl-endpoint={etcd endpoints comma separeted - optional} \
 --etcdctl-ttl={etcd ttl - default 1 day} \
 --etcdctl-prefix={prefix or path to store data - default /github-authorized-keys}
+--listen={Sets the address and port for IP, default :301} \
+--integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
 ```
 
 or as environment variables
@@ -150,6 +152,8 @@ SYNC_USERS_INTERVAL={seconds - default 300} \
 ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional} \
 ETCDCTL_TTL={etcd ttl - default 1 day} \
 ETCDCTL_PREFIX={prefix or path to store data - default /github-authorized-keys} \
+LISTEN={Sets the address and port for IP, default :301} \
+INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)}
 /usr/local/sbin/github-authorized-keys authorize {user}
 ```
 
@@ -174,6 +178,8 @@ docker run \
 -e ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional} \
 -e ETCDCTL_TTL={etcd ttl - default 1 day} \
 -e ETCDCTL_PREFIX={prefix or path to store data - default /github-authorized-keys} \
+-e LISTEN={Sets the address and port for IP, default :301} \
+-e INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)}
 github-authorized-keys
 ```
 
@@ -195,6 +201,8 @@ github-authorized-keys
 --etcdctl-endpoint={etcd endpoints comma separeted - optional} \
 --etcdctl-ttl={etcd ttl - default 1 day} \
 --etcdctl-prefix={prefix or path to store data - default /github-authorized-keys}
+--listen={Sets the address and port for IP, default :301} \
+--integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
 ```
 or you can mix that approaches
 

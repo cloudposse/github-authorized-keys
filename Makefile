@@ -21,7 +21,7 @@ test: $(GO)
 .PHONY: deps
 ## Install dependencies
 deps: $(GLIDE)
-	$(GLIDE) update
+	$(GLIDE) install
 
 ## Clean compiled binary
 clean:

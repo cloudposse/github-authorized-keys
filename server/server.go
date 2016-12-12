@@ -20,7 +20,7 @@ func Run(cfg config.Config) {
 		}
 	})
 
-	router.Run(":301")
+	router.Run(cfg.Listen)
 }
 
 func authorize(cfg config.Config, userName string) (string, error) {

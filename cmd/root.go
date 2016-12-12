@@ -20,22 +20,23 @@ const ETCDTTLDefault = int64(24 * 60 * 60)
 const SyncUsersIntervalDefault = int64(5 * 60)
 
 var flags = []flag{
-	{"t", "string", "github_api_token", "", "Github API token    ( environment variable GITHUB_API_TOKEN could be used instead ) (read more https://github.com/blog/1509-personal-api-tokens)"},
+	{"a", "string", "github_api_token", "", "Github API token    ( environment variable GITHUB_API_TOKEN could be used instead ) (read more https://github.com/blog/1509-personal-api-tokens)"},
 	{"o", "string", "github_organization", "", "Github organization ( environment variable GITHUB_ORGANIZATION could be used instead )"},
 	{"n", "string", "github_team", "", "Github team name    ( environment variable GITHUB_TEAM could be used instead )"},
 	{"i", "int", "github_team_id", 0, "Github team id 	    ( environment variable GITHUB_TEAM_ID could be used instead )"},
 
 	{"g", "string", "sync_users_gid", "", "Primary group id    ( environment variable SYNC_USERS_GID could be used instead )"},
 	{"G", "strings", "sync_users_groups", []string{}, "CSV groups name     ( environment variable SYNC_USERS_GROUPS could be used instead )"},
-	{"s", "string", "sync_users_shell", "/bin/bash", "User shell 	       ( environment variable SYNC_USERS_SHELL could be used instead )"},
+	{"s", "string", "sync_users_shell", "/bin/bash", "User shell 	    ( environment variable SYNC_USERS_SHELL could be used instead )"},
 	{"r", "string", "sync_users_root", "/", "Root directory 	    ( environment variable SYNC_USERS_ROOT could be used instead )"},
 	{"c", "int64", "sync_users_interval", SyncUsersIntervalDefault, "Sync each x sec     ( environment variable SYNC_USERS_INTERVAL could be used instead )"},
 
 	{"e", "strings", "etcdctl_endpoint", []string{}, "CSV etcd endpoints  ( environment variable ETCDCTL_ENDPOINT could be used instead )"},
 	{"p", "string", "etcdctl_prefix", "/github-authorized-keys", "Path for etcd data  ( environment variable ETCDCTL_PREFIX could be used instead )"},
-	{"l", "int64", "etcdctl_ttl", ETCDTTLDefault, "ETCD value's ttl    ( environment variable ETCDCTL_TTL could be used instead )"},
+	{"t", "int64", "etcdctl_ttl", ETCDTTLDefault, "ETCD value's ttl    ( environment variable ETCDCTL_TTL could be used instead )"},
 
-	{"a", "bool", "integrate_ssh", false, "Integrate with ssh  ( environment variable INTEGRATE_SSH could be used instead )"},
+	{"d", "bool", "integrate_ssh", false, "Integrate with ssh  ( environment variable INTEGRATE_SSH could be used instead )"},
+	{"l", "string", "listen", ":301", "Listen              ( environment variable LISTEN could be used instead )"},
 }
 
 // RootCmd represents the base command when called without any subcommands
@@ -54,6 +55,7 @@ Config:
   		   Github team id   | flag --github-team-id OR Environment variable GITHUB_TEAM_ID
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// @TODO Support viper duration type
 		etcdTTL, err := time.ParseDuration(viper.GetString("etcdctl_ttl") + "s")
 
 		if err != nil {
@@ -76,6 +78,8 @@ Config:
 			Interval:   uint64(viper.GetInt64("sync_users_interval")),
 
 			IntegrateWithSSH: viper.GetBool("integrate_ssh"),
+
+			Listen: viper.GetString("listen"),
 		}
 
 		err = cfg.Validate()

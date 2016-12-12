@@ -64,6 +64,10 @@ ENV SYNC_USERS_INTERVAL=
 
 ENV INTEGRATE_SSH=false
 
+
+ENV LISTEN=":301"
+
+# For production we run container with host network, so expose is just for testing and CI\CD
 EXPOSE 301
 
 ENTRYPOINT ["github-authorized-keys"]

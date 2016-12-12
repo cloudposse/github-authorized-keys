@@ -23,6 +23,8 @@ type Config struct {
 	Interval   uint64
 
 	IntegrateWithSSH bool
+
+	Listen string
 }
 
 func (c *Config) Validate() (err error) {

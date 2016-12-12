@@ -7,7 +7,13 @@ import (
 	"github.com/goruha/permbits"
 	"github.com/jasonlvhit/gocron"
 	"github.com/spf13/viper"
+	"github.com/valyala/fasttemplate"
+	"strings"
 )
+
+const wrapperScriptTpl = `#!/bin/bash
+curl http://localhost:{port}/user/$1/authorized_keys
+`
 
 func init() {
 	viper.SetDefault("ssh_restart_tpl", "/usr/sbin/service ssh force-reload")
@@ -81,10 +87,13 @@ func sshIntegrate(cfg config.Config) {
 	linux := api.NewLinux(cfg.Root)
 
 	logger.Info("Ensure file /bin/github-authorized-keys")
-	linux.FileEnsure("/bin/github-authorized-keys",
-		`#!/bin/bash
-curl http://localhost:301/user/$1/authorized_keys
-`)
+	// Split listen string by : and get the port
+	port := strings.Split(cfg.Listen, ":")[1]
+
+	wrapperScript := fasttemplate.New(wrapperScriptTpl, "{", "}").
+		ExecuteString(map[string]interface{}{"port": port})
+
+	linux.FileEnsure("/bin/github-authorized-keys", wrapperScript)
 
 	// Should be executable
 	logger.Info("Ensure exec mode for file /bin/github-authorized-keys")
@@ -103,4 +112,3 @@ curl http://localhost:301/user/$1/authorized_keys
 		logger.Errorf("Error: %v", err.Error())
 	}
 }
-
