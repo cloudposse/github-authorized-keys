@@ -31,9 +31,9 @@ var flags = []flag{
 	{"r", "string", "sync_users_root", "/", "Root directory 	    ( environment variable SYNC_USERS_ROOT could be used instead )"},
 	{"c", "int64", "sync_users_interval", SyncUsersIntervalDefault, "Sync each x sec     ( environment variable SYNC_USERS_INTERVAL could be used instead )"},
 
-	{"e", "strings", "etcdctl_endpoint", []string{}, "CSV etcd endpoints  ( environment variable ETCDCTL_ENDPOINT could be used instead )"},
-	{"p", "string", "etcdctl_prefix", "/github-authorized-keys", "Path for etcd data  ( environment variable ETCDCTL_PREFIX could be used instead )"},
-	{"t", "int64", "etcdctl_ttl", ETCDTTLDefault, "ETCD value's ttl    ( environment variable ETCDCTL_TTL could be used instead )"},
+	{"e", "strings", "etcd_endpoint", []string{}, "CSV etcd endpoints  ( environment variable ETCD_ENDPOINT could be used instead )"},
+	{"p", "string", "etcd_prefix", "/github-authorized-keys", "Path for etcd data  ( environment variable ETCD_PREFIX could be used instead )"},
+	{"t", "int64", "etcd_ttl", ETCDTTLDefault, "ETCD value's ttl    ( environment variable ETCD_TTL could be used instead )"},
 
 	{"d", "bool", "integrate_ssh", false, "Integrate with ssh  ( environment variable INTEGRATE_SSH could be used instead )"},
 	{"l", "string", "listen", ":301", "Listen              ( environment variable LISTEN could be used instead )"},
@@ -56,7 +56,7 @@ Config:
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// @TODO Support viper duration type
-		etcdTTL, err := time.ParseDuration(viper.GetString("etcdctl_ttl") + "s")
+		etcdTTL, err := time.ParseDuration(viper.GetString("etcd_ttl") + "s")
 
 		if err != nil {
 			return err
@@ -68,7 +68,7 @@ Config:
 			GithubTeamName:     viper.GetString("github_team"),
 			GithubTeamID:       viper.GetInt("github_team_id"),
 
-			EtcdEndpoints: fixStringSlice(viper.GetString("etcdctl_endpoint")),
+			EtcdEndpoints: fixStringSlice(viper.GetString("etcd_endpoint")),
 			EtcdTTL:       etcdTTL,
 
 			UserGID:    viper.GetString("sync_users_gid"),

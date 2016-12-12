@@ -130,9 +130,9 @@ You can specify params as flags
 --sync-users-shell={user shell} \
 --sync-users-root={root directory - default "/"} \
 --sync-users-interval={seconds - default 300} \
---etcdctl-endpoint={etcd endpoints comma separeted - optional} \
---etcdctl-ttl={etcd ttl - default 1 day} \
---etcdctl-prefix={prefix or path to store data - default /github-authorized-keys}
+--etcd-endpoint={etcd endpoints comma separeted - optional} \
+--etcd-ttl={etcd ttl - default 1 day} \
+--etcd-prefix={prefix or path to store data - default /github-authorized-keys}
 --listen={Sets the address and port for IP, default :301} \
 --integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
 ```
@@ -149,9 +149,9 @@ SYNC_USERS_GROUPS={comma separated groups OR empty} \
 SYNC_USERS_SHELL={user shell} \
 SYNC_USERS_ROOT={root directory - default "/"} \
 SYNC_USERS_INTERVAL={seconds - default 300} \
-ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional} \
-ETCDCTL_TTL={etcd ttl - default 1 day} \
-ETCDCTL_PREFIX={prefix or path to store data - default /github-authorized-keys} \
+ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
+ETCD_TTL={etcd ttl - default 1 day} \
+ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
 LISTEN={Sets the address and port for IP, default :301} \
 INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)}
 /usr/local/sbin/github-authorized-keys authorize {user}
@@ -175,9 +175,9 @@ docker run \
 -e SYNC_USERS_SHELL={user shell} \
 -e SYNC_USERS_ROOT={root directory} \
 -e SYNC_USERS_INTERVAL={seconds - default 300} \
--e ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional} \
--e ETCDCTL_TTL={etcd ttl - default 1 day} \
--e ETCDCTL_PREFIX={prefix or path to store data - default /github-authorized-keys} \
+-e ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
+-e ETCD_TTL={etcd ttl - default 1 day} \
+-e ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
 -e LISTEN={Sets the address and port for IP, default :301} \
 -e INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)}
 github-authorized-keys
@@ -198,9 +198,9 @@ github-authorized-keys
 --sync-users-shell={user shell} \
 --sync-users-root={root directory - default "/"} \
 --sync-users-interval={seconds - default 300} \
---etcdctl-endpoint={etcd endpoints comma separeted - optional} \
---etcdctl-ttl={etcd ttl - default 1 day} \
---etcdctl-prefix={prefix or path to store data - default /github-authorized-keys}
+--etcd-endpoint={etcd endpoints comma separeted - optional} \
+--etcd-ttl={etcd ttl - default 1 day} \
+--etcd-prefix={prefix or path to store data - default /github-authorized-keys}
 --listen={Sets the address and port for IP, default :301} \
 --integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
 ```
@@ -405,7 +405,7 @@ TEST_GITHUB_ORGANIZATION={organization name} \
 TEST_GITHUB_TEAM={team name} \
 TEST_GITHUB_TEAM_ID={team id} \
 TEST_GITHUB_USER={user} \
-TEST_ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional}
+TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
 make test
 ```
 
@@ -442,5 +442,5 @@ docker build \
 --build-arg  TEST_GITHUB_TEAM={team} \
 --build-arg  TEST_GITHUB_TEAM_ID={team_id} \
 --build-arg  TEST_GITHUB_USER={user}
---build-arg  TEST_ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional}
+--build-arg  TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
 ```
