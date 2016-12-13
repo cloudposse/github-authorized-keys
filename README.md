@@ -91,10 +91,12 @@ After installation you could find command as
 
 #### Use in containers
 
-  Build docker image
+  Use public image [cloudposse/github-authorized-keys](https://hub.docker.com/r/cloudposse/github-authorized-keys/)
+
+  or build docker image from source
 
  ```
- docker build -t github-authorized-keys .
+ docker build -t cloudposse/github-authorized-keys .
  ```
 
 ### Start
@@ -165,7 +167,7 @@ docker run \
   -e ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
   -e LISTEN={Sets the address and port for IP, default :301} \
   -e INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)} \
-       github-authorized-keys
+     cloudposse/github-authorized-keys
 ```
 
 or as flags
@@ -174,7 +176,7 @@ or as flags
 docker run \
   -v /:/{root directory} \
   --expose "301:301"
-  github-authorized-keys
+  cloudposse/github-authorized-keys
     --github-api-token={token} \
     --github-organization={organization} \
     --github-team={team} \
@@ -429,6 +431,7 @@ docker build \
 --build-arg  TEST_GITHUB_TEAM_ID={team_id} \
 --build-arg  TEST_GITHUB_USER={user} \
 --build-arg  TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
+  ./
 ```
 
 ---
