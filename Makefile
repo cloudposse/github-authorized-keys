@@ -22,7 +22,7 @@ test: $(GO)
   ## Convert local dir path to package absolute name ##
   ## Run tests ##
   go test $(go list ./... | grep -v /vendor/)
-  
+
 .PHONY: deps
 ## Install dependencies
 deps: $(GLIDE)
