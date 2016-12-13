@@ -24,6 +24,7 @@ import (
 	"time"
 )
 
+// Config - structure to store global configuration
 type Config struct {
 	GithubAPIToken     string
 	GithubOrganization string
@@ -45,16 +46,12 @@ type Config struct {
 	Listen string
 }
 
+// Validate - process validation of config values
 func (c *Config) Validate() (err error) {
 	err = validation.StructRules{}.
 		Add("GithubAPIToken", validation.Required.Error("is required")).
 		Add("GithubOrganization", validation.Required.Error("is required")).
-		/*		// Should be valid duration in seconds
-				Add("etcdTTL", func(value string) error {
-						_, err := time.ParseDuration(value + "s")
-						return err
-				}).*/
-		// performs validation
+	// performs validation
 		Validate(c)
 
 	if err != nil {

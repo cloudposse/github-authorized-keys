@@ -30,12 +30,14 @@ import (
 
 type operationOnFileContent func(string) error
 
+// FileExists - check if file exists
 func (linux *Linux) FileExists(filePath string) bool {
 	file, err := os.Open(linux.applyChroot(filePath))
 	defer file.Close()
 	return err == nil
 }
 
+// FileCreate - creates new file
 func (linux *Linux) FileCreate(filePath string) error {
 	if !linux.FileExists(filePath) {
 		file, err := os.Create(linux.applyChroot(filePath))
@@ -45,6 +47,7 @@ func (linux *Linux) FileCreate(filePath string) error {
 	return os.ErrExist
 }
 
+// FileDelete - removes file
 func (linux *Linux) FileDelete(filePath string) error {
 	if linux.FileExists(filePath) {
 		return os.Remove(linux.applyChroot(filePath))
@@ -52,6 +55,7 @@ func (linux *Linux) FileDelete(filePath string) error {
 	return os.ErrNotExist
 }
 
+// FileEnsure - If file not exists create it file, update content in that file if it differs.
 func (linux *Linux) FileEnsure(filePath, content string) error {
 	logger := log.WithFields(log.Fields{"class": "Linux", "method": "FileEnsure"})
 
@@ -71,6 +75,7 @@ func (linux *Linux) FileEnsure(filePath, content string) error {
 	return err
 }
 
+// FileGet - return file content
 func (linux *Linux) FileGet(filePath string) (string, error) {
 	if linux.FileExists(filePath) {
 		buffer, err := ioutil.ReadFile(linux.applyChroot(filePath))
@@ -80,15 +85,17 @@ func (linux *Linux) FileGet(filePath string) (string, error) {
 	return "", os.ErrNotExist
 }
 
+// FileSet - set file content
 func (linux *Linux) FileSet(filePath, content string) error {
 	return ioutil.WriteFile(linux.applyChroot(filePath), []byte(content), 0777)
 }
 
+// FileEnsureLine - add line to file if it is not present in file content
 func (linux *Linux) FileEnsureLine(filePath string, line string) error {
 	return linux.FileEnsureLineMatch(filePath, "^"+line+"$", line)
 }
 
-
+// FileEnsureLineMatch - add line to file if there is no line that match regexp or that line differs
 func (linux *Linux) FileEnsureLineMatch(filePath, matcher, line string) error {
 	logger := log.WithFields(log.Fields{"class": "Linux", "method": "FileEnsureLineMatch"})
 
@@ -97,8 +104,8 @@ func (linux *Linux) FileEnsureLineMatch(filePath, matcher, line string) error {
 
 		matchedStrings := re.FindAllString(fileContent, -1)
 
-		if (len(matchedStrings) > 1) {
-			return fmt.Errorf("Match regexp /%v/ is too wide - %v matches found.", matcher, matchedStrings)
+		if len(matchedStrings) > 1 {
+			return fmt.Errorf("Match regexp /%v/ is too wide - %v matches found", matcher, matchedStrings)
 		}
 
 		matchedString :=  ""
@@ -136,14 +143,17 @@ func (linux *Linux) doOnFileContent(f operationOnFileContent, filePath string, l
 	return
 }
 
+// FileModeGet - get file permission mode
 func (linux *Linux) FileModeGet(filePath string) (permbits.PermissionBits, error) {
 	return permbits.Stat(linux.applyChroot(filePath))
 }
 
+// FileModeSet - set file permission mode
 func (linux *Linux) FileModeSet(filePath string, mode permbits.PermissionBits) error {
 	return permbits.Chmod(linux.applyChroot(filePath), mode)
 }
 
+// FileModeEnsure - set file permission mode if differs
 func (linux *Linux) FileModeEnsure(filePath string, mode permbits.PermissionBits) error {
 	logger := log.WithFields(log.Fields{"class": "Linux", "method": "FileModeEnsure"})
 	currentMode, err := linux.FileModeGet(filePath)
@@ -158,7 +168,6 @@ func (linux *Linux) FileModeEnsure(filePath string, mode permbits.PermissionBits
 func (linux *Linux) applyChroot(path string) string {
 	if linux.root == "/" {
 		return path
-	} else {
-		return linux.root + path
 	}
+	return linux.root + path
 }

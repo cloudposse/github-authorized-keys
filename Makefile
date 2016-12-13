@@ -22,7 +22,7 @@ test: $(GO)
   ## Convert local dir path to package absolute name ##
   ## Run tests ##
 	find !  -path "\./\.*" ! -path "\./vendor*" -type d | \
-	sed -e "s/\./github.com\/cloudposse\/github-authorized-keys/g" | \
+	sed -e "s|.|github.com/cloudposse/github-authorized-keys/|" | \
 	xargs -n 1 $(GO) test -v
 
 .PHONY: deps
