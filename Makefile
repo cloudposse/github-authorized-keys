@@ -3,6 +3,8 @@ GLIDE	:= $(shell which glide)
 APP	?= github-authorized-keys
 INSTALL_DIR ?= /usr/local/sbin
 
+include Makefile.*
+
 .PHONY: build
 ## Build binary
 build: $(GO)
@@ -45,6 +47,7 @@ vet: $(GO)
 
 
 .PHONY: fmt
+## Format code according to Golang convention
 fmt: $(GO)
 	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 gofmt -w -l -s
 
