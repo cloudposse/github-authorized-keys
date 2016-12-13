@@ -47,6 +47,7 @@ vet: $(GO)
 
 
 .PHONY: fmt
+## Format code according to Golang convention
 fmt: $(GO)
 	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 gofmt -w -l -s
 
@@ -55,7 +56,6 @@ fmt: $(GO)
 deps-dev: $(GO)
 	$(GO) get -d -v "github.com/golang/lint"
 	$(GO) install -v "github.com/golang/lint/golint"
-
 
 ## This help screen
 help:
