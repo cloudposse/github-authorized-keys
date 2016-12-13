@@ -5,8 +5,8 @@ services:
     build: ./
     container_name: github-authorized-keys
     environment:
-      - ETCDCTL_ENDPOINT=http://etcd:2379
-      - TEST_ETCDCTL_ENDPOINT=http://etcd:2379
+      - ETCD_ENDPOINT=http://etcd:2379
+      - TEST_ETCD_ENDPOINT=http://etcd:2379
     links:
       - "etcd:etcd"
     volumes:

@@ -10,7 +10,7 @@ ARG TEST_GITHUB_ORGANIZATION=
 ARG TEST_GITHUB_TEAM=
 ARG TEST_GITHUB_TEAM_ID=
 ARG TEST_GITHUB_USER=
-ARG TEST_ETCDCTL_ENDPOINT=
+ARG TEST_ETCD_ENDPOINT=
 
 # We do tests on alpine so use alpine adduser flags
 
@@ -18,6 +18,8 @@ ENV TEST_LINUX_USER_ADD_TPL            "adduser -D -s {shell} {username}"
 ENV TEST_LINUX_USER_ADD_WITH_GID_TPL   "adduser -D -s {shell} -G {group} {username}"
 ENV TEST_LINUX_USER_ADD_TO_GROUP_TPL   "adduser {username} {group}"
 ENV TEST_LINUX_USER_DEL_TPL            "deluser {username}"
+
+ENV GIN_MODE=release
 
 RUN set -ex \
 	&& apk add --no-cache --virtual .build-deps \
@@ -44,17 +46,28 @@ ENV LINUX_USER_ADD_WITH_GID_TPL   "adduser {username} --disabled-password --forc
 ENV LINUX_USER_ADD_TO_GROUP_TPL   "adduser {username} {group}"
 ENV LINUX_USER_DEL_TPL            "deluser {username}"
 
+ENV SSH_RESTART_TPL               "/usr/sbin/service ssh force-reload"
+
 ENV GITHUB_API_TOKEN=
 ENV GITHUB_ORGANIZATION=
 ENV GITHUB_TEAM=
 ENV GITHUB_TEAM_ID=
 
-ENV ETCDCTL_ENDPOINT=
-ENV ETCDCTL_TTL=
-ENV ETCDCTL_PREFIX=/github-authorized-keys
+ENV ETCD_ENDPOINT=
+ENV ETCD_TTL=
+ENV ETCD_PREFIX=/github-authorized-keys
 
 ENV SYNC_USERS_GID=
 ENV SYNC_USERS_GROUPS=
 ENV SYNC_USERS_SHELL=/bin/bash
+ENV SYNC_USERS_INTERVAL=
+
+ENV INTEGRATE_SSH=false
+
+
+ENV LISTEN=":301"
+
+# For production we run container with host network, so expose is just for testing and CI\CD
+EXPOSE 301
 
 ENTRYPOINT ["github-authorized-keys"]

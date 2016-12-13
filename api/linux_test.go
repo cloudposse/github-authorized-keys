@@ -4,28 +4,11 @@ import (
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/spf13/viper"
 	"os/user"
 	"strconv"
 )
 
 var _ = Describe("Linux", func() {
-	var (
-		validToken    string
-		validOrg      string
-		validTeamName string
-		validTeamID   int
-		validUser     string
-	)
-
-	BeforeEach(func() {
-		validToken = viper.GetString("github_api_token")
-		validOrg = viper.GetString("github_organization")
-		validTeamName = viper.GetString("github_team")
-		validTeamID = viper.GetInt("github_team_id")
-		validUser = viper.GetString("github_user")
-	})
-
 	Describe("userLookup()", func() {
 		Context("call with non-existing user", func() {
 			It("should return nil user and error", func() {

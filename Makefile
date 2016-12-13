@@ -21,7 +21,7 @@ test: $(GO)
 .PHONY: deps
 ## Install dependencies
 deps: $(GLIDE)
-	$(GLIDE) update
+	$(GLIDE) install
 
 ## Clean compiled binary
 clean:
@@ -35,8 +35,12 @@ install: $(APP)
 
 .PHONY: lint
 ## Lint code
-lint: $(GO)
+lint: $(GO) vet
 	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 golint
+
+.PHONY: vet
+## Vet code
+vet: $(GO)
 	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 $(GO) vet -v
 
 .PHONY: fmt

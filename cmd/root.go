@@ -1,14 +1,61 @@
+/*
+ * Github Authorized Keys - Use GitHub teams to manage system user accounts and authorized_keys
+ *
+ * Copyright 2016 Cloud Posse, LLC <hello@cloudposse.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cmd
 
 import (
 	"fmt"
-	"os"
-
+	"github.com/cloudposse/github-authorized-keys/config"
+	"github.com/cloudposse/github-authorized-keys/jobs"
+	"github.com/cloudposse/github-authorized-keys/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
+	"time"
 )
 
 var cfgFile string
+
+// ETCDTTLDefault - default ttl - 1day in seconds = 24 hours * 60 minutes * 60 seconds
+const ETCDTTLDefault = int64(24 * 60 * 60)
+
+// SyncUsersIntervalDefault - default interval between synchronize users - 5 minutes in seconds = 5 minutes * 60 seconds
+const SyncUsersIntervalDefault = int64(5 * 60)
+
+var flags = []flag{
+	{"a", "string", "github_api_token", "", "Github API token    ( environment variable GITHUB_API_TOKEN could be used instead ) (read more https://github.com/blog/1509-personal-api-tokens)"},
+	{"o", "string", "github_organization", "", "Github organization ( environment variable GITHUB_ORGANIZATION could be used instead )"},
+	{"n", "string", "github_team", "", "Github team name    ( environment variable GITHUB_TEAM could be used instead )"},
+	{"i", "int", "github_team_id", 0, "Github team id 	    ( environment variable GITHUB_TEAM_ID could be used instead )"},
+
+	{"g", "string", "sync_users_gid", "", "Primary group id    ( environment variable SYNC_USERS_GID could be used instead )"},
+	{"G", "strings", "sync_users_groups", []string{}, "CSV groups name     ( environment variable SYNC_USERS_GROUPS could be used instead )"},
+	{"s", "string", "sync_users_shell", "/bin/bash", "User shell 	    ( environment variable SYNC_USERS_SHELL could be used instead )"},
+	{"r", "string", "sync_users_root", "/", "Root directory 	    ( environment variable SYNC_USERS_ROOT could be used instead )"},
+	{"c", "int64", "sync_users_interval", SyncUsersIntervalDefault, "Sync each x sec     ( environment variable SYNC_USERS_INTERVAL could be used instead )"},
+
+	{"e", "strings", "etcd_endpoint", []string{}, "CSV etcd endpoints  ( environment variable ETCD_ENDPOINT could be used instead )"},
+	{"p", "string", "etcd_prefix", "/github-authorized-keys", "Path for etcd data  ( environment variable ETCD_PREFIX could be used instead )"},
+	{"t", "int64", "etcd_ttl", ETCDTTLDefault, "ETCD value's ttl    ( environment variable ETCD_TTL could be used instead )"},
+
+	{"d", "bool", "integrate_ssh", false, "Integrate with ssh  ( environment variable INTEGRATE_SSH could be used instead )"},
+	{"l", "string", "listen", ":301", "Listen              ( environment variable LISTEN could be used instead )"},
+}
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -25,6 +72,43 @@ Config:
   			OR
   		   Github team id   | flag --github-team-id OR Environment variable GITHUB_TEAM_ID
 `,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// @TODO Support viper duration type
+		etcdTTL, err := time.ParseDuration(viper.GetString("etcd_ttl") + "s")
+
+		if err != nil {
+			return err
+		}
+
+		cfg := config.Config{
+			GithubAPIToken:     viper.GetString("github_api_token"),
+			GithubOrganization: viper.GetString("github_organization"),
+			GithubTeamName:     viper.GetString("github_team"),
+			GithubTeamID:       viper.GetInt("github_team_id"),
+
+			EtcdEndpoints: fixStringSlice(viper.GetString("etcd_endpoint")),
+			EtcdTTL:       etcdTTL,
+
+			UserGID:    viper.GetString("sync_users_gid"),
+			UserGroups: fixStringSlice(viper.GetString("sync_users_groups")),
+			UserShell:  viper.GetString("sync_users_shell"),
+			Root:       viper.GetString("sync_users_root"),
+			Interval:   uint64(viper.GetInt64("sync_users_interval")),
+
+			IntegrateWithSSH: viper.GetBool("integrate_ssh"),
+
+			Listen: viper.GetString("listen"),
+		}
+
+		err = cfg.Validate()
+
+		if err == nil {
+			jobs.Run(cfg)
+			server.Run(cfg)
+		}
+
+		return err
+	},
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -39,16 +123,13 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.github-authorized-keys.yaml)")
-	RootCmd.PersistentFlags().StringP("github-api-token", "t", "", "Github API token (read more https://github.com/blog/1509-personal-api-tokens)")
-	RootCmd.PersistentFlags().StringP("github-organization", "o", "", "Github organization")
-	RootCmd.PersistentFlags().StringP("github-team", "n", "", "Github team name")
-	RootCmd.PersistentFlags().IntP("github-team-id", "i", 0, "Github team id")
+	// Config file
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
+		"Config file         (default is $HOME/.github-authorized-keys.yaml)")
 
-	viper.BindPFlag("github_api_token", RootCmd.PersistentFlags().Lookup("github-api-token"))
-	viper.BindPFlag("github_organization", RootCmd.PersistentFlags().Lookup("github-organization"))
-	viper.BindPFlag("github_team", RootCmd.PersistentFlags().Lookup("github-team"))
-	viper.BindPFlag("github_team_id", RootCmd.PersistentFlags().Lookup("github-team-id"))
+	for _, f := range flags {
+		createCmdFlags(RootCmd, f)
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.

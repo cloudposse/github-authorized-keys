@@ -24,6 +24,14 @@ import:
   version: v0.11.0
 - package: github.com/valyala/fasttemplate
   version: 3b874956e03f1636d171bda64b130f9135f42cff
+- package: github.com/gin-gonic/gin
+  version: v1.1.4
+- package: github.com/go-ozzo/ozzo-validation
+  version: v2.0
+- package: github.com/jasonlvhit/gocron
+  version: 42a5804d37aa0b9239b265e894a16b8edbf52d54
+- package: github.com/goruha/permbits
+  version: b7b74f7b45ae871ecc96e07e9abe5225b366c66b
 testImport:
 - package: github.com/onsi/ginkgo
   version: 00054c0bb96fc880d4e0be1b90937fad438c5290
