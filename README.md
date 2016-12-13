@@ -1,78 +1,13 @@
 # Github Authorized Keys
-Allow to provide ssh access to servers based on github teams
+Use GitHub teams to manage system user accounts and authorized_keys
 
 ----
-
-## Demo
-
-We use Vagrant to demonstrate how this tool works.
-
-### Deps
-
-Install
-
-**[Virtual box](https://www.virtualbox.org/wiki/Downloads)** (tested on version 4.3.26)
-
-**[Vagrant](https://www.vagrantup.com/downloads.html)** (tested on version 1.8.4)
-
-**[vagrant-docker-compose](https://github.com/leighmcculloch/vagrant-docker-compose)** plugin
-  with command
-
-``vagrant plugin install vagrant-docker-compose``
-
-### Run
-
-Vagrant up required some configs.
-There are 2 cases to do this.
-
-#### With config file
-
-Copy .github-authorized-keys-demo.default.yml to .github-authorized-keys-demo.yml
-
-```
-cp .github-authorized-keys-demo.default.yml .github-authorized-keys-demo.yml
-```
-
-and set required values in that file.
-
-Then you can simple run
-
-```
-vagrant up
-```
-
-
-#### With environment variables
-
-Run vagrant with command
-
-
-```
-GITHUB_API_TOKEN={api token} \
-GITHUB_ORGANIZATION={organization name} \
-GITHUB_TEAM={team name} \
-vagrant up
-```
-
-
-### Test
-
-Login into vagrant box with command
-
-``ssh -o "UserKnownHostsFile /dev/null" {github username}@192.168.33.10``
-
-### Logs
-
-You can check what is going with ssh inside vagrant box
-
-``sudo tail -f /var/log/auth.log``
-
-----------------
 
 ## Getting started
 
 Use GitHub teams to manage system user accounts and authorized_keys.
-This tool consists of two parts
+
+This tool consists of two parts:
 1. REST API that provide public keys for users (required for sshd_config AuthorizedKeysCommand)
 2. Internal cron job schedule task to create users on linux machine
 
@@ -109,7 +44,7 @@ After installation you could find command as
   Build docker image
 
  ```
- docker build ./ -t github-authorized-keys
+ docker build -t github-authorized-keys .
  ```
 
 ### Start
@@ -122,19 +57,19 @@ You can specify params as flags
 
 ```
 /usr/local/sbin/github-authorized-keys \
---github-api-token={token} \
---github-organization={organization} \
---github-team={team} \
---sync-users-gid={user gid} \
---sync-users-groups={comma separated secondary groups names} \
---sync-users-shell={user shell} \
---sync-users-root={root directory - default "/"} \
---sync-users-interval={seconds - default 300} \
---etcd-endpoint={etcd endpoints comma separeted - optional} \
---etcd-ttl={etcd ttl - default 1 day} \
---etcd-prefix={prefix or path to store data - default /github-authorized-keys}
---listen={Sets the address and port for IP, default :301} \
---integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
+  --github-api-token={token} \
+  --github-organization={organization} \
+  --github-team={team} \
+  --sync-users-gid={user gid} \
+  --sync-users-groups={comma separated secondary groups names} \
+  --sync-users-shell={user shell} \
+  --sync-users-root={root directory - default "/"} \
+  --sync-users-interval={seconds - default 300} \
+  --etcd-endpoint={etcd endpoints comma separeted - optional} \
+  --etcd-ttl={etcd ttl - default 1 day} \
+  --etcd-prefix={prefix or path to store data - default /github-authorized-keys}
+  --listen={Sets the address and port for IP, default :301} \
+  --integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
 ```
 
 or as environment variables
@@ -153,8 +88,8 @@ ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
 ETCD_TTL={etcd ttl - default 1 day} \
 ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
 LISTEN={Sets the address and port for IP, default :301} \
-INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)}
-/usr/local/sbin/github-authorized-keys authorize {user}
+INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)} \
+  /usr/local/sbin/github-authorized-keys authorize {user}
 ```
 
 or you can mix that approaches
@@ -165,44 +100,44 @@ You can specify params  as environment variables
 
 ```
 docker run \
--v /:/{root directory} \
---expose "301:301"
--e GITHUB_API_TOKEN={token} \
--e GITHUB_ORGANIZATION={organization} \
--e GITHUB_TEAM={team} \
--e SYNC_USERS_GID={gid OR empty} \
--e SYNC_USERS_GROUPS={comma separated groups OR empty} \
--e SYNC_USERS_SHELL={user shell} \
--e SYNC_USERS_ROOT={root directory} \
--e SYNC_USERS_INTERVAL={seconds - default 300} \
--e ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
--e ETCD_TTL={etcd ttl - default 1 day} \
--e ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
--e LISTEN={Sets the address and port for IP, default :301} \
--e INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)}
-github-authorized-keys
+  -v /:/{root directory} \
+  --expose "301:301"
+  -e GITHUB_API_TOKEN={token} \
+  -e GITHUB_ORGANIZATION={organization} \
+  -e GITHUB_TEAM={team} \
+  -e SYNC_USERS_GID={gid OR empty} \
+  -e SYNC_USERS_GROUPS={comma separated groups OR empty} \
+  -e SYNC_USERS_SHELL={user shell} \
+  -e SYNC_USERS_ROOT={root directory} \
+  -e SYNC_USERS_INTERVAL={seconds - default 300} \
+  -e ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
+  -e ETCD_TTL={etcd ttl - default 1 day} \
+  -e ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
+  -e LISTEN={Sets the address and port for IP, default :301} \
+  -e INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)} \
+       github-authorized-keys
 ```
 
 or as flags
 
 ```
 docker run \
--v /:/{root directory} \
---expose "301:301"
-github-authorized-keys
---github-api-token={token} \
---github-organization={organization} \
---github-team={team} \
---sync-users-gid={user gid} \
---sync-users-groups={comma separated secondary groups names} \
---sync-users-shell={user shell} \
---sync-users-root={root directory - default "/"} \
---sync-users-interval={seconds - default 300} \
---etcd-endpoint={etcd endpoints comma separeted - optional} \
---etcd-ttl={etcd ttl - default 1 day} \
---etcd-prefix={prefix or path to store data - default /github-authorized-keys}
---listen={Sets the address and port for IP, default :301} \
---integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
+  -v /:/{root directory} \
+  --expose "301:301"
+  github-authorized-keys
+    --github-api-token={token} \
+    --github-organization={organization} \
+    --github-team={team} \
+    --sync-users-gid={user gid} \
+    --sync-users-groups={comma separated secondary groups names} \
+    --sync-users-shell={user shell} \
+    --sync-users-root={root directory - default "/"} \
+    --sync-users-interval={seconds - default 300} \
+    --etcd-endpoint={etcd endpoints comma separeted - optional} \
+    --etcd-ttl={etcd ttl - default 1 day} \
+    --etcd-prefix={prefix or path to store data - default /github-authorized-keys}
+    --listen={Sets the address and port for IP, default :301} \
+    --integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
 ```
 or you can mix that approaches
 
@@ -270,7 +205,7 @@ adduser {username} --disabled-password --force-badname --shell {shell}
 
 **Environment variable:**
 
-LINUX_USER_ADD_TPL
+`LINUX_USER_ADD_TPL`
 
 
 ###### Add user with primary group
@@ -290,7 +225,7 @@ adduser {username} --disabled-password --force-badname --shell {shell} --group {
 
 **Environment variable:**
 
-LINUX_USER_ADD_WITH_GID_TPL
+`LINUX_USER_ADD_WITH_GID_TPL`
 
 ###### Add user to secondary group
 
@@ -307,7 +242,7 @@ adduser {username} {group}
 
 **Environment variable:**
 
-LINUX_USER_ADD_TO_GROUP_TPL
+`LINUX_USER_ADD_TO_GROUP_TPL`
 
 ###### Delete user
 
@@ -323,7 +258,7 @@ deluser {username}
 
 **Environment variable:**
 
-LINUX_USER_DEL_TPL
+`LINUX_USER_DEL_TPL`
 
 ------------
 
@@ -355,7 +290,7 @@ Once the docker-compose environment is running, you can attach to the container 
 docker exec -it github-authorized-keys sh
 ```
 
-Source code is shared into ``/go/src/github.com/cloudposse/github-authorized-keys`` directory.
+Source code is bind-mounted to ``/go/src/github.com/cloudposse/github-authorized-keys`` directory.
 
 **Install dev tools inside container**
 
@@ -373,10 +308,11 @@ curl https://glide.sh/get | sh
 ### Testing
 
 **Warning:**
-Tests require perms to create users, so it is better to run them inside docker container.
+Tests require sufficient permission to create users, so it is better to run them inside docker container.
 
 Running tests required some configs.
-There are 2 approaches to do this.
+
+There are 2 approaches to do this:
 
 #### With config file
 
@@ -405,8 +341,8 @@ TEST_GITHUB_ORGANIZATION={organization name} \
 TEST_GITHUB_TEAM={team name} \
 TEST_GITHUB_TEAM_ID={team id} \
 TEST_GITHUB_USER={user} \
-TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
-make test
+TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
+  make test
 ```
 
 
@@ -441,6 +377,72 @@ docker build \
 --build-arg  TEST_GITHUB_ORGANIZATION={org} \
 --build-arg  TEST_GITHUB_TEAM={team} \
 --build-arg  TEST_GITHUB_TEAM_ID={team_id} \
---build-arg  TEST_GITHUB_USER={user}
+--build-arg  TEST_GITHUB_USER={user} \
 --build-arg  TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
 ```
+
+---
+
+## Demo
+
+We use Vagrant to demonstrate how this tool works.
+
+### Deps
+
+Install
+
+**[Virtual box](https://www.virtualbox.org/wiki/Downloads)** (tested on version 4.3.26)
+
+**[Vagrant](https://www.vagrantup.com/downloads.html)** (tested on version 1.8.4)
+
+**[vagrant-docker-compose](https://github.com/leighmcculloch/vagrant-docker-compose)** plugin
+  with command
+
+``vagrant plugin install vagrant-docker-compose``
+
+### Run
+
+Vagrant up required some configs.
+There are 2 cases to do this.
+
+#### With config file
+
+Copy .github-authorized-keys-demo.default.yml to .github-authorized-keys-demo.yml
+
+```
+cp .github-authorized-keys-demo.default.yml .github-authorized-keys-demo.yml
+```
+
+and set required values in that file.
+
+Then you can simple run
+
+```
+vagrant up
+```
+
+
+#### With environment variables
+
+Run vagrant with command
+
+
+```
+GITHUB_API_TOKEN={api token} \
+GITHUB_ORGANIZATION={organization name} \
+GITHUB_TEAM={team name} \
+  vagrant up
+```
+
+
+### Test
+
+Login into vagrant box with command
+
+``ssh -o "UserKnownHostsFile /dev/null" {github username}@192.168.33.10``
+
+### Logs
+
+You can check what is going with ssh inside vagrant box
+
+``sudo tail -f /var/log/auth.log``
