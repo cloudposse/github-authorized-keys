@@ -5,12 +5,12 @@ COPY ./ /go/src/github.com/cloudposse/github-authorized-keys
 WORKDIR /go/src/github.com/cloudposse/github-authorized-keys
 
 ARG RUN_TESTS=0
-ARG TEST_GITHUB_API_TOKEN=
-ARG TEST_GITHUB_ORGANIZATION=
-ARG TEST_GITHUB_TEAM=
-ARG TEST_GITHUB_TEAM_ID=
-ARG TEST_GITHUB_USER=
-ARG TEST_ETCD_ENDPOINT=
+ARG TEST_GITHUB_API_TOKEN
+ARG TEST_GITHUB_ORGANIZATION
+ARG TEST_GITHUB_TEAM
+ARG TEST_GITHUB_TEAM_ID
+ARG TEST_GITHUB_USER
+ARG TEST_ETCD_ENDPOINT
 
 # We do tests on alpine so use alpine adduser flags
 
@@ -28,7 +28,7 @@ RUN set -ex \
 		curl \
 		&& curl https://glide.sh/get | sh \
 		&& make deps \
-		&& if [ $RUN_TESTS -eq 1 ]; then make test ; fi \
+		&& ( [[ $RUN_TESTS -eq 0 ]]  ||  make test; )  \
 		&& go-wrapper install \
 		&& rm -rf  /go/src \
 		&& apk del .build-deps

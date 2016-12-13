@@ -330,7 +330,7 @@ RIGHT CONTENT`))
 				linux.FileGet("/tmp/zzz")
 
 				Expect(err).NotTo(BeNil())
-				Expect(err.Error()).To(Equal("Match regexp /.*/ is too wide - [RIGHT CONTENT23 RIGHT CONTENT] matches found."))
+				Expect(err.Error()).To(Equal("Match regexp /.*/ is too wide - [RIGHT CONTENT23 RIGHT CONTENT] matches found"))
 			})
 		})
 
