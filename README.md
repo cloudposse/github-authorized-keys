@@ -1,4 +1,4 @@
-# Github Authorized Keys
+# Github Authorized Keys [![Build Status](https://travis-ci.org/cloudposse/github-authorized-keys.svg?branch=master)](https://travis-ci.org/cloudposse/github-authorized-keys)
 
 Use GitHub teams to manage system user accounts and authorized_keys
 
