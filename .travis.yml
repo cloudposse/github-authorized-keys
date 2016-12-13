@@ -40,12 +40,12 @@ after_success:
 
 - |-
   if [ ! -z "$TRAVIS_PULL_REQUEST_BRANCH" ]; then \
-    docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:$TRAVIS_PULL_REQUEST_BRANCH && \
-    docker push $DOCKER_IMAGE_NAME:$TRAVIS_PULL_REQUEST_BRANCH; \
+    docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:pr-$TRAVIS_PULL_REQUEST_BRANCH && \
+    docker push $DOCKER_IMAGE_NAME:pr-$TRAVIS_PULL_REQUEST_BRANCH; \
   fi
 
 - |-
-  if [[ -z "$TRAVIS_PULL_REQUEST_BRANCH"  && ! -z "$TRAVIS_BRANCH" ]]; then \
+  if [[ -z "$TRAVIS_PULL_REQUEST_BRANCH" && ! -z "$TRAVIS_BRANCH" ]]; then \
     docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:$TRAVIS_BRANCH && \
     docker push $DOCKER_IMAGE_NAME:$TRAVIS_BRANCH; \
   fi
