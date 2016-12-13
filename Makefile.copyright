@@ -3,7 +3,7 @@ COPYRIGHT_LICENSE ?= ASL2
 COPYRIGHT_HOLDER ?= Cloud Posse, LLC <hello@cloudposse.com>
 COPYRIGHT_YEAR ?= 2016
 COPYRIGHT_SOFTWARE ?= Github Authorized Keys
-COPYRIGHT_SOFTWARE_DESCRIPTION ?= A utility which uses GitHub teams to manage system user accounts and authorized_keys
+COPYRIGHT_SOFTWARE_DESCRIPTION ?= Use GitHub teams to manage system user accounts and authorized_keys
 COPYRIGHT_OUTPUT_DIR ?= /usr/src
 COPYRIGHT_WORD_WRAP ?= 100
 
