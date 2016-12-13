@@ -18,7 +18,7 @@ build: $(GO)
 .PHONY: test
 ## Run tests
 test: $(GO)
-  $(GO) test $($(GO) list ./... | grep -v /vendor/)
+	$(GO) test $($(GO) list ./... | grep -v /vendor/)
 
 .PHONY: deps
 ## Install dependencies
