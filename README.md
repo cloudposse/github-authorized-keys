@@ -1,52 +1,54 @@
+# Github Authorized Keys
+
+Use GitHub teams to manage system user accounts and authorized_keys
+
+## Table of Contents
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [Github Authorized Keys](#github-authorized-keys)
-  - [Getting started](#getting-started)
-    - [Requirements](#requirements)
-      - [Use as deamon](#use-as-deamon)
-      - [Use in containers](#use-in-containers)
-    - [Install](#install)
-      - [Use as daemon](#use-as-daemon)
-      - [Use in containers](#use-in-containers-1)
-    - [Start](#start)
-        - [Use as daemon](#use-as-daemon-1)
-        - [Use in containers](#use-in-containers-2)
-    - [Usage](#usage)
-      - [Authorize](#authorize)
-        - [Update sshd_config in automated mode](#update-sshd_config-in-automated-mode)
-        - [Update sshd_config manually](#update-sshd_config-manually)
-      - [ETCD fallback cache](#etcd-fallback-cache)
-      - [Create users](#create-users)
-        - [Templating commands](#templating-commands)
-          - [Add user](#add-user)
-          - [Add user with primary group](#add-user-with-primary-group)
-          - [Add user to secondary group](#add-user-to-secondary-group)
-          - [Delete user](#delete-user)
-  - [Development](#development)
-    - [Requirements](#requirements-1)
-    - [Run development in docker](#run-development-in-docker)
-    - [Install go libs dependencies](#install-go-libs-dependencies)
-    - [Testing](#testing)
-      - [With config file](#with-config-file)
-      - [With environment variables](#with-environment-variables)
-    - [Run tests on docker build](#run-tests-on-docker-build)
-      - [With config file](#with-config-file-1)
-      - [With build args](#with-build-args)
-  - [Demo](#demo)
-    - [Deps](#deps)
-    - [Run](#run)
-      - [With config file](#with-config-file-2)
-      - [With environment variables](#with-environment-variables-1)
-    - [Test](#test)
-    - [Logs](#logs)
+- [Getting started](#getting-started)
+  - [Requirements](#requirements)
+    - [Use as deamon](#use-as-deamon)
+    - [Use in containers](#use-in-containers)
+  - [Install](#install)
+    - [Use as daemon](#use-as-daemon)
+    - [Use in containers](#use-in-containers-1)
+  - [Start](#start)
+      - [Use as daemon](#use-as-daemon-1)
+      - [Use in containers](#use-in-containers-2)
+  - [Usage](#usage)
+    - [Authorize](#authorize)
+      - [Update sshd_config in automated mode](#update-sshd_config-in-automated-mode)
+      - [Update sshd_config manually](#update-sshd_config-manually)
+    - [ETCD fallback cache](#etcd-fallback-cache)
+    - [Create users](#create-users)
+      - [Templating commands](#templating-commands)
+        - [Add user](#add-user)
+        - [Add user with primary group](#add-user-with-primary-group)
+        - [Add user to secondary group](#add-user-to-secondary-group)
+        - [Delete user](#delete-user)
+- [Development](#development)
+  - [Requirements](#requirements-1)
+  - [Run development in docker](#run-development-in-docker)
+  - [Install go libs dependencies](#install-go-libs-dependencies)
+  - [Testing](#testing)
+    - [With config file](#with-config-file)
+    - [With environment variables](#with-environment-variables)
+  - [Run tests on docker build](#run-tests-on-docker-build)
+    - [With config file](#with-config-file-1)
+    - [With build args](#with-build-args)
+- [Demo](#demo)
+  - [Deps](#deps)
+  - [Run](#run)
+    - [With config file](#with-config-file-2)
+    - [With environment variables](#with-environment-variables-1)
+  - [Test](#test)
+  - [Logs](#logs)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-
-# Github Authorized Keys
-Use GitHub teams to manage system user accounts and authorized_keys
 
 ----
 
