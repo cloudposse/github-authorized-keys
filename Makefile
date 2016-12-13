@@ -18,10 +18,7 @@ build: $(GO)
 .PHONY: test
 ## Run tests
 test: $(GO)
-  ## Find tests in all dirs expect vendor dir and dirs starts from . ##
-  ## Convert local dir path to package absolute name ##
-  ## Run tests ##
-  go test $(go list ./... | grep -v /vendor/)
+  $(GO) test $($(GO) list ./... | grep -v /vendor/)
 
 .PHONY: deps
 ## Install dependencies
