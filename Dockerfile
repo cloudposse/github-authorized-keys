@@ -28,6 +28,11 @@ RUN set -ex \
 		curl \
 		&& curl https://glide.sh/get | sh \
 		&& make deps \
+		&& echo $TEST_GITHUB_API_TOKEN \
+		&& echo $TEST_GITHUB_ORGANIZATION \
+		&& echo $TEST_GITHUB_TEAM \
+		&& echo $TEST_GITHUB_TEAM_ID \
+		&& echo $TEST_GITHUB_USER \
 		&& { [[ $RUN_TESTS -eq 0 ]]  ||  make test; } \
 		&& go-wrapper install \
 		&& rm -rf  /go/src \
