@@ -8,7 +8,7 @@ include Makefile.*
 ## Update table of contents in README.md
 .PHONY : update-docs
 update-docs:
-	@doctoc --github README.md
+	@doctoc --notitle --github README.md
 
 .PHONY: build
 ## Build binary

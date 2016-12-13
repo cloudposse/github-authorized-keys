@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
 
 - [Github Authorized Keys](#github-authorized-keys)
   - [Getting started](#getting-started)
@@ -43,6 +43,7 @@
     - [Logs](#logs)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 # Github Authorized Keys
 Use GitHub teams to manage system user accounts and authorized_keys
