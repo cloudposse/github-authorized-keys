@@ -26,18 +26,10 @@ import (
 )
 
 // Naive oauth setup
-
-type accessToken struct {
-	token *oauth2.Token
-}
-
-func (a accessToken) Token() (*oauth2.Token, error) {
-	return a.token, nil
-}
-
-func newAccessToken(token string) accessToken {
-	t := oauth2.Token{AccessToken: token}
-	return accessToken{token: &t}
+func newAccessToken(token string) oauth2.TokenSource {
+	return oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
 }
 
 // GithubClient - client for operate with Github API

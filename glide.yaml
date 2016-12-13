@@ -41,5 +41,3 @@ testImport:
   - ginkgo
 - package: github.com/onsi/gomega
   version: f1f0f388b31eca4e2cbe7a6dd8a3a1dfddda5b1c
-- package: github.com/jarcoal/httpmock
-  version: 145b10d659265440f062c31ea15326166bae56ee
