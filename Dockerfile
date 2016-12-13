@@ -28,7 +28,7 @@ RUN set -ex \
 		curl \
 		&& curl https://glide.sh/get | sh \
 		&& make deps \
-		&& ( [[ $RUN_TESTS -eq 0 ]]  ||  make test; ) \
+		&& make test  \
 		&& go-wrapper install \
 		&& rm -rf  /go/src \
 		&& apk del .build-deps
