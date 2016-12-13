@@ -29,6 +29,7 @@ test: $(GO)
 ## Install dependencies
 deps: $(GLIDE)
 	$(GLIDE) install
+	$(GLIDE) update
 
 ## Clean compiled binary
 clean:
