@@ -12,6 +12,8 @@ import:
   - github
 - package: golang.org/x/oauth2
   version: f6093e37b6cb4092101a298aba5d794eb570757f
+- package: github.com/spf13/pflag
+  version: 5ccb023bc27df288a957c5e994cd44fd19619465
 - package: github.com/spf13/cobra
   version: 9495bc009a56819bdb0ddbc1a373e29c140bc674
   subpackages:
