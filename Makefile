@@ -5,6 +5,11 @@ INSTALL_DIR ?= /usr/local/sbin
 
 include Makefile.*
 
+## Update table of contents in README.md
+.PHONY : update-docs
+update-docs:
+	@doctoc --github README.md
+
 .PHONY: build
 ## Build binary
 build: $(GO)
@@ -44,7 +49,6 @@ lint: $(GO) vet
 ## Vet code
 vet: $(GO)
 	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 $(GO) vet -v
-
 
 .PHONY: fmt
 ## Format code according to Golang convention
