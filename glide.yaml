@@ -1,0 +1,43 @@
+package: github.com/cloudposse/github-authorized-keys
+homepage: https://github.com/cloudposse/github-authorized-keys
+license: ???
+owners:
+- name: Cloud Posse
+  email: hello@cloudposse.com
+  homepage: http://cloudposse.com
+import:
+- package: github.com/google/go-github
+  version: dccec7b5f17234b8219494c2b5b03af034e08c04
+  subpackages:
+  - github
+- package: golang.org/x/oauth2
+  version: f6093e37b6cb4092101a298aba5d794eb570757f
+- package: github.com/spf13/cobra
+  version: 9495bc009a56819bdb0ddbc1a373e29c140bc674
+  subpackages:
+  - cobra
+- package: github.com/coreos/etcd
+  version: v2.3.7
+  subpackages:
+  - client.v1
+- package: github.com/Sirupsen/logrus
+  version: v0.11.0
+- package: github.com/valyala/fasttemplate
+  version: 3b874956e03f1636d171bda64b130f9135f42cff
+- package: github.com/gin-gonic/gin
+  version: v1.1.4
+- package: github.com/go-ozzo/ozzo-validation
+  version: v2.0
+- package: github.com/jasonlvhit/gocron
+  version: 42a5804d37aa0b9239b265e894a16b8edbf52d54
+- package: github.com/goruha/permbits
+  version: b7b74f7b45ae871ecc96e07e9abe5225b366c66b
+testImport:
+- package: github.com/onsi/ginkgo
+  version: 00054c0bb96fc880d4e0be1b90937fad438c5290
+  subpackages:
+  - ginkgo
+- package: github.com/onsi/gomega
+  version: f1f0f388b31eca4e2cbe7a6dd8a3a1dfddda5b1c
+- package: github.com/jarcoal/httpmock
+  version: 145b10d659265440f062c31ea15326166bae56ee

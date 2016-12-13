@@ -1,14 +1,14 @@
-package cmd
+package api
 
 import (
-	"os/user"
-	"os/exec"
-	"fmt"
 	"errors"
+	"fmt"
 	"github.com/spf13/viper"
+	"os/exec"
+	"os/user"
 )
 
-const(
+const (
 	// Passwd file contains one row per user
 	// Format of the row consists of 7 columns
 	// https://en.wikipedia.org/wiki/Passwd#Password_file
@@ -34,29 +34,29 @@ const(
 
 	// User shell stored in 6 column
 	shellColumnNumberInPasswd = 6
-
 )
 
-
-type linuxUser struct {
-	Name     string
-	Gid      string // primary group ID
-	Groups   []string
-	Shell    string
+// LinuxUser - struct that extends os/user struct with shell param
+type LinuxUser struct {
+	Name   string
+	Gid    string // primary group ID
+	Groups []string
+	Shell  string
 }
 
-func init () {
+func init() {
 	// We need --force-badname because github users could contains capital letters, what is not acceptable in some distributions
 	// Really regexp to verify badname rely on environment var that set in profile.d so we rarely hit this errors.
 	//
 	// adduser wants user name be the head and flags the tail.
-	viper.SetDefault("linux_user_add_tpl",          "adduser {username} --disabled-password --force-badname --shell {shell}")
+	viper.SetDefault("linux_user_add_tpl", "adduser {username} --disabled-password --force-badname --shell {shell}")
 	viper.SetDefault("linux_user_add_with_gid_tpl", "adduser {username} --disabled-password --force-badname --shell {shell} --group {group}")
 	viper.SetDefault("linux_user_add_to_group_tpl", "adduser {username} {group}")
-	viper.SetDefault("linux_user_del_tpl",          "deluser {username}")
+	viper.SetDefault("linux_user_del_tpl", "deluser {username}")
 }
 
-func (linux *Linux) userExists(userName string) bool {
+// UserExists - check if user {userName} exists
+func (linux *Linux) UserExists(userName string) bool {
 	user, _ := linux.userLookup(userName)
 	return user != nil
 }
@@ -73,34 +73,35 @@ func (linux *Linux) userLookup(userName string) (*user.User, error) {
 	}
 
 	user := user.User{
-		Uid: userInfo[uidColumnNumberInPasswd],
-		Gid: userInfo[gidColumnNumberInPasswd],
-		Name: userInfo[nameColumnNumberInPasswd],
+		Uid:      userInfo[uidColumnNumberInPasswd],
+		Gid:      userInfo[gidColumnNumberInPasswd],
+		Name:     userInfo[nameColumnNumberInPasswd],
 		Username: userInfo[nameColumnNumberInPasswd],
-		HomeDir: userInfo[homeColumnNumberInPasswd],
+		HomeDir:  userInfo[homeColumnNumberInPasswd],
 	}
 
 	return &user, err
 }
 
-func (linux *Linux) userCreate(new linuxUser) error {
+// UserCreate - create user {new}
+func (linux *Linux) UserCreate(new LinuxUser) error {
 
-	createUserCommandTemplate        := viper.GetString("linux_user_add_tpl")
+	createUserCommandTemplate := viper.GetString("linux_user_add_tpl")
 	createUserWithGIDCommandTemplate := viper.GetString("linux_user_add_with_gid_tpl")
-	addUserToGroupCommandTemplate    := viper.GetString("linux_user_add_to_group_tpl")
+	addUserToGroupCommandTemplate := viper.GetString("linux_user_add_to_group_tpl")
 
 	var cmd *exec.Cmd
 
 	template := createUserCommandTemplate
 
 	args := map[string]interface{}{
-		"shell": new.Shell,
+		"shell":    new.Shell,
 		"username": new.Name,
 	}
 
 	if new.Gid != "" {
 		template = createUserWithGIDCommandTemplate
-		args["gid"]   = new.Gid
+		args["gid"] = new.Gid
 
 		if primaryGroup, err := linux.groupLookupByID(new.Gid); err == nil {
 			args["group"] = primaryGroup.Name
@@ -121,16 +122,17 @@ func (linux *Linux) userCreate(new linuxUser) error {
 		cmd := linux.TemplateCommand(addUserToGroupCommandTemplate,
 			map[string]interface{}{"username": new.Name, "group": group})
 		err := cmd.Run()
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		fmt.Printf("Added user %v to group %v\n", new.Name, group)
 	}
 
 	return nil
 }
 
-func (linux *Linux) userDelete(new linuxUser) error {
+func (linux *Linux) userDelete(new LinuxUser) error {
 	deleteUserCommandTemplate := viper.GetString("linux_user_del_tpl")
-
 
 	fmt.Printf("Delete user %v\n", new.Name)
 	cmd := linux.TemplateCommand(deleteUserCommandTemplate, map[string]interface{}{"username": new.Name})

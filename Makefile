@@ -1,4 +1,5 @@
 GO	:= $(shell which go)
+GLIDE	:= $(shell which glide)
 APP	?= github-authorized-keys
 INSTALL_DIR ?= /usr/local/sbin
 
@@ -10,20 +11,22 @@ build: $(GO)
 .PHONY: test
 ## Run tests
 test: $(GO)
-	$(GO) test -v github.com/cloudposse/github-authorized-keys/cmd
-
+  ## Find tests in all dirs expect vendor dir and dirs starts from . ##
+  ## Convert local dir path to package absolute name ##
+  ## Run tests ##
+	find !  -path "\./\.*" ! -path "\./vendor*" -type d | \
+	sed -e "s/\./github.com\/cloudposse\/github-authorized-keys/g" | \
+	xargs -n 1 $(GO) test -v
 
 .PHONY: deps
 ## Install dependencies
-deps: $(GO)
-	$(GO) get -d -v "github.com/google/go-github/github"
-	$(GO) get -d -v "golang.org/x/oauth2"
-	$(GO) get -d -v "github.com/spf13/cobra/cobra"
-	$(GO) get -d -v "github.com/valyala/fasttemplate"
+deps: $(GLIDE)
+	$(GLIDE) install
 
 ## Clean compiled binary
 clean:
 	rm -f $(APP)
+	$(GLIDE) remove all
 
 ## Install cli
 install: $(APP)
@@ -32,18 +35,23 @@ install: $(APP)
 
 .PHONY: lint
 ## Lint code
-lint: $(GO)
-	golint cmd/*
-	golint *.go
-	$(GO) vet -v cmd/*
-	$(GO) vet -v *.go
+lint: $(GO) vet
+	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 golint
+
+.PHONY: vet
+## Vet code
+vet: $(GO)
+	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 $(GO) vet -v
+
+
+.PHONY: fmt
+fmt: $(GO)
+	find . ! -path "*/vendor/*" ! -path "*/.glide/*" -type f -name '*.go' | xargs -n 1 gofmt -w -l -s
 
 .PHONY: deps-dev
 ## Install development dependencies
 deps-dev: $(GO)
 	$(GO) get -d -v "github.com/golang/lint"
-	$(GO) get -d -v "github.com/onsi/ginkgo/ginkgo"
-	$(GO) get -d -v "github.com/onsi/gomega"
 	$(GO) install -v "github.com/golang/lint/golint"
 
 ## This help screen

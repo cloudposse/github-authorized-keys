@@ -71,55 +71,52 @@ You can check what is going with ssh inside vagrant box
 
 ## Getting started
 
-Tool is writen on go lang and provides a command line interface.
-It is possible to run this command as simple cli application or in docker container.
+Use GitHub teams to manage system user accounts and authorized_keys.
+This tool consists of two parts
+1. REST API that provide public keys for users (required for sshd_config AuthorizedKeysCommand)
+2. Internal cron job schedule task to create users on linux machine
 
-### Run as cli
+### Requirements
 
-#### Requirements
+#### Use as deamon
 
-  [Go lang 1.7.x](https://golang.org/)
+  * [Go lang 1.7.x](https://golang.org/)
+  * [glide](https://github.com/Masterminds/glide)
 
-#### Install
+#### Use in containers
 
-  Compile with command
-  ```
+  * [Docker](https://docs.docker.com/engine/installation)
+
+### Install
+
+#### Use as daemon
+
+
+Compile with command
+```
 make deps
 make build
 make install
-  ```
+```
 
 After installation you could find command as
 ```
 /usr/local/sbin/github-authorized-keys
 ```
 
-#### Run
+#### Use in containers
 
-##### Authorize command
-You can specify params as flags
+  Build docker image
 
-```
-/usr/local/sbin/github-authorized-keys \
---github-api-token={token} \
---github-organization={organization} \
---github-team={team} \
-authorize {user}
-```
+ ```
+ docker build ./ -t github-authorized-keys
+ ```
 
-or as environment variables
+### Start
 
+##### Use as daemon
 
-```
-GITHUB_API_TOKEN={token} \
-GITHUB_ORGANIZATION={organization} \
-GITHUB_TEAM={team} \
-/usr/local/sbin/github-authorized-keys authorize {user}
-```
-
-or you can mix that approaches
-
-##### Create users
+To start daemon run cli command with configuration params
 
 You can specify params as flags
 
@@ -131,8 +128,13 @@ You can specify params as flags
 --sync-users-gid={user gid} \
 --sync-users-groups={comma separated secondary groups names} \
 --sync-users-shell={user shell} \
---sync-users-root={root directory} \
-sync-users
+--sync-users-root={root directory - default "/"} \
+--sync-users-interval={seconds - default 300} \
+--etcd-endpoint={etcd endpoints comma separeted - optional} \
+--etcd-ttl={etcd ttl - default 1 day} \
+--etcd-prefix={prefix or path to store data - default /github-authorized-keys}
+--listen={Sets the address and port for IP, default :301} \
+--integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
 ```
 
 or as environment variables
@@ -145,40 +147,26 @@ GITHUB_TEAM={team} \
 SYNC_USERS_GID={gid OR empty} \
 SYNC_USERS_GROUPS={comma separated groups OR empty} \
 SYNC_USERS_SHELL={user shell} \
-SYNC_USERS_ROOT={root directory} \
-/usr/local/sbin/github-authorized-keys sync-users
+SYNC_USERS_ROOT={root directory - default "/"} \
+SYNC_USERS_INTERVAL={seconds - default 300} \
+ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
+ETCD_TTL={etcd ttl - default 1 day} \
+ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
+LISTEN={Sets the address and port for IP, default :301} \
+INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)}
+/usr/local/sbin/github-authorized-keys authorize {user}
 ```
 
 or you can mix that approaches
 
-### Run in containers
+##### Use in containers
 
-#### Requirements
-
-  [Docker](https://docs.docker.com/engine/installation)
-
-#### Build docker image
-```
-docker build ./ -t github-authorized-keys
-```
-
-### Run docker image
-
-#### Authorize command
+You can specify params  as environment variables
 
 ```
 docker run \
--e GITHUB_API_TOKEN={token} \
--e GITHUB_ORGANIZATION={organization} \
--e GITHUB_TEAM={team} \
-github-authorized-keys authorize {user}
-```
-
-
-#### Create users
-
-```
-docker run \
+-v /:/{root directory} \
+--expose "301:301"
 -e GITHUB_API_TOKEN={token} \
 -e GITHUB_ORGANIZATION={organization} \
 -e GITHUB_TEAM={team} \
@@ -186,27 +174,90 @@ docker run \
 -e SYNC_USERS_GROUPS={comma separated groups OR empty} \
 -e SYNC_USERS_SHELL={user shell} \
 -e SYNC_USERS_ROOT={root directory} \
--v /etc:/etc \
--v /home:/home \
-github-authorized-keys sync-users
+-e SYNC_USERS_INTERVAL={seconds - default 300} \
+-e ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
+-e ETCD_TTL={etcd ttl - default 1 day} \
+-e ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
+-e LISTEN={Sets the address and port for IP, default :301} \
+-e INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)}
+github-authorized-keys
 ```
 
-You have to share ``/etc`` because ``adduser`` command backup ``/etc/passwd`` to  ``/etc/passwd-`` with system call
-fire EXDEV error if backup are on different layers.
-https://docs.docker.com/engine/userguide/storagedriver/aufs-driver/
+or as flags
 
-------------
+```
+docker run \
+-v /:/{root directory} \
+--expose "301:301"
+github-authorized-keys
+--github-api-token={token} \
+--github-organization={organization} \
+--github-team={team} \
+--sync-users-gid={user gid} \
+--sync-users-groups={comma separated secondary groups names} \
+--sync-users-shell={user shell} \
+--sync-users-root={root directory - default "/"} \
+--sync-users-interval={seconds - default 300} \
+--etcd-endpoint={etcd endpoints comma separeted - optional} \
+--etcd-ttl={etcd ttl - default 1 day} \
+--etcd-prefix={prefix or path to store data - default /github-authorized-keys}
+--listen={Sets the address and port for IP, default :301} \
+--integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
+```
+or you can mix that approaches
 
-## Templating commands
+### Usage
 
- Command sync-users rely on OS commands. We use templates for commands.
+#### Authorize
+
+To make ssh authorize based on github authorized key tool required some sshd_config changes.
+
+##### Update sshd_config in automated mode
+
+This changes could be done automatically on startup by setting ``--integrate-ssh`` flag or
+``INTEGRATE_SSH`` environment variable ``true``
+
+After ssd_config changed system restart ssh daemon.
+This operation could differs for different distributive so you can specify that command with ``SSH_RESTART_TPL``
+environment variable - default value is ``/usr/sbin/service ssh force-reload``
+
+##### Update sshd_config manually
+
+To integrate system with ssh you need to config AuthorizedKeysCommand and AuthorizedKeysCommandUser.
+For OpenSSH >= 6.9 you can use
+
+`````
+AuthorizedKeysCommand /usr/bin/curl http://localhost:301/users/%u/authorized_keys
+`````
+
+For older versions you'll need to use a shell wrapper that run ``curl`` command with correct url
+
+``AuthorizedKeysCommandUser`` could be any valid user.
+
+#### ETCD fallback cache
+
+Authorization REST API use ETCD to temporary cache user's public keys.
+If github.com is not available command fallback to ETCD storage.
+
+ETCD endpoints param is optional, if not specify caching and fallback disabled.
+
+#### Create users
+
+Linux users will be synchronized according to team members every 1 second
+
+In case of running in container you have to share host ``/`` into ``/{root directory}`` because  ``adduser`` command could differs on different Linux distribs and we need to use host one.
+Also that means you need to specify  sync-users-root param to point to that directory.
+
+##### Templating commands
+
+ Command sync-users rely on OS commands to mange users. We use templates for commands.
  Templates could be overridden with environment variables.
 
  Following templates are used:
 
-### Add user
+###### Add user
 
-**Template:**
+**Default template:**
 
   ```
 adduser {username} --disabled-password --force-badname --shell {shell}
@@ -222,9 +273,9 @@ adduser {username} --disabled-password --force-badname --shell {shell}
 LINUX_USER_ADD_TPL
 
 
-### Add user with primary group
+###### Add user with primary group
 
-**Template:**
+**Default template:**
 
   ```
 adduser {username} --disabled-password --force-badname --shell {shell} --group {group}
@@ -241,9 +292,9 @@ adduser {username} --disabled-password --force-badname --shell {shell} --group {
 
 LINUX_USER_ADD_WITH_GID_TPL
 
-### Add user to secondary group
+###### Add user to secondary group
 
-**Template:**
+**Default template:**
 
   ```
 adduser {username} {group}
@@ -258,7 +309,7 @@ adduser {username} {group}
 
 LINUX_USER_ADD_TO_GROUP_TPL
 
-### Delete user
+###### Delete user
 
 **Template:**
 
@@ -281,6 +332,7 @@ LINUX_USER_DEL_TPL
 ### Requirements
 
   * [Go lang 1.7.x](https://golang.org/)
+  * [glide](https://github.com/Masterminds/glide)
   * [Make](https://en.wikipedia.org/wiki/Make_(software))
   * [Docker](https://docs.docker.com/engine/installation) (optional)
   * [Docker compose](https://docs.docker.com/compose/install/) (optional)
@@ -304,6 +356,14 @@ docker exec -it github-authorized-keys sh
 ```
 
 Source code is shared into ``/go/src/github.com/cloudposse/github-authorized-keys`` directory.
+
+**Install dev tools inside container**
+
+```
+apk update
+apk add git make curl
+curl https://glide.sh/get | sh
+```
 
 
 ### Install go libs dependencies
@@ -345,6 +405,7 @@ TEST_GITHUB_ORGANIZATION={organization name} \
 TEST_GITHUB_TEAM={team name} \
 TEST_GITHUB_TEAM_ID={team id} \
 TEST_GITHUB_USER={user} \
+TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
 make test
 ```
 
@@ -381,4 +442,5 @@ docker build \
 --build-arg  TEST_GITHUB_TEAM={team} \
 --build-arg  TEST_GITHUB_TEAM_ID={team_id} \
 --build-arg  TEST_GITHUB_USER={user}
+--build-arg  TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
 ```

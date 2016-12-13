@@ -1,30 +1,14 @@
-package cmd
+package api
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/spf13/viper"
 	"os/user"
 	"strconv"
-	"fmt"
 )
 
 var _ = Describe("Linux", func() {
-	var (
-		validToken string
-		validOrg string
-		validTeamName string
-		validTeamID int
-		validUser string
-	)
-
-	BeforeEach(func() {
-		validToken = viper.GetString("github_api_token")
-		validOrg = viper.GetString("github_organization")
-		validTeamName = viper.GetString("github_team")
-		validTeamID = viper.GetInt("github_team_id")
-		validUser = viper.GetString("github_user")
-	})
 
 	Describe("userLookup()", func() {
 		Context("call with non-existing user", func() {
@@ -65,7 +49,7 @@ var _ = Describe("Linux", func() {
 		Context("call with non-existing user", func() {
 			It("should return false", func() {
 				linux := NewLinux("/")
-				isFound := linux.userExists("testdsadasfsa")
+				isFound := linux.UserExists("testdsadasfsa")
 				Expect(isFound).To(BeFalse())
 			})
 		})
@@ -73,7 +57,7 @@ var _ = Describe("Linux", func() {
 		Context("call with existing user", func() {
 			It("should return true", func() {
 				linux := NewLinux("/")
-				isFound := linux.userExists("root")
+				isFound := linux.UserExists("root")
 				Expect(isFound).To(BeTrue())
 			})
 		})
@@ -82,12 +66,12 @@ var _ = Describe("Linux", func() {
 	Describe("userCreate()", func() {
 		Context("call without GID", func() {
 			var (
-				userName linuxUser
-				linux Linux
+				userName LinuxUser
+				linux    Linux
 			)
 
 			BeforeEach(func() {
-				userName = linuxUser{Gid: "", Name: "test", Shell: "/bin/bash", Groups: []string{"wheel", "root"}}
+				userName = LinuxUser{Gid: "", Name: "test", Shell: "/bin/bash", Groups: []string{"wheel", "root"}}
 				linux = NewLinux("/")
 			})
 
@@ -96,7 +80,7 @@ var _ = Describe("Linux", func() {
 			})
 
 			It("should create valid user", func() {
-				err := linux.userCreate(userName)
+				err := linux.UserCreate(userName)
 
 				Expect(err).To(BeNil())
 
@@ -104,10 +88,10 @@ var _ = Describe("Linux", func() {
 
 				Expect(osUser.Username).To(Equal(userName.Name))
 
-				value, _ := strconv.ParseInt(osUser.Gid, 10, 64);
+				value, _ := strconv.ParseInt(osUser.Gid, 10, 64)
 				Expect(value > 0).To(BeTrue())
 
-				gids, _:= osUser.GroupIds()
+				gids, _ := osUser.GroupIds()
 
 				for _, group := range userName.Groups {
 					linuxGroup, err := user.LookupGroup(group)
@@ -123,12 +107,12 @@ var _ = Describe("Linux", func() {
 
 		Context("call with GID", func() {
 			var (
-				userName linuxUser
-				linux Linux
+				userName LinuxUser
+				linux    Linux
 			)
 
 			BeforeEach(func() {
-				userName = linuxUser{Gid: "42", Name: "test", Shell: "/bin/bash", Groups: []string{"root"}}
+				userName = LinuxUser{Gid: "42", Name: "test", Shell: "/bin/bash", Groups: []string{"root"}}
 				linux = NewLinux("/")
 			})
 
@@ -137,7 +121,7 @@ var _ = Describe("Linux", func() {
 			})
 
 			It("should create valid user", func() {
-				err := linux.userCreate(userName)
+				err := linux.UserCreate(userName)
 
 				Expect(err).To(BeNil())
 
@@ -147,7 +131,7 @@ var _ = Describe("Linux", func() {
 
 				Expect(string(osUser.Gid)).To(Equal(userName.Gid))
 
-				gids, _:= osUser.GroupIds()
+				gids, _ := osUser.GroupIds()
 
 				for _, group := range userName.Groups {
 					linuxGroup, err := user.LookupGroup(group)
@@ -161,7 +145,6 @@ var _ = Describe("Linux", func() {
 			})
 		})
 	})
-
 
 	Describe("groupLookup()", func() {
 		Context("call with non-existing group", func() {
@@ -256,10 +239,10 @@ var _ = Describe("Linux", func() {
 	})
 
 	Describe("groupExists()", func() {
-			Context("call with no existing group", func() {
+		Context("call with no existing group", func() {
 			It("should return false", func() {
 				linux := NewLinux("/")
-				isFound := linux.groupExists("testdsadasfsa")
+				isFound := linux.GroupExists("testdsadasfsa")
 				Expect(isFound).To(BeFalse())
 			})
 		})
@@ -267,7 +250,7 @@ var _ = Describe("Linux", func() {
 		Context("call with existing group", func() {
 			It("should return true", func() {
 				linux := NewLinux("/")
-				isFound := linux.groupExists("wheel")
+				isFound := linux.GroupExists("wheel")
 				Expect(isFound).To(BeTrue())
 			})
 		})

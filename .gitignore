@@ -35,3 +35,7 @@ github-authorized-keys
 
 # Config for vagrant demo
 .github-authorized-keys-demo.yml
+
+glide.lock
+.glide
+vendor/
