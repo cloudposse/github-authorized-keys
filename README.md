@@ -71,25 +71,6 @@ You can check what is going with ssh inside vagrant box
 
 ## Getting started
 
-<<<<<<< HEAD
-Tool is writen on go lang and provides a command line interface.
-It is possible to use this command as simple cli application or in docker container.
-
-### Requirements
-
-#### Use as CLI
-
-  * [Go lang 1.7.x](https://golang.org/)
-  * [glide](https://github.com/Masterminds/glide)
-
-#### Use in containers
-
-  * [Docker](https://docs.docker.com/engine/installation)
-
-### Install
-
-#### Use as CLI
-=======
 Use GitHub teams to manage system user accounts and authorized_keys.
 This tool consists of two parts
 1. REST API that provide public keys for users (required for sshd_config AuthorizedKeysCommand)
@@ -109,7 +90,6 @@ This tool consists of two parts
 ### Install
 
 #### Use as daemon
->>>>>>> master
 
 
 Compile with command
@@ -132,28 +112,11 @@ After installation you could find command as
  docker build ./ -t github-authorized-keys
  ```
 
-<<<<<<< HEAD
-### Run
-
-
-#### Authorize command
-
-Authorize command used as provider of public ssh keys for sshd.
-You need to config  AuthorizedKeysCommand in sshd_config to call authorize command (using shell wrapper).
-
-Authorize command use ETCD to temporary cache user's public keys.
-If github.com is not available command fallback to ETCD storage.
-
-ETCD endpoints param is optional, if not specify caching and fallback disabled.
-
-##### Use as CLI
-=======
 ### Start
 
 ##### Use as daemon
 
 To start daemon run cli command with configuration params
->>>>>>> master
 
 You can specify params as flags
 
@@ -162,12 +125,6 @@ You can specify params as flags
 --github-api-token={token} \
 --github-organization={organization} \
 --github-team={team} \
-<<<<<<< HEAD
---etcdctl-endpoint={etcd endpoints comma separeted - optional} \
---etcdctl-ttl={etcd ttl - default 1 day} \
---etcdctl-prefix={prefix or path to store data - default /github-authorized-keys} \
-authorize {user}
-=======
 --sync-users-gid={user gid} \
 --sync-users-groups={comma separated secondary groups names} \
 --sync-users-shell={user shell} \
@@ -178,7 +135,6 @@ authorize {user}
 --etcd-prefix={prefix or path to store data - default /github-authorized-keys}
 --listen={Sets the address and port for IP, default :301} \
 --integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
->>>>>>> master
 ```
 
 or as environment variables
@@ -188,11 +144,6 @@ or as environment variables
 GITHUB_API_TOKEN={token} \
 GITHUB_ORGANIZATION={organization} \
 GITHUB_TEAM={team} \
-<<<<<<< HEAD
-ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional} \
-ETCDCTL_TTL={etcd ttl - default 1 day} \
-ETCDCTL_PREFIX={prefix or path to store data - default /github-authorized-keys} \
-=======
 SYNC_USERS_GID={gid OR empty} \
 SYNC_USERS_GROUPS={comma separated groups OR empty} \
 SYNC_USERS_SHELL={user shell} \
@@ -203,33 +154,12 @@ ETCD_TTL={etcd ttl - default 1 day} \
 ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
 LISTEN={Sets the address and port for IP, default :301} \
 INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)}
->>>>>>> master
 /usr/local/sbin/github-authorized-keys authorize {user}
 ```
 
 or you can mix that approaches
 
 ##### Use in containers
-<<<<<<< HEAD
-
-```
-docker run \
--e GITHUB_API_TOKEN={token} \
--e GITHUB_ORGANIZATION={organization} \
--e GITHUB_TEAM={team} \
--e ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional} \
--e ETCDCTL_TTL={etcd ttl - default 1 day} \
--e ETCDCTL_PREFIX={prefix or path to store data - default /github-authorized-keys} \
-github-authorized-keys authorize {user}
-```
-
-#### Create users
-
-Creates users in linux OS
-
-##### Use as CLI
-=======
->>>>>>> master
 
 You can specify params  as environment variables
 
@@ -267,16 +197,12 @@ github-authorized-keys
 --sync-users-groups={comma separated secondary groups names} \
 --sync-users-shell={user shell} \
 --sync-users-root={root directory - default "/"} \
-<<<<<<< HEAD
-sync-users
-=======
 --sync-users-interval={seconds - default 300} \
 --etcd-endpoint={etcd endpoints comma separeted - optional} \
 --etcd-ttl={etcd ttl - default 1 day} \
 --etcd-prefix={prefix or path to store data - default /github-authorized-keys}
 --listen={Sets the address and port for IP, default :301} \
 --integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
->>>>>>> master
 ```
 or you can mix that approaches
 
@@ -284,41 +210,10 @@ or you can mix that approaches
 
 #### Authorize
 
-<<<<<<< HEAD
-```
-GITHUB_API_TOKEN={token} \
-GITHUB_ORGANIZATION={organization} \
-GITHUB_TEAM={team} \
-SYNC_USERS_GID={gid OR empty} \
-SYNC_USERS_GROUPS={comma separated groups OR empty} \
-SYNC_USERS_SHELL={user shell} \
-SYNC_USERS_ROOT={root directory - default "/"} \
-/usr/local/sbin/github-authorized-keys sync-users
-```
-=======
 To make ssh authorize based on github authorized key tool required some sshd_config changes.
->>>>>>> master
 
 ##### Update sshd_config in automated mode
 
-<<<<<<< HEAD
-##### Use in containers
-
-```
-docker run \
--e GITHUB_API_TOKEN={token} \
--e GITHUB_ORGANIZATION={organization} \
--e GITHUB_TEAM={team} \
--e SYNC_USERS_GID={gid OR empty} \
--e SYNC_USERS_GROUPS={comma separated groups OR empty} \
--e SYNC_USERS_SHELL={user shell} \
--e SYNC_USERS_ROOT={root directory} \
--v /:/{root directory} \
-github-authorized-keys sync-users
-```
-
-You have to share host ``/`` into ``/{root directory}`` ``adduser`` command could differs on different Linux distribs
-=======
 This changes could be done automatically on startup by setting ``--integrate-ssh`` flag or
 ``INTEGRATE_SSH`` environment variable ``true``
 
@@ -339,7 +234,7 @@ For older versions you'll need to use a shell wrapper that run ``curl`` command 
 
 ``AuthorizedKeysCommandUser`` could be any valid user.
 
-#### ETCD fallback cache
+##### ETCD fallback cache
 
 Authorization REST API use ETCD to temporary cache user's public keys.
 If github.com is not available command fallback to ETCD storage.
@@ -352,7 +247,6 @@ Linux users will be synchronized according to team members every 1 second
 
 In case of running in container you have to share host ``/`` into ``/{root directory}`` because  ``adduser`` command could differs on different Linux distribs and we need to use host one.
 Also that means you need to specify  sync-users-root param to point to that directory.
->>>>>>> master
 
 ##### Templating commands
 
@@ -548,9 +442,5 @@ docker build \
 --build-arg  TEST_GITHUB_TEAM={team} \
 --build-arg  TEST_GITHUB_TEAM_ID={team_id} \
 --build-arg  TEST_GITHUB_USER={user}
-<<<<<<< HEAD
---build-arg  TEST_ETCDCTL_ENDPOINT={etcd endpoints comma separeted - optional}
-=======
 --build-arg  TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
->>>>>>> master
 ```
