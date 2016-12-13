@@ -3,6 +3,8 @@ GLIDE	:= $(shell which glide)
 APP	?= github-authorized-keys
 INSTALL_DIR ?= /usr/local/sbin
 
+include Makefile.*
+
 .PHONY: build
 ## Build binary
 build: $(GO)
@@ -53,6 +55,7 @@ fmt: $(GO)
 deps-dev: $(GO)
 	$(GO) get -d -v "github.com/golang/lint"
 	$(GO) install -v "github.com/golang/lint/golint"
+
 
 ## This help screen
 help:
