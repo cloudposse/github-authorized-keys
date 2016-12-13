@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Run - start http server
 func Run(cfg config.Config) {
 
 	router := gin.Default()
