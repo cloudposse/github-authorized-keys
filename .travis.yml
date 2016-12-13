@@ -45,13 +45,19 @@ after_success:
   fi
 
 - |-
-  if [ ! -z "$TRAVIS_BRANCH" ]; then \
+  if [[ -z "$TRAVIS_PULL_REQUEST_BRANCH"  && ! -z "$TRAVIS_BRANCH" ]]; then \
     docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:$TRAVIS_BRANCH && \
     docker push $DOCKER_IMAGE_NAME:$TRAVIS_BRANCH; \
   fi
 
 - |-
   if [[ -z "$TRAVIS_TAG"  &&  -z "$TRAVIS_PULL_REQUEST_BRANCH"  &&  -z "$TRAVIS_BRANCH" ]]; then \
+    docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:latest && \
+    docker push $DOCKER_IMAGE_NAME:latest; \
+  fi
+
+- |-
+  if [[ -z "$TRAVIS_PULL_REQUEST_BRANCH" ]]  && [[ "$TRAVIS_BRANCH" == "master" ]]; then \
     docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:latest && \
     docker push $DOCKER_IMAGE_NAME:latest; \
   fi
