@@ -8,7 +8,7 @@ install:
 - pip install docker-compose
 script:
 - docker-compose -f docker-compose-test.yaml up -d
-- docker build --tag test --build-arg RUN_TESTS=1 --build-arg  TEST_GITHUB_API_TOKEN=${GITHUB_API_TOKEN} --build-arg  TEST_GITHUB_ORGANIZATION=${GITHUB_ORGANIZATION} --build-arg  TEST_GITHUB_TEAM=${GITHUB_TEAM} --build-arg  TEST_GITHUB_TEAM_ID=${GITHUB_TEAM_ID} --build-arg  TEST_GITHUB_USER=${GITHUB_USER} --build-arg  TEST_ETCD_ENDPOINT=http://localhost:2379 ./
+- docker build --tag test --build-arg RUN_TESTS=1 --build-arg TEST_GITHUB_API_TOKEN=${GITHUB_API_TOKEN} --build-arg TEST_GITHUB_ORGANIZATION=${GITHUB_ORGANIZATION} --build-arg TEST_GITHUB_TEAM=${GITHUB_TEAM} --build-arg TEST_GITHUB_TEAM_ID=${GITHUB_TEAM_ID} --build-arg TEST_GITHUB_USER=${GITHUB_USER} --build-arg TEST_ETCD_ENDPOINT=http://localhost:2379 ./
 after_success:
 - docker build -t $DOCKER_IMAGE_NAME .
 - if [ ! -z "$TRAVIS_TAG" ]; then docker tag $DOCKER_IMAGE_NAME  $DOCKER_IMAGE_NAME:$TRAVIS_TAG && docker push $DOCKER_IMAGE_NAME:$TRAVIS_TAG; fi
