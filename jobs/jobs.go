@@ -19,6 +19,7 @@ func init() {
 	viper.SetDefault("ssh_restart_tpl", "/usr/sbin/service ssh force-reload")
 }
 
+// Run - start scheduled jobs
 func Run(cfg config.Config) {
 	log.Info("Run syncUsers job on start")
 	syncUsers(cfg)
