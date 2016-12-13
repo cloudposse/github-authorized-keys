@@ -139,7 +139,7 @@ ETCD_TTL={etcd ttl - default 1 day} \
 ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
 LISTEN={Sets the address and port for IP, default :301} \
 INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)} \
-  /usr/local/sbin/github-authorized-keys authorize {user}
+  /usr/local/sbin/github-authorized-keys
 ```
 
 or you can mix that approaches
