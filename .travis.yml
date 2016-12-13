@@ -7,8 +7,8 @@ install:
 - docker login --email="$DOCKER_HUB_EMAIL" --username="$DOCKER_HUB_USERNAME" --password="$DOCKER_HUB_PASSWORD"
 script:
 - docker build -t $DOCKER_IMAGE_NAME .
-- if [ ! -z "$TRAVIS_TAG" ]; then docker tag $DOCKER_IMAGE_NAME:$TRAVIS_TAG; fi
-- if [ ! -z "TRAVIS_PULL_REQUEST_BRANCH" ]; then docker tag $DOCKER_IMAGE_NAME:$TRAVIS_PULL_REQUEST_BRANCH; fi
-- if [ ! -z "TRAVIS_BRANCH" ]; then docker tag $DOCKER_IMAGE_NAME:$TRAVIS_BRANCH; fi
-- if [ -z "$TRAVIS_TAG" ] && [ -z "TRAVIS_PULL_REQUEST_BRANCH" ] && [ -z "TRAVIS_BRANCH" ]; then docker tag $DOCKER_IMAGE_NAME:latest; fi
+- if [ ! -z "$TRAVIS_TAG" ]; then docker tag $DOCKER_IMAGE_NAME  $DOCKER_IMAGE_NAME:$TRAVIS_TAG; fi
+- if [ ! -z "TRAVIS_PULL_REQUEST_BRANCH" ]; then docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:$TRAVIS_PULL_REQUEST_BRANCH; fi
+- if [ ! -z "TRAVIS_BRANCH" ]; then docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:$TRAVIS_BRANCH; fi
+- if [ -z "$TRAVIS_TAG" ] && [ -z "TRAVIS_PULL_REQUEST_BRANCH" ] && [ -z "TRAVIS_BRANCH" ]; then docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:latest; fi
 - docker push $DOCKER_IMAGE_NAME
