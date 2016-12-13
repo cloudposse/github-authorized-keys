@@ -341,8 +341,8 @@ TEST_GITHUB_ORGANIZATION={organization name} \
 TEST_GITHUB_TEAM={team name} \
 TEST_GITHUB_TEAM_ID={team id} \
 TEST_GITHUB_USER={user} \
-TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
-make test
+TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
+  make test
 ```
 
 
@@ -377,7 +377,7 @@ docker build \
 --build-arg  TEST_GITHUB_ORGANIZATION={org} \
 --build-arg  TEST_GITHUB_TEAM={team} \
 --build-arg  TEST_GITHUB_TEAM_ID={team_id} \
---build-arg  TEST_GITHUB_USER={user}
+--build-arg  TEST_GITHUB_USER={user} \
 --build-arg  TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
 ```
 
@@ -431,7 +431,7 @@ Run vagrant with command
 GITHUB_API_TOKEN={api token} \
 GITHUB_ORGANIZATION={organization name} \
 GITHUB_TEAM={team name} \
-vagrant up
+  vagrant up
 ```
 
 
