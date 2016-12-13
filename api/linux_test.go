@@ -27,7 +27,6 @@ import (
 )
 
 var _ = Describe("Linux", func() {
-
 	Describe("userLookup()", func() {
 		Context("call with non-existing user", func() {
 			It("should return nil user and error", func() {

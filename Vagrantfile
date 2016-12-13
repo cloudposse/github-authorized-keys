@@ -87,13 +87,6 @@ Vagrant.configure("2") do |config|
   # View the documentation for the provider you are using for more
   # information on available options.
 
-
-=begin
-
-
-=end
-
-
   config.vm.provision :docker
 
   ##  Docker on vagrant have issues with dns. So just use google public dns.

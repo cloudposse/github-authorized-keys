@@ -219,7 +219,7 @@ For older versions you'll need to use a shell wrapper that run ``curl`` command 
 
 ``AuthorizedKeysCommandUser`` could be any valid user.
 
-#### ETCD fallback cache
+##### ETCD fallback cache
 
 Authorization REST API use ETCD to temporary cache user's public keys.
 If github.com is not available command fallback to ETCD storage.
