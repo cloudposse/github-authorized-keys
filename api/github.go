@@ -50,14 +50,12 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 	team = nil
 	err = nil
 
-	teams, response, local_err := c.client.Organizations.ListTeams(c.owner, nil)
+	teams, response, _ := c.client.Organizations.ListTeams(c.owner, nil)
 
 	if response.StatusCode != 200 {
 		err = errors.New("Access denied")
 
-	} else if local_err != nil {
-		err = errors.New("Team with such name or id not found")
-	} else {
+	}  else {
 		for _, local_team := range teams {
 			if *local_team.ID == id || *local_team.Name == name {
 				team = local_team
@@ -65,6 +63,7 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 				return
 			}
 		}
+		err = errors.New("Team with such name or id not found")
 	}
 	// Exit with error
 	return
