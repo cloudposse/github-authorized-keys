@@ -5,6 +5,7 @@ import (
 	"golang.org/x/net/context"
 	"strings"
 	"time"
+	log "github.com/Sirupsen/logrus"
 )
 
 // ETCDCache - ETCD based key storage used as cache
@@ -19,11 +20,13 @@ type ETCDCache struct {
 func (c *ETCDCache) Get(key string) (value string, err error) {
 	kapi := client.NewKeysAPI(c.client)
 	resp, err := kapi.Get(context.Background(), c.prefix+"/"+key, nil)
+	logger := log.WithFields(log.Fields{"class": "ETCDCache", "method": "Get"})
 
 	defer func() {
 		if r := recover(); r != nil {
 			value = ""
 			err = ErrStorageConnectionFailed
+			logger.Errorf("%v", err.Error())
 		}
 	}()
 
@@ -34,6 +37,7 @@ func (c *ETCDCache) Get(key string) (value string, err error) {
 		value = ""
 		if err.(client.Error).Code == 100 {
 			err = ErrStorageKeyNotFound
+			logger.Errorf("%v", err.Error())
 		}
 
 	}
@@ -43,11 +47,13 @@ func (c *ETCDCache) Get(key string) (value string, err error) {
 
 // Set - save value into key storage
 func (c *ETCDCache) Set(key, value string) (err error) {
+	logger := log.WithFields(log.Fields{"class": "ETCDCache", "method": "Set"})
 	kapi := client.NewKeysAPI(c.client)
 	_, err = kapi.Set(context.Background(), c.prefix+"/"+key, value, c.options)
 
 	if _, ok := err.(*client.ClusterError); ok {
 		err = ErrStorageConnectionFailed
+		logger.Errorf("%v", err.Error())
 	}
 
 	return
@@ -55,11 +61,13 @@ func (c *ETCDCache) Set(key, value string) (err error) {
 
 // Remove - remove value by key from key storage
 func (c *ETCDCache) Remove(key string) (err error) {
+	logger := log.WithFields(log.Fields{"class": "ETCDCache", "method": "Remove"})
 	kapi := client.NewKeysAPI(c.client)
 	_, err = kapi.Delete(context.Background(), c.prefix+"/"+key, nil)
 
 	if _, ok := err.(*client.ClusterError); ok {
 		err = ErrStorageConnectionFailed
+		logger.Errorf("%v", err.Error())
 	}
 
 	return

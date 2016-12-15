@@ -22,6 +22,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/cloudposse/github-authorized-keys/cmd"
 	"os"
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -31,6 +32,8 @@ func main() {
 
 // LoggerInit - Initialize logger configuration used for cli
 func LoggerInit() {
+	viper.SetDefault("LOG_LEVEL", "info")
+
 	// Log as JSON instead of the default ASCII formatter.
 	log.SetFormatter(&log.JSONFormatter{})
 
@@ -38,5 +41,15 @@ func LoggerInit() {
 	log.SetOutput(os.Stderr)
 
 	// Only log the warning severity or above.
-	log.SetLevel(log.InfoLevel)
+	loglevel :=  viper.GetString("LOG_LEVEL")
+	switch loglevel {
+	case "debug":
+		log.SetLevel(log.DebugLevel)
+		break
+
+	case "info":
+	default:
+		log.SetLevel(log.InfoLevel)
+		break
+	}
 }
