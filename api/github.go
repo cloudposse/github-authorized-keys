@@ -39,21 +39,35 @@ type GithubClient struct {
 }
 
 // GetTeam - return team structure based on name or id
-func (c *GithubClient) GetTeam(name string, id int) (*github.Team, error) {
-	teams, response, err := c.client.Organizations.ListTeams(c.owner, nil)
+func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			team = nil
+			err = errors.New("Connection to github.com failed")
+		}
+	}()
+
+	team = nil
+	err = nil
+
+	teams, response, local_err := c.client.Organizations.ListTeams(c.owner, nil)
 
 	if response.StatusCode != 200 {
-		return nil, errors.New("Access denied")
-	}
+		err = errors.New("Access denied")
 
-	if err == nil {
-		for _, team := range teams {
-			if *team.ID == id || *team.Name == name {
-				return team, err
+	} else if local_err != nil {
+		err = errors.New("Team with such name or id not found")
+	} else {
+		for _, local_team := range teams {
+			if *local_team.ID == id || *local_team.Name == name {
+				team = local_team
+				// team found
+				return
 			}
 		}
 	}
-	return nil, errors.New("Team with such name or id not found")
+	// Exit with error
+	return
 }
 
 func (c *GithubClient) getUser(name string) (*github.User, error) {
@@ -78,9 +92,16 @@ func (c *GithubClient) GetKeys(userName string) ([]*github.Key, *github.Response
 }
 
 // GetTeamMembers - return array of user's that are {team} members
-func (c *GithubClient) GetTeamMembers(team *github.Team) ([]*github.User, error) {
-	users, _, err := c.client.Organizations.ListTeamMembers(*team.ID, nil)
-	return users, err
+func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			users = make([]*github.User, 0)
+			err = errors.New("Connection to github.com failed")
+		}
+	}()
+
+	users, _, err = c.client.Organizations.ListTeamMembers(*team.ID, nil)
+	return
 }
 
 // NewGithubClient - constructor of GithubClient structure
