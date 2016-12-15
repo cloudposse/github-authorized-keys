@@ -32,7 +32,8 @@ func main() {
 
 // LoggerInit - Initialize logger configuration used for cli
 func LoggerInit() {
-	viper.SetDefault("LOG_LEVEL", "info")
+	viper.SetDefault("log_level", "info")
+	viper.BindEnv("log_level", "LOG_LEVEL")
 
 	// Log as JSON instead of the default ASCII formatter.
 	log.SetFormatter(&log.JSONFormatter{})
@@ -41,7 +42,7 @@ func LoggerInit() {
 	log.SetOutput(os.Stderr)
 
 	// Only log the warning severity or above.
-	loglevel :=  viper.GetString("LOG_LEVEL")
+	loglevel :=  viper.GetString("log_level")
 	switch loglevel {
 	case "debug":
 		log.SetLevel(log.DebugLevel)
