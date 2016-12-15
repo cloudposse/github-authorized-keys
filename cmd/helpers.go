@@ -65,3 +65,12 @@ func fixStringSlice(s string) []string {
 	}
 	return result
 }
+
+func mask(source string) string {
+	length := len(source)
+	shown := length / 8
+	if length <= shown*2 {
+		return strings.Repeat("*", length)
+	}
+	return source[:shown] + strings.Repeat("*", length - shown*2) + source[length -shown:length]
+}
