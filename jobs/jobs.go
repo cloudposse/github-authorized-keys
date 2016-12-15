@@ -39,6 +39,8 @@ func Run(cfg config.Config) {
 }
 
 func syncUsers(cfg config.Config) {
+	defer recover()
+
 	logger := log.WithFields(log.Fields{"subsystem": "jobs", "job": "syncUsers"})
 
 	linux := api.NewLinux(cfg.Root)
