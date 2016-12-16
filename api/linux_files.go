@@ -19,13 +19,13 @@
 package api
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/goruha/permbits"
 	"io/ioutil"
 	"os"
-	"strings"
 	"regexp"
-	"fmt"
+	"strings"
 )
 
 type operationOnFileContent func(string) error
@@ -108,15 +108,15 @@ func (linux *Linux) FileEnsureLineMatch(filePath, matcher, line string) error {
 			return fmt.Errorf("Match regexp /%v/ is too wide - %v matches found", matcher, matchedStrings)
 		}
 
-		matchedString :=  ""
-		if (len(matchedStrings) == 1) {
+		matchedString := ""
+		if len(matchedStrings) == 1 {
 			matchedString = matchedStrings[0]
 		}
 
 		if matchedString == "" {
 			logger.Debugf("File %v does not contain target string", filePath)
 			return linux.FileSet(filePath, fileContent+"\n"+line)
-		} else if (matchedString != line) {
+		} else if matchedString != line {
 			newFileContent := re.ReplaceAllLiteralString(fileContent, line)
 			return linux.FileSet(filePath, newFileContent)
 		}

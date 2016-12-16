@@ -20,6 +20,7 @@ package cmd
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/cloudposse/github-authorized-keys/config"
 	"github.com/cloudposse/github-authorized-keys/jobs"
 	"github.com/cloudposse/github-authorized-keys/server"
@@ -27,7 +28,6 @@ import (
 	"github.com/spf13/viper"
 	"os"
 	"time"
-	log "github.com/Sirupsen/logrus"
 )
 
 var cfgFile string
@@ -89,7 +89,7 @@ Config:
 			GithubTeamID:       viper.GetInt("github_team_id"),
 
 			EtcdEndpoints: fixStringSlice(viper.GetString("etcd_endpoint")),
-			EtcdPrefix: viper.GetString("etcd_prefix"),
+			EtcdPrefix:    viper.GetString("etcd_prefix"),
 			EtcdTTL:       etcdTTL,
 
 			UserGID:    viper.GetString("sync_users_gid"),

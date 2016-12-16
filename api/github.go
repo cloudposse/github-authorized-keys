@@ -25,13 +25,12 @@ import (
 	"golang.org/x/oauth2"
 )
 
-
 var (
-	// GitHubConnectionFailed - returned when there was connection error github.com
-	GitHubConnectionFailed = errors.New("Connection to github.com failed")
+	// ErrorGitHubConnectionFailed - returned when there was connection error github.com
+	ErrorGitHubConnectionFailed = errors.New("Connection to github.com failed")
 
-	// GitHubAccessDenied - returned when there was access denied to github.com resource
-	GitHubAccessDenied = errors.New("Access denied")
+	// ErrorGitHubAccessDenied - returned when there was access denied to github.com resource
+	ErrorGitHubAccessDenied = errors.New("Access denied")
 )
 
 // Naive oauth setup
@@ -52,7 +51,7 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 	defer func() {
 		if r := recover(); r != nil {
 			team = nil
-			err = GitHubConnectionFailed
+			err = ErrorGitHubConnectionFailed
 		}
 	}()
 
@@ -62,12 +61,12 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 	teams, response, _ := c.client.Organizations.ListTeams(c.owner, nil)
 
 	if response.StatusCode != 200 {
-		err = GitHubAccessDenied
+		err = ErrorGitHubAccessDenied
 
-	}  else {
-		for _, local_team := range teams {
-			if *local_team.ID == id || *local_team.Name == name {
-				team = local_team
+	} else {
+		for _, localTeam := range teams {
+			if *localTeam.ID == id || *localTeam.Name == name {
+				team = localTeam
 				// team found
 				return
 			}
@@ -82,7 +81,7 @@ func (c *GithubClient) getUser(name string) (*github.User, error) {
 	user, response, err := c.client.Users.Get(name)
 
 	if response.StatusCode != 200 {
-		return nil, GitHubAccessDenied
+		return nil, ErrorGitHubAccessDenied
 	}
 
 	return user, err
@@ -104,7 +103,7 @@ func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, 
 	defer func() {
 		if r := recover(); r != nil {
 			users = make([]*github.User, 0)
-			err = GitHubConnectionFailed
+			err = ErrorGitHubConnectionFailed
 		}
 	}()
 

@@ -72,5 +72,5 @@ func mask(source string) string {
 	if length <= shown*2 {
 		return strings.Repeat("*", length)
 	}
-	return source[:shown] + strings.Repeat("*", length - shown*2) + source[length -shown:length]
+	return source[:shown] + strings.Repeat("*", length-shown*2) + source[length-shown:length]
 }

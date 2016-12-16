@@ -21,8 +21,8 @@ package main
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/cloudposse/github-authorized-keys/cmd"
-	"os"
 	"github.com/spf13/viper"
+	"os"
 )
 
 func main() {
@@ -42,7 +42,7 @@ func LoggerInit() {
 	log.SetOutput(os.Stderr)
 
 	// Only log the warning severity or above.
-	loglevel :=  viper.GetString("log_level")
+	loglevel := viper.GetString("log_level")
 	switch loglevel {
 	case "debug":
 		log.SetLevel(log.DebugLevel)

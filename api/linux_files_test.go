@@ -296,7 +296,6 @@ RIGHT CONTENT`))
 			})
 		})
 
-
 		Context("call with file that contains string that satisfies match but differs from traget", func() {
 			BeforeEach(func() {
 				linux.FileEnsure("/tmp/zzz", "RIGHT CONTENT22")
@@ -333,7 +332,6 @@ RIGHT CONTENT`))
 				Expect(err.Error()).To(Equal("Match regexp /.*/ is too wide - [RIGHT CONTENT23 RIGHT CONTENT] matches found"))
 			})
 		})
-
 
 	})
 
