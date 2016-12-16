@@ -25,6 +25,15 @@ import (
 	"golang.org/x/oauth2"
 )
 
+
+var (
+	// GitHubConnectionFailed - returned when there was connection error github.com
+	GitHubConnectionFailed = errors.New("Connection to github.com failed")
+
+	// GitHubAccessDenied - returned when there was access denied to github.com resource
+	GitHubAccessDenied = errors.New("Access denied")
+)
+
 // Naive oauth setup
 func newAccessToken(token string) oauth2.TokenSource {
 	return oauth2.StaticTokenSource(
@@ -43,7 +52,7 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 	defer func() {
 		if r := recover(); r != nil {
 			team = nil
-			err = errors.New("Connection to github.com failed")
+			err = GitHubConnectionFailed
 		}
 	}()
 
@@ -53,7 +62,7 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 	teams, response, _ := c.client.Organizations.ListTeams(c.owner, nil)
 
 	if response.StatusCode != 200 {
-		err = errors.New("Access denied")
+		err = GitHubAccessDenied
 
 	}  else {
 		for _, local_team := range teams {
@@ -73,7 +82,7 @@ func (c *GithubClient) getUser(name string) (*github.User, error) {
 	user, response, err := c.client.Users.Get(name)
 
 	if response.StatusCode != 200 {
-		return nil, errors.New("Access denied")
+		return nil, GitHubAccessDenied
 	}
 
 	return user, err
@@ -95,7 +104,7 @@ func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, 
 	defer func() {
 		if r := recover(); r != nil {
 			users = make([]*github.User, 0)
-			err = errors.New("Connection to github.com failed")
+			err = GitHubConnectionFailed
 		}
 	}()
 
