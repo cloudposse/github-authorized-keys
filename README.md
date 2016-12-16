@@ -434,6 +434,14 @@ docker build \
   ./
 ```
 
+### Log level
+
+To manage logging level user environment variables ``LOG_LEVEL`` possible values are
+* info
+* debug
+
+Default is ``info``
+
 ---
 
 ## Demo
