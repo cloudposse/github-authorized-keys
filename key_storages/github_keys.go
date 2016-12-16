@@ -31,14 +31,22 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 	// Load team
 	team, err := s.client.GetTeam(s.team, s.teamID)
 	if err != nil {
-		err = ErrStorageKeyNotFound
+		if err == api.GitHubConnectionFailed {
+			err = ErrStorageConnectionFailed
+		} else {
+			err = ErrStorageKeyNotFound
+		}
 		return
 	}
 
 	// Check if user is a member
 	isMember, err := s.client.IsTeamMember(user, team)
 	if err != nil {
-		err = ErrStorageKeyNotFound
+		if err == api.GitHubConnectionFailed {
+			err = ErrStorageConnectionFailed
+		} else {
+			err = ErrStorageKeyNotFound
+		}
 		return
 	}
 

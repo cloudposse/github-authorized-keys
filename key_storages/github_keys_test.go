@@ -72,6 +72,7 @@ var _ = Describe("GithubKeys as backend storage", func() {
 			keys, err := c.Get(validUser)
 
 			Expect(err).NotTo(BeNil())
+			Expect(err).NotTo(Equal(ErrStorageKeyNotFound))
 			Expect(keys).To(Equal(""))
 		})
 	})
