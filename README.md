@@ -436,7 +436,7 @@ docker build \
 
 ### Log level
 
-To manage logging level user environment variables ``LOG_LEVEL`` possible values are
+Use the ``LOG_LEVEL`` environment variable to control the logging verbosity. Possible values are:
 * info
 * debug
 
