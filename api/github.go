@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	// ErrorGitHubConnectionFailed - returned when there was connection error github.com
+	// ErrorGitHubConnectionFailed - returned when there was a connection error with github.com
 	ErrorGitHubConnectionFailed = errors.New("Connection to github.com failed")
 
 	// ErrorGitHubAccessDenied - returned when there was access denied to github.com resource
