@@ -25,6 +25,14 @@ import (
 	"golang.org/x/oauth2"
 )
 
+var (
+	// ErrorGitHubConnectionFailed - returned when there was a connection error with github.com
+	ErrorGitHubConnectionFailed = errors.New("Connection to github.com failed")
+
+	// ErrorGitHubAccessDenied - returned when there was access denied to github.com resource
+	ErrorGitHubAccessDenied = errors.New("Access denied")
+)
+
 // Naive oauth setup
 func newAccessToken(token string) oauth2.TokenSource {
 	return oauth2.StaticTokenSource(
@@ -39,28 +47,41 @@ type GithubClient struct {
 }
 
 // GetTeam - return team structure based on name or id
-func (c *GithubClient) GetTeam(name string, id int) (*github.Team, error) {
-	teams, response, err := c.client.Organizations.ListTeams(c.owner, nil)
+func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			team = nil
+			err = ErrorGitHubConnectionFailed
+		}
+	}()
+
+	team = nil
+	err = nil
+
+	teams, response, _ := c.client.Organizations.ListTeams(c.owner, nil)
 
 	if response.StatusCode != 200 {
-		return nil, errors.New("Access denied")
-	}
+		err = ErrorGitHubAccessDenied
 
-	if err == nil {
-		for _, team := range teams {
-			if *team.ID == id || *team.Name == name {
-				return team, err
+	} else {
+		for _, localTeam := range teams {
+			if *localTeam.ID == id || *localTeam.Name == name {
+				team = localTeam
+				// team found
+				return
 			}
 		}
+		err = errors.New("Team with such name or id not found")
 	}
-	return nil, errors.New("Team with such name or id not found")
+	// Exit with error
+	return
 }
 
 func (c *GithubClient) getUser(name string) (*github.User, error) {
 	user, response, err := c.client.Users.Get(name)
 
 	if response.StatusCode != 200 {
-		return nil, errors.New("Access denied")
+		return nil, ErrorGitHubAccessDenied
 	}
 
 	return user, err
@@ -78,9 +99,16 @@ func (c *GithubClient) GetKeys(userName string) ([]*github.Key, *github.Response
 }
 
 // GetTeamMembers - return array of user's that are {team} members
-func (c *GithubClient) GetTeamMembers(team *github.Team) ([]*github.User, error) {
-	users, _, err := c.client.Organizations.ListTeamMembers(*team.ID, nil)
-	return users, err
+func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			users = make([]*github.User, 0)
+			err = ErrorGitHubConnectionFailed
+		}
+	}()
+
+	users, _, err = c.client.Organizations.ListTeamMembers(*team.ID, nil)
+	return
 }
 
 // NewGithubClient - constructor of GithubClient structure

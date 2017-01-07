@@ -434,6 +434,14 @@ docker build \
   ./
 ```
 
+### Log level
+
+Use the ``LOG_LEVEL`` environment variable to control the logging verbosity. Possible values are:
+* info
+* debug
+
+Default is ``info``
+
 ---
 
 ## Demo

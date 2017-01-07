@@ -20,6 +20,7 @@ package cmd
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/cloudposse/github-authorized-keys/config"
 	"github.com/cloudposse/github-authorized-keys/jobs"
 	"github.com/cloudposse/github-authorized-keys/server"
@@ -73,6 +74,7 @@ Config:
   		   Github team id   | flag --github-team-id OR Environment variable GITHUB_TEAM_ID
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		logger := log.WithFields(log.Fields{"class": "RootCmd", "method": "RunE"})
 		// @TODO Support viper duration type
 		etcdTTL, err := time.ParseDuration(viper.GetString("etcd_ttl") + "s")
 
@@ -87,6 +89,7 @@ Config:
 			GithubTeamID:       viper.GetInt("github_team_id"),
 
 			EtcdEndpoints: fixStringSlice(viper.GetString("etcd_endpoint")),
+			EtcdPrefix:    viper.GetString("etcd_prefix"),
 			EtcdTTL:       etcdTTL,
 
 			UserGID:    viper.GetString("sync_users_gid"),
@@ -99,6 +102,21 @@ Config:
 
 			Listen: viper.GetString("listen"),
 		}
+
+		logger.Infof("Config: GithubAPIToken - %v", mask(cfg.GithubAPIToken))
+		logger.Infof("Config: GithubOrganization - %v", mask(cfg.GithubOrganization))
+		logger.Infof("Config: GithubTeamName - %v", mask(cfg.GithubTeamName))
+		logger.Infof("Config: GithubTeamID - %v", mask(string(cfg.GithubTeamID)))
+		logger.Infof("Config: EtcdEndpoints - %v", cfg.EtcdEndpoints)
+		logger.Infof("Config: EtcdPrefix - %v", cfg.EtcdPrefix)
+		logger.Infof("Config: EtcdTTL - %v seconds", cfg.EtcdTTL)
+		logger.Infof("Config: UserGID - %v", cfg.UserGID)
+		logger.Infof("Config: UserGroups - %v", cfg.UserGroups)
+		logger.Infof("Config: UserShell - %v", cfg.UserShell)
+		logger.Infof("Config: Root - %v", cfg.Root)
+		logger.Infof("Config: Interval - %v seconds", cfg.Interval)
+		logger.Infof("Config: IntegrateWithSSH - %v", cfg.IntegrateWithSSH)
+		logger.Infof("Config: Listen - %v", cfg.Listen)
 
 		err = cfg.Validate()
 

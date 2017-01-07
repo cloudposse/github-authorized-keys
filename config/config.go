@@ -51,7 +51,7 @@ func (c *Config) Validate() (err error) {
 	err = validation.StructRules{}.
 		Add("GithubAPIToken", validation.Required.Error("is required")).
 		Add("GithubOrganization", validation.Required.Error("is required")).
-	// performs validation
+		// performs validation
 		Validate(c)
 
 	if err != nil {
