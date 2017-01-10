@@ -87,18 +87,18 @@ func sshIntegrate(cfg config.Config) {
 	logger := log.WithFields(log.Fields{"subsystem": "jobs", "job": "sshIntegrate"})
 	linux := api.NewLinux(cfg.Root)
 
-	logger.Info("Ensure file /usr/bin/github-authorized-keys")
 	// Split listen string by : and get the port
 	port := strings.Split(cfg.Listen, ":")[1]
 
 	wrapperScript := fasttemplate.New(wrapperScriptTpl, "{", "}").
 		ExecuteString(map[string]interface{}{"port": port})
 
+	logger.Info("Ensure file /usr/bin/github-authorized-keys")
 	linux.FileEnsure("/usr/bin/github-authorized-keys", wrapperScript)
 
 	// Should be executable
 	logger.Info("Ensure exec mode for file /usr/bin/github-authorized-keys")
-	linux.FileModeSet("/usr/bin/github-authorized-keys", permbits.PermissionBits(0711))
+	linux.FileModeSet("/usr/bin/github-authorized-keys", permbits.PermissionBits(0755))
 
 	logger.Info("Ensure AuthorizedKeysCommand line in sshd_config")
 	linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "^AuthorizedKeysCommand\\s.*$", "AuthorizedKeysCommand /usr/bin/github-authorized-keys")
