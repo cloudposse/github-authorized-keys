@@ -33,7 +33,7 @@ clean:
 ## Install cli
 install: $(APP)
 	cp $(APP) $(INSTALL_DIR)
-	chmod 555 $(INSTALL_DIR)/$(APP)
+	chmod 755 $(INSTALL_DIR)/$(APP)
 
 .PHONY: lint
 ## Lint code
