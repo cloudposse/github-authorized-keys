@@ -26,11 +26,11 @@ RUN set -ex \
 		git \
 		make \
 		curl \
+    && make deps-dev \
+    && make lint \
 		&& make deps-build \
 		&& make deps \
-    && make deps-dev \
 		&& ( [[ $RUN_TESTS -eq 0 ]]  ||  make test; )  \
-    && make lint \
     && make build \
 		&& make install \
 		&& rm -rf  /go/src \
