@@ -32,7 +32,7 @@ RUN set -ex \
 		&& make deps \
 		&& ( [[ $RUN_TESTS -eq 0 ]]  ||  make test; )  \
     && make build \
-		&& make install \
+		&& go-wrapper install \
 		&& rm -rf  /go/src \
 		&& apk del .build-deps
 
