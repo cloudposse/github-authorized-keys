@@ -2,16 +2,17 @@ COPYRIGHT_CMD ?= docker run --rm --volume `pwd`:$(COPYRIGHT_OUTPUT_DIR) osterman
 COPYRIGHT_LICENSE ?= ASL2
 COPYRIGHT_HOLDER ?= Cloud Posse, LLC <hello@cloudposse.com>
 COPYRIGHT_YEAR ?= 2016
-COPYRIGHT_SOFTWARE ?= Github Authorized Keys
-COPYRIGHT_SOFTWARE_DESCRIPTION ?= Use GitHub teams to manage system user accounts and authorized_keys
+COPYRIGHT_SOFTWARE ?= Github PAM
+COPYRIGHT_SOFTWARE_DESCRIPTION ?= Use GitHub authentication as PAM
 COPYRIGHT_OUTPUT_DIR ?= /usr/src
 COPYRIGHT_WORD_WRAP ?= 100
 
+.PHONY : add-copyright
 ## Add copyright to source code
-add-copyright: 
+add-copyright:
 	$(COPYRIGHT_CMD) \
     --license $(COPYRIGHT_LICENSE) \
-    --add-path api:cmd:config:key_storage:server:main.go \
+    --add-path cmd:main.go \
     --guess-extension \
     --copyright-holder '$(COPYRIGHT_HOLDER)' \
     --copyright-software '$(COPYRIGHT_SOFTWARE)' \
