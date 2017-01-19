@@ -23,7 +23,7 @@ script:
 - docker-compose -f docker-compose-test.yaml up -d
 
 - |-
-  make docker: build \
+  make docker:build \
     ARGS="RUN_TESTS \
           TEST_GITHUB_API_TOKEN \
           TEST_GITHUB_ORGANIZATION \
