@@ -1,6 +1,14 @@
 sudo: required
 env:
-  - DOCKER_IMAGE_NAME=cloudposse/github-authorized-keys
+  global:
+    - DOCKER_IMAGE_NAME=clo/udposse/github-authorized-keys
+    - RUN_TESTS=1
+    - TEST_GITHUB_API_TOKEN=${GITHUB_API_TOKEN}
+    - TEST_GITHUB_ORGANIZATION=${GITHUB_ORGANIZATION}
+    - TEST_GITHUB_TEAM=${GITHUB_TEAM}
+    - TEST_GITHUB_TEAM_ID=${GITHUB_TEAM_ID}
+    - TEST_GITHUB_USER=${GITHUB_USER}
+    - TEST_ETCD_ENDPOINT=http://${ETCD_IP}:2379
 services:
 - docker
 install:
@@ -15,15 +23,15 @@ script:
 - docker-compose -f docker-compose-test.yaml up -d
 
 - |-
-  docker build --tag test \
-    --build-arg RUN_TESTS=1 \
-    --build-arg TEST_GITHUB_API_TOKEN=${GITHUB_API_TOKEN} \
-    --build-arg TEST_GITHUB_ORGANIZATION=${GITHUB_ORGANIZATION} \
-    --build-arg TEST_GITHUB_TEAM=${GITHUB_TEAM} \
-    --build-arg TEST_GITHUB_TEAM_ID=${GITHUB_TEAM_ID} \
-    --build-arg TEST_GITHUB_USER=${GITHUB_USER} \
-    --build-arg TEST_ETCD_ENDPOINT=http://${ETCD_IP}:2379 \
-    ./
+  make docker: build \
+    ARGS="RUN_TESTS \
+          TEST_GITHUB_API_TOKEN \
+          TEST_GITHUB_ORGANIZATION \
+          TEST_GITHUB_TEAM \
+          TEST_GITHUB_TEAM_ID \
+          TEST_GITHUB_USER \
+          TEST_ETCD_ENDPOINT \
+          "
 
 after_success:
 - make docker:build
