@@ -26,6 +26,7 @@ RUN set -ex \
 		git \
 		make \
 		curl \
+		bash \
 		&& make init \
     && make go:deps-dev \
     && make go:lint \
