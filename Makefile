@@ -1,17 +1,15 @@
-include Makefile.*
+SHELL = /bin/bash
+export BUILD_HARNESS_PATH ?= $(shell until [ -d "build-harness" ] || [ "`pwd`" == '/' ]; do cd ..; done; pwd)/build-harness
+-include $(BUILD_HARNESS_PATH)/Makefile
 
-## This help screen
-help:
-	@printf "Available targets:\n\n"
-	@awk '/^[a-zA-Z\-\_0-9%:\\]+:/ { \
-	  helpMessage = match(lastLine, /^## (.*)/); \
-	  if (helpMessage) { \
-	    helpCommand = $$1; \
-	    helpMessage = substr(lastLine, RSTART + 3, RLENGTH); \
-      gsub("\\\\", "", helpCommand); \
-      gsub(":+$$", "", helpCommand); \
-	    printf "  \x1b[32;01m%-35s\x1b[0m %s\n", helpCommand, helpMessage; \
-	  } \
-	} \
-	{ lastLine = $$0 }' $(MAKEFILE_LIST) | sort -u
-	@printf "\n"
+override APP:=github-authorized-keys
+
+.PHONY : init
+## Init build-harness
+init:
+	@curl --retry 5 --retry-delay 1 https://raw.githubusercontent.com/cloudposse/build-harness/master/bin/install.sh | bash
+
+
+
+
+

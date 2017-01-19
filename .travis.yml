@@ -4,16 +4,8 @@ env:
 services:
 - docker
 install:
-- |-
-  docker login \
-    --email="$DOCKER_HUB_EMAIL" \
-    --username="$DOCKER_HUB_USERNAME" \
-    --password="$DOCKER_HUB_PASSWORD"
-
-- |-
-  curl https://raw.githubusercontent.com/cloudposse/build-harness/master/scripts/travis_docker_tag.sh > travis_docker_tag.sh \
-  && chmod +x travis_docker_tag.sh
-
+- make init
+- make docker:login
 - pip install docker-compose
 
 script:
@@ -34,5 +26,5 @@ script:
     ./
 
 after_success:
-- docker build -t $DOCKER_IMAGE_NAME .
-- ./travis_docker_tag.sh
+- make docker:build
+- make travis:docker-tag-and-push

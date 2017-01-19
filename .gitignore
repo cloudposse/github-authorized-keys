@@ -38,3 +38,5 @@ github-authorized-keys
 glide.lock
 .glide
 vendor/
+
+build-harness/
