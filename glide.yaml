@@ -22,6 +22,10 @@ import:
   version: v2.3.7
   subpackages:
   - client.v1
+- package: github.com/ugorji/go/codec
+  version: f4485b318aadd133842532f841dc205a8e339d74
+  subpackages:
+  - codec
 - package: github.com/Sirupsen/logrus
   version: v0.11.0
 - package: github.com/valyala/fasttemplate

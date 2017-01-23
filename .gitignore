@@ -20,7 +20,6 @@ _cgo_export.*
 _testmain.go
 
 *.exe
-*.test
 *.prof
 
 .idea
@@ -39,3 +38,5 @@ github-authorized-keys
 glide.lock
 .glide
 vendor/
+
+build-harness/
