@@ -1,7 +1,7 @@
 sudo: required
 env:
   global:
-    - DOCKER_IMAGE_NAME=clo/udposse/github-authorized-keys
+    - DOCKER_IMAGE_NAME=cloudposse/github-authorized-keys
     - RUN_TESTS=1
     - TEST_GITHUB_API_TOKEN=${GITHUB_API_TOKEN}
     - TEST_GITHUB_ORGANIZATION=${GITHUB_ORGANIZATION}
