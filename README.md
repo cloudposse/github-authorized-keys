@@ -17,7 +17,7 @@ Use GitHub teams to manage system user accounts and `authorized_keys`.
 
 This tool consists of three parts:
 
-1. User Account / Authorized Keys provisioner which polls [GitHub API for users](https://developer.github.com/v3/users/keys/) that correspond to a given GitHub Organization & Team. It's responsible for adding or removing users from the system. All commands are templatized to allow it to run on multiple distributions. 
+1. User Account / Authorized Keys provisioner which polls [GitHub API for users](https://developer.github.com/v3/users/keys/) that correspond to a given GitHub Organization & Team using a [personal access token](https://github.com/settings/tokens). It's responsible for adding or removing users from the system. All commands are templatized to allow it to run on multiple distributions. 
 2. Simple read-only REST API that provides public keys for users, which is used by the `AuthorizedKeysCommand` in the `sshd_config`; this allows you to expose the service internally without compromising your Github Token. The public SSH access keys are *optionally* cached in Etcd for performance and reliability.
 3. An `AuthorizedKeysCommand` [script](contrib/authorized-keys) that will `curl` the REST API for a user's public keys.
 
