@@ -1,4 +1,7 @@
 sudo: required
+language: go
+go:
+  - 1.7.x
 env:
   global:
     - DOCKER_IMAGE_NAME=cloudposse/github-authorized-keys
@@ -10,27 +13,28 @@ env:
     - TEST_GITHUB_USER=${GITHUB_USER}
     - TEST_ETCD_ENDPOINT=http://${ETCD_IP}:2379
 services:
-- docker
+  #- docker
+
 install:
-- make init
-- make docker:login
-- pip install docker-compose
+  #- make init
+  #- make docker:login
+  #- pip install docker-compose
 
 script:
-- |-
-  export ETCD_IP=$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')
-
-- docker-compose -f docker-compose-test.yaml up -d
-
-- |-
-  make docker:build \
-    ARGS="RUN_TESTS \
-          TEST_GITHUB_API_TOKEN \
-          TEST_GITHUB_ORGANIZATION \
-          TEST_GITHUB_TEAM \
-          TEST_GITHUB_TEAM_ID \
-          TEST_GITHUB_USER \
-          TEST_ETCD_ENDPOINT"
+#- |-
+#  export ETCD_IP=$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')
+#
+#- docker-compose -f docker-compose-test.yaml up -d
+#
+#- |-
+#  make docker:build \
+#    ARGS="RUN_TESTS \
+#          TEST_GITHUB_API_TOKEN \
+#          TEST_GITHUB_ORGANIZATION \
+#          TEST_GITHUB_TEAM \
+#          TEST_GITHUB_TEAM_ID \
+#          TEST_GITHUB_USER \
+#          TEST_ETCD_ENDPOINT"
           
 # Also build packages for release
 - make go:deps-dev
@@ -39,9 +43,9 @@ script:
 - make go:build-all
 - ls -l release/
 
-after_success:
-- make docker:build
-- make travis:docker-tag-and-push
+#after_success:
+#- make docker:build
+#- make travis:docker-tag-and-push
 
 deploy:
   provider: releases
