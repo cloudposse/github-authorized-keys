@@ -132,21 +132,11 @@ Then install a [wrapper script](contrib/authorized-keys) to `/usr/bin/authorized
 
 ### Etcd Fallback Cache
 
-Authorization REST API use ETCD to temporary cache user's public keys.
-If github.com is not available command fallback to ETCD storage.
+The REST API supports Etcd as cache for public keys. This mitigates any connectivity problems with GitHub's API. By default, the caching is disabled.
 
-Etcd endpoints param is optional, if not specify caching and fallback disabled.
+### Command Templates
 
-### Create users
-
-Linux users will be synchronized according to team members every 1 second
-
-In case of running in container you have to share host ``/`` into ``/{root directory}`` because  ``adduser`` command could differs on different Linux distribs and we need to use host one.
-Also that means you need to specify  sync-users-root param to point to that directory.
-
-### Templating Commands
-
-Due to the differences between OS commands, the defaults might not work. 
+Due to the vast differences between OS commands, the defaults provided might not work for you flavor of Linux.
 
 Below are some of the settings which can be tweaked. 
 
