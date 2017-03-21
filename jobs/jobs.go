@@ -17,6 +17,7 @@ curl http://localhost:{port}/user/$1/authorized_keys
 
 func init() {
 	viper.SetDefault("ssh_restart_tpl", "/usr/sbin/service ssh force-reload")
+	viper.SetDefault("authorized_keys_command_tpl", "/usr/bin/github-authorized-keys")
 }
 
 // Run - start scheduled jobs
@@ -93,7 +94,7 @@ func sshIntegrate(cfg config.Config) {
 	wrapperScript := fasttemplate.New(wrapperScriptTpl, "{", "}").
 		ExecuteString(map[string]interface{}{"port": port})
 
-	cmdFile := cfg.AuthorizedKeysCommand
+	cmdFile := viper.GetString("authorized_keys_command_tpl")
 
 	logger.Infof("Ensure file %v", cmdFile)
 	linux.FileEnsure(cmdFile, wrapperScript)

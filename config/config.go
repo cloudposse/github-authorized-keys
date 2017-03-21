@@ -42,7 +42,6 @@ type Config struct {
 	Interval   uint64
 
 	IntegrateWithSSH      bool
-	AuthorizedKeysCommand string
 
 	Listen string
 }
@@ -52,7 +51,6 @@ func (c *Config) Validate() (err error) {
 	err = validation.StructRules{}.
 		Add("GithubAPIToken", validation.Required.Error("is required")).
 		Add("GithubOrganization", validation.Required.Error("is required")).
-		Add("AuthorizedKeysCommand", validation.Required.Error("is required")).
 		// performs validation
 		Validate(c)
 
