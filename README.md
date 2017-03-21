@@ -40,7 +40,7 @@ This tool consists of three parts:
 
 ## Getting Started
 
-By far, the easiest way to get up and running is by using the ready-made docker container. The only dependency is [Docker](https://docs.docker.com/engine/installation) itself. We also provide a [Kubernetes Helm Chart](https://github.com/cloudposse/charts/tree/master/incubator/github-authorized-keys). If you run CoreOS or use `systemd`, there's a [sample unit file](contrib/github-authorized-keys.service).
+By far, the easiest way to get up and running is by using the ready-made docker container. The only dependency is [Docker](https://docs.docker.com/engine/installation) itself. We also provide a [Kubernetes Helm Chart](https://github.com/cloudposse/charts/tree/master/incubator/github-authorized-keys). If you run [CoreOS](docs/coreos.md) or use `systemd`, there's a [sample unit file](contrib/github-authorized-keys.service).
 
 Cloud Posse provides a public image [cloudposse/github-authorized-keys](https://hub.docker.com/r/cloudposse/github-authorized-keys/) that is built using [TravisCI](.travis.yml) or you can build your own from source.
 
@@ -74,9 +74,10 @@ Available configuration options:
 
 ## Quick Start 
 
-You can specify params  as environment variables. If using `docker`, we recommend writing the environment variables to an environment file and then using the `--env-file` argument to pass them into your container. Remember to expose the REST API so you can retrieve user's public keys. Only public keys belonging to users found in the GitHub team will be returned.
+We recommend that you specify all parameters as environment variables. If using `docker`, pass the [environment file](contrib/env) to the container using the `--env-file` argument.
+Remember to expose the REST API so you can retrieve user's public keys. Only public keys belonging to users found in the GitHub team will be returned.
 
-For example, `/etc/github-authorized-keys`, might look like this:
+For example, [`/etc/github-authorized-keys`](contrib/env), might look like this:
 
 ```
 GITHUB_API_TOKEN={token}
