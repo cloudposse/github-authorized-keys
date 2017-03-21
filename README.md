@@ -133,7 +133,7 @@ Due to the differences between OS commands, the defaults might not work.
 
 Below are some of the settings which can be tweaked. 
 
-| Environment Variable           | **Description **                                                                | **Default**                                   
+| Environment Variable           | **Description**                                                                 | **Default**                                   
 |--------------------------------|---------------------------------------------------------------------------------|-------------------------------------------------------------------------
 | `LINUX_USER_ADD_TPL`           | Command used to add a user to the system when no default group supplied.        | `adduser {username} --disabled-password --force-badname --shell {shell}`                 
 | `LINUX_USER_ADD_WITH_GID_TPL`  | Command used to add a user to the system when a default primary group supplied. | `adduser {username} --disabled-password --force-badname --shell {shell} --group {group}`
