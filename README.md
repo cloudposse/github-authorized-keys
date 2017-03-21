@@ -17,7 +17,7 @@ Use GitHub teams to manage system user accounts and `authorized_keys`.
 ## Screenshots
 
 **Administrators** 
-* Automatically provision new users to production servers simply by adding them to a designatd GitHub team (e.g. `production-ssh`). 
+* Automatically provision new users to production servers simply by adding them to a designatd GitHub team (e.g. `ssh`). 
   ![Demo](docs/github-team-demo.png)
 * No need to keep `authorized_keys` up to date because keys are pulled directly from github.com API and *optionally* cached in etcd
 * Immediately revoke SSH access to servers by evicting users from the GitHub team
@@ -81,7 +81,7 @@ For example, `/etc/github-authorized-keys`, might look like this:
 ```
 GITHUB_API_TOKEN={token}
 GITHUB_ORGANIZATION={organization}
-GITHUB_TEAM=production-ssh
+GITHUB_TEAM=ssh
 SYNC_USERS_GID=500
 SYNC_USERS_GROUPS=sudo
 SYNC_USERS_SHELL=/bin/bash
