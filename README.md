@@ -3,12 +3,11 @@
 Use GitHub teams to manage system user accounts and `authorized_keys`. 
 
 
-[![Docker Stars](https://img.shields.io/docker/stars/cloudposse/github-authorized-keys.svg)](https://hub.docker.com/r/cloudposse/github-authorized-keys)
+[![Go Report Card](https://goreportcard.com/badge/github.com/cloudposse/github-authorized-keys)](https://goreportcard.com/report/github.com/cloudposse/github-authorized-keys)
+[![Coverage Status](https://coveralls.io/repos/github/cloudposse/github-authorized-keys/badge.svg?branch=master)](https://coveralls.io/github/cloudposse/github-authorized-keys?branch=master)
 [![Docker Pulls](https://img.shields.io/docker/pulls/cloudposse/github-authorized-keys.svg)](https://hub.docker.com/r/cloudposse/github-authorized-keys)
 [![GitHub Stars](https://img.shields.io/github/stars/cloudposse/github-authorized-keys.svg)](https://github.com/cloudposse/github-authorized-keys/stargazers) 
 [![GitHub Issues](https://img.shields.io/github/issues/cloudposse/github-authorized-keys.svg)](https://github.com/cloudposse/github-authorized-keys/issues)
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/cloudposse/github-authorized-keys.svg)](http://isitmaintained.com/project/cloudposse/github-authorized-keys "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/cloudposse/github-authorized-keys.svg)](http://isitmaintained.com/project/cloudposse/github-authorized-keys "Percentage of issues still open")
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/cloudposse/github-authorized-keys/pulls)
 [![License](https://img.shields.io/badge/license-APACHE%202.0%20-brightgreen.svg)](https://github.com/cloudposse/github-authorized-keys/blob/master/LICENSE)
 
