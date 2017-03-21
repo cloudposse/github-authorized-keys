@@ -1,6 +1,18 @@
 # Github Authorized Keys [![Build Status](https://travis-ci.org/cloudposse/github-authorized-keys.svg?branch=master)](https://travis-ci.org/cloudposse/github-authorized-keys)
 
-Use GitHub teams to manage system user accounts and `authorized_keys`.
+Use GitHub teams to manage system user accounts and `authorized_keys`. 
+
+**Administrators** 
+* Automatically provision new users to production servers simply by adding them to a designatd GitHub team (e.g. `production-ssh`). 
+  ![Demo](docs/github-team-demo.png)
+* No need to keep `authorized_keys` up to date
+* Immediately revoke SSH access by evicting users from the GitHub team.
+
+
+**End Users**
+* Self-administer public SSH keys via the [GitHub account settings](https://github.com/settings/keys).
+  ![Demo](docs/github-keys-demo.png)
+
 
 [![Docker Stars](https://img.shields.io/docker/stars/cloudposse/github-authorized-keys.svg)](https://hub.docker.com/r/cloudposse/github-authorized-keys)
 [![Docker Pulls](https://img.shields.io/docker/pulls/cloudposse/github-authorized-keys.svg)](https://hub.docker.com/r/cloudposse/github-authorized-keys)
