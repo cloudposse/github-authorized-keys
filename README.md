@@ -49,7 +49,7 @@ Available configuration options:
 | `SYNC_USERS_ROOT`        | `--sync-users-root`      | `chroot` path for user commands                   | `/`                      |
 | `SYNC_USERS_INTERVAL`    | `--sync-users-interval`  | Interval used to update user accounts             | `300`                    |
 | `ETCD_ENDPOINT`          | `--etcd-endpoint`        | Etcd endpoint used for caching public keys        |                          |
-| `ETCD_TTL`               | `--etcd-ttl`             | Duration (in seconds) to cache public keys        | 86400                    |
+| `ETCD_TTL`               | `--etcd-ttl`             | Duration (in seconds) to cache public keys        | `86400`                  |
 | `ETCD_PREFIX`            | `--etcd-prefix`          | Prefix for public keys stored in etcd             | `github-authorized-keys` |
 | `LISTEN`                 | `--listen`               | Bind address used for REST API                    | `:301`                   |
 | `INTEGRATE_SSH`          | `--integrate-ssh`        | Flag to automatically configure SSH               | `false`                  |
@@ -59,25 +59,35 @@ Available configuration options:
 
 You can specify params  as environment variables. If using `docker`, we recommend writing the environment variables to an environment file and then using the `--env-file` argument to pass them into your container. Remember to expose the REST API so you can retrieve user's public keys. Only public keys belonging to users found in the GitHub team will be returned.
 
+For example, `/etc/github-authorized-keys`, might look like this:
+
+```
+GITHUB_API_TOKEN={token}
+GITHUB_ORGANIZATION={organization}
+GITHUB_TEAM=production-ssh
+SYNC_USERS_GID=500
+SYNC_USERS_GROUPS=sudo
+SYNC_USERS_SHELL=/bin/bash
+SYNC_USERS_ROOT=/host
+SYNC_USERS_INTERVAL=300
+ETCD_ENDPOINT=http://localhost:2739
+ETCD_TTL=86400
+ETCD_PREFIX=github-authorized-keys
+LISTEN=:301
+INTEGRATE_SSH=true
+```
+
+Then you could start it like this:
+
 ```
 docker run \
-  -v /:/{root directory} \
-  --expose "301:301"
-  -e GITHUB_API_TOKEN={token} \
-  -e GITHUB_ORGANIZATION={organization} \
-  -e GITHUB_TEAM={team} \
-  -e SYNC_USERS_GID={gid OR empty} \
-  -e SYNC_USERS_GROUPS={comma separated groups OR empty} \
-  -e SYNC_USERS_SHELL={user shell} \
-  -e SYNC_USERS_ROOT={root directory} \
-  -e SYNC_USERS_INTERVAL={seconds - default 300} \
-  -e ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
-  -e ETCD_TTL={etcd ttl - default 1 day} \
-  -e ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
-  -e LISTEN={Sets the address and port for IP, default :301} \
-  -e INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)} \
+  --volume /:/host \
+  --expose "127.0.0.1:301:301" \
+  --env-file /etc/github-authorized-keys \
      cloudposse/github-authorized-keys:latest
 ```
+
+**Note:** depending on your OS distribution, you might need to tweak the command templates. Keep reading for details.
 
 ## Usage Examples
 
@@ -131,12 +141,14 @@ Below are some of the settings which can be tweaked.
 | `LINUX_USER_DEL_TPL`           | Command used to delete a user from the system when removed the the team         | `deluser {username}`
 | `SSH_RESTART_TPL`              | Command used to restart SSH when `INTEGRATE_SSH=true`                           | `/usr/sbin/service ssh force-reload`
 
-**Macros:**
+The values in `{braces}` are macros that will be automatically substituted at run-time.
 
-1. `{username}` - User login name
-2. `{shell}`    - User shell
-3. `{group}`    - User primary group name
-4. `{gid}`      - User primary group id
+| **Macro**     | **Description**            |
+|---------------|----------------------------|
+| `{username}`  | User's login name          |
+| `{shell}`     | User's login shell         |
+| `{group}`     | User's primary group name  |
+| `{gid}`       | User's primary group id    |
 
 ## Help
 
