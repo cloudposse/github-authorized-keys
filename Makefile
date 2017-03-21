@@ -11,6 +11,9 @@ COPYRIGHT_SOFTWARE_DESCRIPTION:=Use GitHub teams to manage system user accounts 
 init:
 	@curl --retry 5 --retry-delay 1 https://raw.githubusercontent.com/cloudposse/build-harness/master/bin/install.sh | bash
 
+build-all:
+	gox -os="linux darwin freebsd openbsd netbsd plan9" -output "${RELEASE_DIR}/${APP}_{{.OS}}_{{.Arch}}"
+
 .PHONY : clean
 ## Clean build-harness
 clean:

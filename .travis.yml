@@ -40,7 +40,7 @@ script:
 - make go:deps-dev
 - make go:deps-build
 - make go:deps
-- make go:build-all
+- make build-all
 - ls -l release/
 
 #after_success:
