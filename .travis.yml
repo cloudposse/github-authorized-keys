@@ -16,7 +16,7 @@ services:
   #- docker
 
 install:
-  #- make init
+  - make init
   #- make docker:login
   #- pip install docker-compose
 
