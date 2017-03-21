@@ -204,9 +204,11 @@ To make ssh authorize based on github authorized key tool required some sshd_con
 This changes could be done automatically on startup by setting ``--integrate-ssh`` flag or
 ``INTEGRATE_SSH`` environment variable ``true``
 
-After ssd_config changed system restart ssh daemon.
-This operation could differs for different distributive so you can specify that command with ``SSH_RESTART_TPL``
-environment variable - default value is ``/usr/sbin/service ssh force-reload``
+When enabled it will create ssh authorized keys command file, update ssd_config  and restart ssh daemon.
+This operations could differs for different distributive so you can specify
+* ssh restart command ``SSH_RESTART_TPL`` environment variable - default value is ``/usr/sbin/service ssh force-reload``
+* path to authorized keys command file ``AUTHORIZED_KEYS_COMMAND_TPL`` environment variable - default value is ``/usr/bin/github-authorized-keys``
+
 
 ##### Update sshd_config manually
 

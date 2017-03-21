@@ -17,6 +17,7 @@ curl http://localhost:{port}/user/$1/authorized_keys
 
 func init() {
 	viper.SetDefault("ssh_restart_tpl", "/usr/sbin/service ssh force-reload")
+	viper.SetDefault("authorized_keys_command_tpl", "/usr/bin/github-authorized-keys")
 }
 
 // Run - start scheduled jobs
@@ -93,15 +94,17 @@ func sshIntegrate(cfg config.Config) {
 	wrapperScript := fasttemplate.New(wrapperScriptTpl, "{", "}").
 		ExecuteString(map[string]interface{}{"port": port})
 
-	logger.Info("Ensure file /usr/bin/github-authorized-keys")
-	linux.FileEnsure("/usr/bin/github-authorized-keys", wrapperScript)
+	cmdFile := viper.GetString("authorized_keys_command_tpl")
+
+	logger.Infof("Ensure file %v", cmdFile)
+	linux.FileEnsure(cmdFile, wrapperScript)
 
 	// Should be executable
-	logger.Info("Ensure exec mode for file /usr/bin/github-authorized-keys")
-	linux.FileModeSet("/usr/bin/github-authorized-keys", permbits.PermissionBits(0755))
+	logger.Infof("Ensure exec mode for file %v", cmdFile)
+	linux.FileModeSet(cmdFile, permbits.PermissionBits(0755))
 
 	logger.Info("Ensure AuthorizedKeysCommand line in sshd_config")
-	linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "^AuthorizedKeysCommand\\s.*$", "AuthorizedKeysCommand /usr/bin/github-authorized-keys")
+	linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "^AuthorizedKeysCommand\\s.*$", "AuthorizedKeysCommand "+cmdFile)
 
 	logger.Info("Ensure AuthorizedKeysCommandUser line in sshd_config")
 	linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "^AuthorizedKeysCommandUser\\s.*$", "AuthorizedKeysCommandUser nobody")
