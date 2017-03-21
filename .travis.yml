@@ -33,6 +33,8 @@ script:
           TEST_ETCD_ENDPOINT"
           
 # Also build packages for release
+- make go:deps-dev
+- make go:deps-build
 - make go:deps
 - make go:test
 - make go:lint
