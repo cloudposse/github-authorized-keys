@@ -17,15 +17,15 @@ Use GitHub teams to manage system user accounts and `authorized_keys`.
 
 This tool consists of three parts:
 
-1. User Account / Authorized Keys provisioner which polls GitHub API for users that correspond to a given GitHub Organization & Team. It's responsible for adding or removing users from the system. All commands are templatized to allow it to run on multiple distributions. 
+1. User Account / Authorized Keys provisioner which polls [GitHub API for users](https://developer.github.com/v3/users/keys/) that correspond to a given GitHub Organization & Team. It's responsible for adding or removing users from the system. All commands are templatized to allow it to run on multiple distributions. 
 2. Simple read-only REST API that provides public keys for users, which is used by the `AuthorizedKeysCommand` in the `sshd_config`; this allows you to expose the service internally without compromising your Github Token. The public SSH access keys are *optionally* cached in Etcd for performance and reliability.
 3. An `AuthorizedKeysCommand` [script](contrib/authorized-keys) that will `curl` the REST API for a user's public keys.
 
 ## Getting Started
 
-By far, the easiest way to get up and running is by using the ready-made docker container. The only dependency is [Docker](https://docs.docker.com/engine/installation) itself.
+By far, the easiest way to get up and running is by using the ready-made docker container. The only dependency is [Docker](https://docs.docker.com/engine/installation) itself. We also provide a [Kubernetes Helm Chart](https://github.com/cloudposse/charts/tree/master/incubator/github-authorized-keys).
 
-We provide a stable public image [cloudposse/github-authorized-keys](https://hub.docker.com/r/cloudposse/github-authorized-keys/) or you can build your own from source.
+We provide a stable, public Docker image [cloudposse/github-authorized-keys](https://hub.docker.com/r/cloudposse/github-authorized-keys/) or you can build your own from source.
 
 ```
 docker build -t cloudposse/github-authorized-keys .
@@ -33,30 +33,31 @@ docker build -t cloudposse/github-authorized-keys .
 
 ### Running GitHub Authorized Keys
 
-All arguments can be passed both as environment variables or command-line arguments, or even mix-and-matched.
+All arguments can be passed both as environment variables or command-line arguments, or even mix-and-match them to suit your tastes.
 
 Available configuration options:
 
-| **Environment Variable** | **Argument**             | **Description**                            | **Default** |
-|--------------------------|--------------------------|--------------------------------------------|
-| `GITHUB_API_TOKEN`       | `--github-api-token`     | GitHub API Token (read-only)               |
-| `GITHUB_ORGANIZATION`    | `--github-organization`  | GitHub Organization Containing Team        |
-| `GITHUB_TEAM`            | `--github-team`          | GitHub Team Membership to Grant SSH Access |
-| `SYNC_USERS_GID`         | `--sync-users-gid`       | Default Group ID (aka `gid`) of users      |
-| `SYNC_USERS_GROUPS`      | `--sync-users-groups`    | Default "Extra" Groups                     |
-| `SYNC_USERS_SHELL`       | `--sync-users-shell`     | Default Login Shell                        |
-| `SYNC_USERS_ROOT`        | `--sync-users-root`      | `chroot` path for user commands            |
-| `SYNC_USERS_INTERVAL`    | `--sync-users-interval`  | Interval used to update user accounts      |
-| `ETCD_ENDPOINT`          | `--etcd-endpoint`        | Etcd endpoint used for caching public keys |
-| `ETCD_TTL`               | `--etcd-ttl`             | Duration (in seconds) to cache public keys |
-| `ETCD_PREFIX`            | `--etcd-prefix`          | Prefix for public keys stored in etcd      |
-| `LISTEN`                 | `--listen`               | Bind address used for REST API             |
-| `INTEGRATE_SSH`          | `--integrate-ssh`        | Flag to automatically configure SSH        | `false`
-| `LOG_LEVEL`              | `--log-level`            | Ccontrol the logging verbosity.            | `info`     |
+| **Environment Variable** | **Argument**             | **Description**                                   | **Default**              |
+|--------------------------|--------------------------|---------------------------------------------------|--------------------------|
+| `GITHUB_API_TOKEN`       | `--github-api-token`     | GitHub API Token (read-only)                      |                          |
+| `GITHUB_ORGANIZATION`    | `--github-organization`  | GitHub Organization Containing Team               |                          |
+| `GITHUB_TEAM`            | `--github-team`          | GitHub Team for Membership to Grant SSH Access    |                          |
+| `GITHUB_TEAM_ID`         | `--github-team-id`       | GitHub Team ID for Membership to Grant SSH Access |                          |
+| `SYNC_USERS_GID`         | `--sync-users-gid`       | Default Group ID (aka `gid`) of users             |                          |
+| `SYNC_USERS_GROUPS`      | `--sync-users-groups`    | Default "Extra" Groups                            |                          |
+| `SYNC_USERS_SHELL`       | `--sync-users-shell`     | Default Login Shell                               | `/bin/bash`              |
+| `SYNC_USERS_ROOT`        | `--sync-users-root`      | `chroot` path for user commands                   | `/`                      |
+| `SYNC_USERS_INTERVAL`    | `--sync-users-interval`  | Interval used to update user accounts             | `300`                    |
+| `ETCD_ENDPOINT`          | `--etcd-endpoint`        | Etcd endpoint used for caching public keys        |                          |
+| `ETCD_TTL`               | `--etcd-ttl`             | Duration (in seconds) to cache public keys        | 86400                    |
+| `ETCD_PREFIX`            | `--etcd-prefix`          | Prefix for public keys stored in etcd             | `github-authorized-keys` |
+| `LISTEN`                 | `--listen`               | Bind address used for REST API                    | `:301`                   |
+| `INTEGRATE_SSH`          | `--integrate-ssh`        | Flag to automatically configure SSH               | `false`                  |
+| `LOG_LEVEL`              | `--log-level`            | Ccontrol the logging verbosity.                   | `info`                   |
 
 ## Quick Start 
 
-You can specify params  as environment variables
+You can specify params  as environment variables. If using `docker`, we recommend writing the environment variables to an environment file and then using the `--env-file` argument to pass them into your container. Remember to expose the REST API so you can retrieve user's public keys. Only public keys belonging to users found in the GitHub team will be returned.
 
 ```
 docker run \
