@@ -41,7 +41,7 @@ type Config struct {
 	Root       string
 	Interval   uint64
 
-	IntegrateWithSSH      bool
+	IntegrateWithSSH bool
 
 	Listen string
 }
