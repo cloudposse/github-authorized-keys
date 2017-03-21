@@ -104,10 +104,10 @@ func sshIntegrate(cfg config.Config) {
 	linux.FileModeSet(cmdFile, permbits.PermissionBits(0755))
 
 	logger.Info("Ensure AuthorizedKeysCommand line in sshd_config")
-	linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "^AuthorizedKeysCommand\\s.*$", "AuthorizedKeysCommand "+cmdFile)
+	linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "AuthorizedKeysCommand\\s.*", "AuthorizedKeysCommand "+cmdFile)
 
 	logger.Info("Ensure AuthorizedKeysCommandUser line in sshd_config")
-	linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "^AuthorizedKeysCommandUser\\s.*$", "AuthorizedKeysCommandUser nobody")
+	linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "AuthorizedKeysCommandUser\\s.*", "AuthorizedKeysCommandUser nobody")
 
 	logger.Info("Restart ssh")
 	output, err := linux.TemplateCommand(viper.GetString("ssh_restart_tpl"), map[string]interface{}{}).CombinedOutput()

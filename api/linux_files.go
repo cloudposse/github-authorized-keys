@@ -103,7 +103,8 @@ func (linux *Linux) FileEnsureLineMatch(filePath, matcher, line string) error {
 		re := regexp.MustCompile(matcher)
 
 		matchedStrings := re.FindAllString(fileContent, -1)
-
+		logger.Debugf("Matcher  %v", matcher)
+		logger.Debugf("Matched strings count %v", len(matchedStrings))
 		if len(matchedStrings) > 1 {
 			return fmt.Errorf("Match regexp /%v/ is too wide - %v matches found", matcher, matchedStrings)
 		}
