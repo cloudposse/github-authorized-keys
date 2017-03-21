@@ -55,6 +55,7 @@ var flags = []flag{
 	{"t", "int64", "etcd_ttl", ETCDTTLDefault, "ETCD value's ttl    ( environment variable ETCD_TTL could be used instead )"},
 
 	{"d", "bool", "integrate_ssh", false, "Integrate with ssh  ( environment variable INTEGRATE_SSH could be used instead )"},
+	{"k", "bool", "authorized_keys_command", "/usr/bin/github-authorized-keys", "SSH authorized keys command ( environment variable AUTHORIZED_KEYS_COMMAND could be used instead )"},
 	{"l", "string", "listen", ":301", "Listen              ( environment variable LISTEN could be used instead )"},
 }
 
@@ -100,6 +101,8 @@ Config:
 
 			IntegrateWithSSH: viper.GetBool("integrate_ssh"),
 
+			AuthorizedKeysCommand: viper.GetString("authorized_keys_command"),
+
 			Listen: viper.GetString("listen"),
 		}
 
@@ -116,6 +119,7 @@ Config:
 		logger.Infof("Config: Root - %v", cfg.Root)
 		logger.Infof("Config: Interval - %v seconds", cfg.Interval)
 		logger.Infof("Config: IntegrateWithSSH - %v", cfg.IntegrateWithSSH)
+		logger.Infof("Config: AuthorizedKeysCommand - %v", cfg.AuthorizedKeysCommand)
 		logger.Infof("Config: Listen - %v", cfg.Listen)
 
 		err = cfg.Validate()
