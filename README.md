@@ -23,9 +23,9 @@ This tool consists of three parts:
 
 ## Getting Started
 
-By far, the easiest way to get up and running is by using the ready-made docker container. The only dependency is [Docker](https://docs.docker.com/engine/installation) itself. We also provide a [Kubernetes Helm Chart](https://github.com/cloudposse/charts/tree/master/incubator/github-authorized-keys).
+By far, the easiest way to get up and running is by using the ready-made docker container. The only dependency is [Docker](https://docs.docker.com/engine/installation) itself. We also provide a [Kubernetes Helm Chart](https://github.com/cloudposse/charts/tree/master/incubator/github-authorized-keys). If you run CoreOS or use `systemd`, there's a [sample unit file](contrib/github-authorized-keys.service).
 
-We provide a stable, public Docker image [cloudposse/github-authorized-keys](https://hub.docker.com/r/cloudposse/github-authorized-keys/) or you can build your own from source.
+Cloud Posse provides a public image [cloudposse/github-authorized-keys](https://hub.docker.com/r/cloudposse/github-authorized-keys/) that is built using [TravisCI](.travis.yml) or you can build your own from source.
 
 ```
 docker build -t cloudposse/github-authorized-keys .
