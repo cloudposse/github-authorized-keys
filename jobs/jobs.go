@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/valyala/fasttemplate"
 	"strings"
+	model "github.com/cloudposse/github-authorized-keys/model/linux"
 )
 
 const wrapperScriptTpl = `#!/bin/bash
@@ -66,17 +67,18 @@ func syncUsers(cfg config.Config) {
 		// Create only non existed users
 		if !linux.UserExists(*githubUser.Login) {
 
-			linuxUser := api.LinuxUser{Name: *githubUser.Login, Shell: cfg.UserShell, Groups: cfg.UserGroups}
-
-			// If we have defined GID set it please
+			var gid string = ""
 			if cfg.UserGID != "" {
-				linuxUser.Gid = cfg.UserGID
+				gid = cfg.UserGID
 			}
+
+
+			linuxUser := model.NewUser(*githubUser.Login, gid, cfg.UserGroups, cfg.UserShell)
 
 			// Create user and store it's name if there was error during creation
 			if err := linux.UserCreate(linuxUser); err != nil {
 				logger.Error(err)
-				notCreatedUsers = append(notCreatedUsers, linuxUser.Name)
+				notCreatedUsers = append(notCreatedUsers, linuxUser.Name())
 			}
 		} else {
 			logger.Debugf("User %v exists - skip creation", *githubUser.Login)
