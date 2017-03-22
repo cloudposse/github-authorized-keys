@@ -22,6 +22,7 @@ import (
 	"github.com/cloudposse/github-authorized-keys/config"
 	"github.com/cloudposse/github-authorized-keys/key_storages"
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 // Run - start http server
@@ -30,7 +31,8 @@ func Run(cfg config.Config) {
 	router := gin.Default()
 
 	router.GET("/user/:name/authorized_keys", func(c *gin.Context) {
-		name := c.Param("name")
+		name := c.Params.ByName("name")
+		name = strings.ToLower(name)
 		key, err := authorize(cfg, name)
 		if err == nil {
 			c.String(200, "%v", key)
