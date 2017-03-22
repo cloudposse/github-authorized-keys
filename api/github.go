@@ -65,7 +65,7 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 
 	} else {
 		for _, localTeam := range teams {
-			if *localTeam.ID == id || *localTeam.Name == name {
+			if *localTeam.ID == id || *localTeam.Slug == name {
 				team = localTeam
 				// team found
 				return

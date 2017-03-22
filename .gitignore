@@ -40,3 +40,4 @@ glide.lock
 vendor/
 
 build-harness/
+.build-harness
