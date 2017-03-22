@@ -1,511 +1,237 @@
 # Github Authorized Keys [![Build Status](https://travis-ci.org/cloudposse/github-authorized-keys.svg?branch=master)](https://travis-ci.org/cloudposse/github-authorized-keys)
 
-Use GitHub teams to manage system user accounts and authorized_keys
-
-## Table of Contents
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+Use GitHub teams to manage system user accounts and `authorized_keys`. 
 
 
-- [Getting started](#getting-started)
-  - [Requirements](#requirements)
-    - [Use as deamon](#use-as-deamon)
-    - [Use in containers](#use-in-containers)
-  - [Install](#install)
-    - [Use as daemon](#use-as-daemon)
-    - [Use in containers](#use-in-containers-1)
-  - [Start](#start)
-      - [Use as daemon](#use-as-daemon-1)
-      - [Use in containers](#use-in-containers-2)
-  - [Usage](#usage)
-    - [Authorize](#authorize)
-      - [Update sshd_config in automated mode](#update-sshd_config-in-automated-mode)
-      - [Update sshd_config manually](#update-sshd_config-manually)
-    - [ETCD fallback cache](#etcd-fallback-cache)
-    - [Create users](#create-users)
-      - [Templating commands](#templating-commands)
-        - [Add user](#add-user)
-        - [Add user with primary group](#add-user-with-primary-group)
-        - [Add user to secondary group](#add-user-to-secondary-group)
-        - [Delete user](#delete-user)
-- [Development](#development)
-  - [Requirements](#requirements-1)
-  - [Run development in docker](#run-development-in-docker)
-  - [Install go libs dependencies](#install-go-libs-dependencies)
-  - [Testing](#testing)
-    - [With config file](#with-config-file)
-    - [With environment variables](#with-environment-variables)
-  - [Run tests on docker build](#run-tests-on-docker-build)
-    - [With config file](#with-config-file-1)
-    - [With build args](#with-build-args)
-- [Demo](#demo)
-  - [Deps](#deps)
-  - [Run](#run)
-    - [With config file](#with-config-file-2)
-    - [With environment variables](#with-environment-variables-1)
-  - [Test](#test)
-  - [Logs](#logs)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/cloudposse/github-authorized-keys)](https://goreportcard.com/report/github.com/cloudposse/github-authorized-keys)
+[![Coverage Status](https://coveralls.io/repos/github/cloudposse/github-authorized-keys/badge.svg?branch=master)](https://coveralls.io/github/cloudposse/github-authorized-keys?branch=master)
+[![Docker Pulls](https://img.shields.io/docker/pulls/cloudposse/github-authorized-keys.svg)](https://hub.docker.com/r/cloudposse/github-authorized-keys)
+[![GitHub Stars](https://img.shields.io/github/stars/cloudposse/github-authorized-keys.svg)](https://github.com/cloudposse/github-authorized-keys/stargazers) 
+[![GitHub Issues](https://img.shields.io/github/issues/cloudposse/github-authorized-keys.svg)](https://github.com/cloudposse/github-authorized-keys/issues)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/cloudposse/github-authorized-keys/pulls)
+[![License](https://img.shields.io/badge/license-APACHE%202.0%20-brightgreen.svg)](https://github.com/cloudposse/github-authorized-keys/blob/master/LICENSE)
 
 ----
 
-## Getting started
+## Screenshots
 
-Use GitHub teams to manage system user accounts and authorized_keys.
-
-This tool consists of two parts:
-
-1. REST API that provide public keys for users (required for sshd_config AuthorizedKeysCommand)
-2. Internal cron job schedule task to create users on linux machine
-
-### Requirements
-
-#### Use as deamon
-
-  * [Go lang 1.7.x](https://golang.org/)
-  * [glide](https://github.com/Masterminds/glide)
-
-#### Use in containers
-
-  * [Docker](https://docs.docker.com/engine/installation)
-
-### Install
-
-#### Use as daemon
+**Administrators** 
+* Automatically provision new users to production servers simply by adding them to a designatd GitHub team (e.g. `ssh`). 
+  ![Demo](docs/github-team-demo.png)
+* No need to keep `authorized_keys` up to date because keys are pulled directly from github.com API and *optionally* cached in etcd
+* Immediately revoke SSH access to servers by evicting users from the GitHub team
+* Easy to deploy
 
 
-Compile with command
-```
-make deps
-make build
-make install
-```
+**End Users**
+* Self-administer public SSH keys via the [GitHub account settings](https://github.com/settings/keys).
+  ![Demo](docs/github-keys-demo.png)
+* No need to manage multiple SSH keys
 
-After installation you could find command as
-```
-/usr/local/sbin/github-authorized-keys
-```
 
-#### Use in containers
+## Architecture
 
-  Use public image [cloudposse/github-authorized-keys](https://hub.docker.com/r/cloudposse/github-authorized-keys/)
+This tool consists of three parts:
 
-  or build docker image from source
+1. User Account / Authorized Keys provisioner which polls [GitHub API for users](https://developer.github.com/v3/users/keys/) that correspond to a given GitHub Organization & Team using a [personal access token](https://github.com/settings/tokens). It's responsible for adding or removing users from the system. All commands are templatized to allow it to run on multiple distributions. 
+2. Simple read-only REST API that provides public keys for users, which is used by the `AuthorizedKeysCommand` in the `sshd_config`; this allows you to expose the service internally without compromising your Github Token. The public SSH access keys are *optionally* cached in Etcd for performance and reliability.
+3. An `AuthorizedKeysCommand` [script](contrib/authorized-keys) that will `curl` the REST API for a user's public keys.
 
- ```
- docker build -t cloudposse/github-authorized-keys .
- ```
+## Getting Started
 
-### Start
+By far, the easiest way to get up and running is by using the ready-made docker container. The only dependency is [Docker](https://docs.docker.com/engine/installation) itself. We also provide a [Kubernetes Helm Chart](https://github.com/cloudposse/charts/tree/master/incubator/github-authorized-keys). If you run [CoreOS](docs/coreos.md) or use `systemd`, there's a [sample unit file](contrib/github-authorized-keys.service).
 
-##### Use as daemon
-
-To start daemon run cli command with configuration params
-
-You can specify params as flags
+Cloud Posse provides a public image [cloudposse/github-authorized-keys](https://hub.docker.com/r/cloudposse/github-authorized-keys/) that is built using [TravisCI](.travis.yml) or you can build your own from source.
 
 ```
-/usr/local/sbin/github-authorized-keys \
-  --github-api-token={token} \
-  --github-organization={organization} \
-  --github-team={team} \
-  --sync-users-gid={user gid} \
-  --sync-users-groups={comma separated secondary groups names} \
-  --sync-users-shell={user shell} \
-  --sync-users-root={root directory - default "/"} \
-  --sync-users-interval={seconds - default 300} \
-  --etcd-endpoint={etcd endpoints comma separeted - optional} \
-  --etcd-ttl={etcd ttl - default 1 day} \
-  --etcd-prefix={prefix or path to store data - default /github-authorized-keys}
-  --listen={Sets the address and port for IP, default :301} \
-  --integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
+docker build -t cloudposse/github-authorized-keys .
 ```
 
-or as environment variables
+### Running GitHub Authorized Keys
 
+All arguments can be passed both as environment variables or command-line arguments, or even mix-and-match them to suit your tastes.
+
+Available configuration options:
+
+| **Environment Variable** | **Argument**             | **Description**                                   | **Default**              |
+|--------------------------|--------------------------|---------------------------------------------------|--------------------------|
+| `GITHUB_API_TOKEN`       | `--github-api-token`     | GitHub API Token (read-only)                      |                          |
+| `GITHUB_ORGANIZATION`    | `--github-organization`  | GitHub Organization Containing Team               |                          |
+| `GITHUB_TEAM`            | `--github-team`          | GitHub Team for Membership to Grant SSH Access    |                          |
+| `GITHUB_TEAM_ID`         | `--github-team-id`       | GitHub Team ID for Membership to Grant SSH Access |                          |
+| `SYNC_USERS_GID`         | `--sync-users-gid`       | Default Group ID (aka `gid`) of users             |                          |
+| `SYNC_USERS_GROUPS`      | `--sync-users-groups`    | Default "Extra" Groups                            |                          |
+| `SYNC_USERS_SHELL`       | `--sync-users-shell`     | Default Login Shell                               | `/bin/bash`              |
+| `SYNC_USERS_ROOT`        | `--sync-users-root`      | `chroot` path for user commands                   | `/`                      |
+| `SYNC_USERS_INTERVAL`    | `--sync-users-interval`  | Interval used to update user accounts             | `300`                    |
+| `ETCD_ENDPOINT`          | `--etcd-endpoint`        | Etcd endpoint used for caching public keys        |                          |
+| `ETCD_TTL`               | `--etcd-ttl`             | Duration (in seconds) to cache public keys        | `86400`                  |
+| `ETCD_PREFIX`            | `--etcd-prefix`          | Prefix for public keys stored in etcd             | `github-authorized-keys` |
+| `LISTEN`                 | `--listen`               | Bind address used for REST API                    | `:301`                   |
+| `INTEGRATE_SSH`          | `--integrate-ssh`        | Flag to automatically configure SSH               | `false`                  |
+| `LOG_LEVEL`              | `--log-level`            | Ccontrol the logging verbosity.                   | `info`                   |
+
+## Quick Start 
+
+We recommend that you specify all parameters as environment variables. If using `docker`, pass the [environment file](contrib/env) to the container using the `--env-file` argument.
+Remember to expose the REST API so you can retrieve user's public keys. Only public keys belonging to users found in the GitHub team will be returned.
+
+For example, [`/etc/github-authorized-keys`](contrib/env), might look like this:
 
 ```
-GITHUB_API_TOKEN={token} \
-GITHUB_ORGANIZATION={organization} \
-GITHUB_TEAM={team} \
-SYNC_USERS_GID={gid OR empty} \
-SYNC_USERS_GROUPS={comma separated groups OR empty} \
-SYNC_USERS_SHELL={user shell} \
-SYNC_USERS_ROOT={root directory - default "/"} \
-SYNC_USERS_INTERVAL={seconds - default 300} \
-ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
-ETCD_TTL={etcd ttl - default 1 day} \
-ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
-LISTEN={Sets the address and port for IP, default :301} \
-INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)} \
-  /usr/local/sbin/github-authorized-keys
+GITHUB_API_TOKEN={token}
+GITHUB_ORGANIZATION={organization}
+GITHUB_TEAM=ssh
+SYNC_USERS_GID=500
+SYNC_USERS_GROUPS=sudo
+SYNC_USERS_SHELL=/bin/bash
+SYNC_USERS_ROOT=/host
+SYNC_USERS_INTERVAL=300
+ETCD_ENDPOINT=http://localhost:2739
+ETCD_TTL=86400
+ETCD_PREFIX=github-authorized-keys
+LISTEN=:301
+INTEGRATE_SSH=true
 ```
 
-or you can mix that approaches
-
-##### Use in containers
-
-You can specify params  as environment variables
+Then you could start it like this:
 
 ```
 docker run \
-  -v /:/{root directory} \
-  --expose "301:301"
-  -e GITHUB_API_TOKEN={token} \
-  -e GITHUB_ORGANIZATION={organization} \
-  -e GITHUB_TEAM={team} \
-  -e SYNC_USERS_GID={gid OR empty} \
-  -e SYNC_USERS_GROUPS={comma separated groups OR empty} \
-  -e SYNC_USERS_SHELL={user shell} \
-  -e SYNC_USERS_ROOT={root directory} \
-  -e SYNC_USERS_INTERVAL={seconds - default 300} \
-  -e ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
-  -e ETCD_TTL={etcd ttl - default 1 day} \
-  -e ETCD_PREFIX={prefix or path to store data - default /github-authorized-keys} \
-  -e LISTEN={Sets the address and port for IP, default :301} \
-  -e INTEGRATE_SSH={integrate with ssh on startup, default false (should be true for production)} \
-     cloudposse/github-authorized-keys
+  --volume /:/host \
+  --expose "127.0.0.1:301:301" \
+  --env-file /etc/github-authorized-keys \
+     cloudposse/github-authorized-keys:latest
 ```
 
-or as flags
+**Note:** depending on your OS distribution, you might need to tweak the command templates. Keep reading for details.
+
+## Usage Examples
+
+### Automatically Configure SSH
+
+To leverage the `github-authorized-keys` API, we need to make a small tweak to the `sshd_config`. 
+
+This can be done automatically by passing the `--integrate-ssh` flag (or setting `INTEGRATE_SSH=true`)
+
+After modifying the `sshd_config`, it's necessary to restart the SSH daemon. This happens automatically by calling the `SSH_RESTART_TPL` command. Since this differs depending on the OS distribution, you can change the default behavior by setting the `SSH_RESTART_TPL` environment variable (default: `/usr/sbin/service ssh force-reload`). Similarly, you might need to tweak the `AUTHORIZED_KEYS_COMMAND_TPL` environment variable to something compatible with your OS.
+
+
+### Manually Configure SSH
+
+If you wish to manually configure your `sshd_config`, here's all you need to do:
 
 ```
-docker run \
-  -v /:/{root directory} \
-  --expose "301:301"
-  cloudposse/github-authorized-keys
-    --github-api-token={token} \
-    --github-organization={organization} \
-    --github-team={team} \
-    --sync-users-gid={user gid} \
-    --sync-users-groups={comma separated secondary groups names} \
-    --sync-users-shell={user shell} \
-    --sync-users-root={root directory - default "/"} \
-    --sync-users-interval={seconds - default 300} \
-    --etcd-endpoint={etcd endpoints comma separeted - optional} \
-    --etcd-ttl={etcd ttl - default 1 day} \
-    --etcd-prefix={prefix or path to store data - default /github-authorized-keys}
-    --listen={Sets the address and port for IP, default :301} \
-    --integrate-ssh={integrate with ssh on startup, default false (should be true for production)}
-```
-or you can mix that approaches
-
-### Usage
-
-#### Authorize
-
-To make ssh authorize based on github authorized key tool required some sshd_config changes.
-
-##### Update sshd_config in automated mode
-
-This changes could be done automatically on startup by setting ``--integrate-ssh`` flag or
-``INTEGRATE_SSH`` environment variable ``true``
-
-When enabled it will create ssh authorized keys command file, update ssd_config  and restart ssh daemon.
-This operations could differs for different distributive so you can specify
-* ssh restart command ``SSH_RESTART_TPL`` environment variable - default value is ``/usr/sbin/service ssh force-reload``
-* path to authorized keys command file ``AUTHORIZED_KEYS_COMMAND_TPL`` environment variable - default value is ``/usr/bin/github-authorized-keys``
-
-
-##### Update sshd_config manually
-
-To integrate system with ssh you need to config AuthorizedKeysCommand and AuthorizedKeysCommandUser.
-For OpenSSH >= 6.9 you can use
-
-`````
-AuthorizedKeysCommand /usr/bin/curl http://localhost:301/users/%u/authorized_keys
-`````
-
-For older versions you'll need to use a shell wrapper that run ``curl`` command with correct url
-
-``AuthorizedKeysCommandUser`` could be any valid user.
-
-##### ETCD fallback cache
-
-Authorization REST API use ETCD to temporary cache user's public keys.
-If github.com is not available command fallback to ETCD storage.
-
-ETCD endpoints param is optional, if not specify caching and fallback disabled.
-
-#### Create users
-
-Linux users will be synchronized according to team members every 1 second
-
-In case of running in container you have to share host ``/`` into ``/{root directory}`` because  ``adduser`` command could differs on different Linux distribs and we need to use host one.
-Also that means you need to specify  sync-users-root param to point to that directory.
-
-##### Templating commands
-
- Command sync-users rely on OS commands to mange users. We use templates for commands.
- Templates could be overridden with environment variables.
-
- Following templates are used:
-
-###### Add user
-
-**Default template:**
-
-  ```
-adduser {username} --disabled-password --force-badname --shell {shell}
-  ```
-
-**Valid placeholders:**
-
-1. **_{username}_** - User login name
-2. **_{shell}_**    - User shell
-
-**Environment variable:**
-
-`LINUX_USER_ADD_TPL`
-
-
-###### Add user with primary group
-
-**Default template:**
-
-  ```
-adduser {username} --disabled-password --force-badname --shell {shell} --group {group}
-  ```
-
-**Valid placeholders:**
-
-1. **_{username}_** - User login name
-2. **_{shell}_**    - User shell
-3. **_{group}_**    - User primary group name
-4. **_{gid}_**      - User primary group id
-
-**Environment variable:**
-
-`LINUX_USER_ADD_WITH_GID_TPL`
-
-###### Add user to secondary group
-
-**Default template:**
-
-  ```
-adduser {username} {group}
-  ```
-
-**Valid placeholders:**
-
-1. **_{username}_** - User login name
-2. **_{group}_**    - User primary group name
-
-**Environment variable:**
-
-`LINUX_USER_ADD_TO_GROUP_TPL`
-
-###### Delete user
-
-**Template:**
-
-  ```
-deluser {username}
-  ```
-
-**Valid placeholders:**
-
-1. **_{username}_** - User login name
-
-**Environment variable:**
-
-`LINUX_USER_DEL_TPL`
-
-------------
-
-## Development
-
-### Requirements
-
-  * [Go lang 1.7.x](https://golang.org/)
-  * [glide](https://github.com/Masterminds/glide)
-  * [Make](https://en.wikipedia.org/wiki/Make_(software))
-  * [Docker](https://docs.docker.com/engine/installation) (optional)
-  * [Docker compose](https://docs.docker.com/compose/install/) (optional)
-
-
-### Run development in docker
-
-There is docker-compose file allow to start docker container for development purpose.
-This container shared source code dir with host.
-
-To start container run this command
-
-```
-docker-compose up -d
+AuthorizedKeysCommand /usr/bin/authorized-keys
+AuthorizedKeysCommandUser root
 ```
 
-Once the docker-compose environment is running, you can attach to the container with this command
+Then install a [wrapper script](contrib/authorized-keys) to `/usr/bin/authorized-keys`. 
 
-```
-docker exec -it github-authorized-keys sh
-```
+**Note**: this command requires `curl` to access the REST API in order to fetch authorized keys
 
-Source code is bind-mounted to ``/go/src/github.com/cloudposse/github-authorized-keys`` directory.
+### Etcd Fallback Cache
 
-**Install dev tools inside container**
+The REST API supports Etcd as cache for public keys. This mitigates any connectivity problems with GitHub's API. By default, the caching is disabled.
 
-```
-apk update
-apk add git make curl
-curl https://glide.sh/get | sh
-```
+### Command Templates
 
+Due to the vast differences between OS commands, the defaults provided might not work for you flavor of Linux.
 
-### Install go libs dependencies
+Below are some of the settings which can be tweaked. 
 
-  Run ``make deps-dev`` to install additional go libs
+| Environment Variable           | **Description**                                                                 | **Default**                                   
+|--------------------------------|---------------------------------------------------------------------------------|-------------------------------------------------------------------------
+| `LINUX_USER_ADD_TPL`           | Command used to add a user to the system when no default group supplied.        | `adduser {username} --disabled-password --force-badname --shell {shell}`                 
+| `LINUX_USER_ADD_WITH_GID_TPL`  | Command used to add a user to the system when a default primary group supplied. | `adduser {username} --disabled-password --force-badname --shell {shell} --group {group}`
+| `LINUX_USER_ADD_TO_GROUP_TPL`  | Command used to add the user to secondary groups                                | `adduser {username} {group}` 
+| `LINUX_USER_DEL_TPL`           | Command used to delete a user from the system when removed the the team         | `deluser {username}`
+| `SSH_RESTART_TPL`              | Command used to restart SSH when `INTEGRATE_SSH=true`                           | `/usr/sbin/service ssh force-reload`
+| `AUTHORIZED_KEYS_COMMAND_TPL`  | Command used to fetch a user's `authorized_keys` from REST API                  | `/usr/bin/github-authorized-keys`
 
-### Testing
+The values in `{braces}` are macros that will be automatically substituted at run-time.
 
-**Warning:**
-Tests require sufficient permission to create users, so it is better to run them inside docker container.
+| **Macro**     | **Description**            |
+|---------------|----------------------------|
+| `{username}`  | User's login name          |
+| `{shell}`     | User's login shell         |
+| `{group}`     | User's primary group name  |
+| `{gid}`       | User's primary group id    |
 
-Running tests required some configs.
+## Help
 
-There are 2 approaches to do this:
+**Got a question?** 
 
-#### With config file
+File a GitHub [issue](https://github.com/cloudposse/github-authorized-keys/issues), send us an [email](mailto:hello@cloudposse.com) or reach out to us on [Gitter](https://gitter.im/cloudposse/).
 
-Copy .github-authorized-keys-tests.default.yml to .github-authorized-keys-tests.yml
+## Contributing
 
-```
-cp .github-authorized-keys-tests.default.yml .github-authorized-keys-tests.yml
-```
+### Bug Reports & Feature Requests
 
-and set required values in that file.
+Please use the [issue tracker](https://github.com/cloudposse/github-authorized-keys/issues) to report any bugs or file feature requests.
 
-Then you can simple run
+### Developing
 
-```
-make test
-```
+If you are interested in being a contributor and want to get involved in developing GitHub Authorized Keys, we would love to hear from you! Shoot us an [email](mailto:hello@cloudposse.com).
 
-#### With environment variables
+In general, PRs are welcome. We follow the typical "fork-and-pull" Git workflow.
 
-Run tests with command
+ 1. **Fork** the repo on GitHub
+ 2. **Clone** the project to your own machine
+ 3. **Commit** changes to your own branch
+ 4. **Push** your work back up to your fork
+ 5. Submit a **Pull request** so that we can review your changes
 
+**NOTE:** Be sure to merge the latest from "upstream" before making a pull request!
 
-```
-TEST_GITHUB_API_TOKEN={api token} \
-TEST_GITHUB_ORGANIZATION={organization name} \
-TEST_GITHUB_TEAM={team name} \
-TEST_GITHUB_TEAM_ID={team id} \
-TEST_GITHUB_USER={user} \
-TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional} \
-  make test
-```
+Here's how to get started...
 
+1. `git clone https://github.com/cloudposse/github-authorized-keys.git` to pull down the repository 
+2. `make init` to initialize the [`build-harness`](https://github.com/cloudposse/build-harness/)
+3. Review the [documentation](docs/) on compiling
 
-### Run tests on docker build
+## License
 
-To enable test run on docker build use ``--build-arg`` option
-to set ``RUN_TESTS=1``
+[APACHE 2.0](LICENSE) © 2016-2017 [Cloud Posse, LLC](https://cloudposse.com)
 
-**Example**
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+     
+      http://www.apache.org/licenses/LICENSE-2.0
 
-```
-docker build --build-arg RUN_TESTS=1 ./
-```
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
 
-Also you need to config tests before build
-There are 2 approaches to do this.
+## About
 
-#### With config file
+GitHub Authorized Keys is maintained and funded by [Cloud Posse, LLC][website]. Like it? Please let us know at <hello@cloudposse.com>
 
-The same way as described in configuration of tests with config file
+We love [Open Source Software](https://github.com/cloudposse/)! 
 
-#### With build args
+See [our other projects][community] or [hire us][hire] to help build your next cloud-platform.
 
-Pass tests config environment variables as build-args
+  [website]: http://cloudposse.com/
+  [community]: https://github.com/cloudposse/
+  [hire]: http://cloudposse.com/contact/
+  
+### Contributors
 
-**Example**
 
-```
-docker build \
---build-arg RUN_TESTS=1 \
---build-arg  TEST_GITHUB_API_TOKEN={token} \
---build-arg  TEST_GITHUB_ORGANIZATION={org} \
---build-arg  TEST_GITHUB_TEAM={team} \
---build-arg  TEST_GITHUB_TEAM_ID={team_id} \
---build-arg  TEST_GITHUB_USER={user} \
---build-arg  TEST_ETCD_ENDPOINT={etcd endpoints comma separeted - optional}
-  ./
-```
+| [![Erik Osterman][erik_img]][erik_web]<br/>[Erik Osterman][erik_web] | [![Igor Rodionov][igor_img]][igor_web]<br/>[Igor Rodionov][igor_web] |
+|-------------------------------------------------------|------------------------------------------------------------------|
 
-### Log level
+  [erik_img]: http://s.gravatar.com/avatar/88c480d4f73b813904e00a5695a454cb?s=144
+  [erik_web]: https://github.com/osterman/
+  [igor_img]: http://s.gravatar.com/avatar/bc70834d32ed4517568a1feb0b9be7e2?s=144
+  [igor_web]: https://github.com/goruha/
 
-Use the ``LOG_LEVEL`` environment variable to control the logging verbosity. Possible values are:
-* info
-* debug
 
-Default is ``info``
-
----
-
-## Demo
-
-We use Vagrant to demonstrate how this tool works.
-
-### Deps
-
-Install
-
-**[Virtual box](https://www.virtualbox.org/wiki/Downloads)** (tested on version 4.3.26)
-
-**[Vagrant](https://www.vagrantup.com/downloads.html)** (tested on version 1.8.4)
-
-**[vagrant-docker-compose](https://github.com/leighmcculloch/vagrant-docker-compose)** plugin
-  with command
-
-``vagrant plugin install vagrant-docker-compose``
-
-### Run
-
-Vagrant up required some configs.
-There are 2 cases to do this.
-
-#### With config file
-
-Copy .github-authorized-keys-demo.default.yml to .github-authorized-keys-demo.yml
-
-```
-cp .github-authorized-keys-demo.default.yml .github-authorized-keys-demo.yml
-```
-
-and set required values in that file.
-
-Then you can simple run
-
-```
-vagrant up
-```
-
-
-#### With environment variables
-
-Run vagrant with command
-
-
-```
-GITHUB_API_TOKEN={api token} \
-GITHUB_ORGANIZATION={organization name} \
-GITHUB_TEAM={team name} \
-  vagrant up
-```
-
-
-### Test
-
-Login into vagrant box with command
-
-``ssh -o "UserKnownHostsFile /dev/null" {github username}@192.168.33.10``
-
-### Logs
-
-You can check what is going with ssh inside vagrant box
-
-``sudo tail -f /var/log/auth.log``

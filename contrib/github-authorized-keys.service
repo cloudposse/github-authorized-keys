@@ -1,0 +1,25 @@
+[Unit]
+Description=GitHub Authorized Keys
+
+Wants=docker.service
+After=docker.service
+
+[Service]
+User=core
+TimeoutStartSec=0
+Environment=GITHUB_AUTHORIZED_KEYS_IMAGE=cloudposse/github-authorized-keys:latest
+ExecStartPre=/usr/bin/systemctl is-active docker.service
+ExecStartPre=-/usr/bin/docker stop --time=20 %p
+ExecStartPre=-/usr/bin/docker rm %p
+ExecStartPre=-/usr/bin/docker --debug=true pull ${GITHUB_AUTHORIZED_KEYS_IMAGE}
+ExecStart=/usr/bin/docker run \
+            --name %p \
+            --net=host \
+            --env-file=/etc/github-authorized-keys \
+            --volume /:/host \
+            -p 127.0.0.1:301:301 \
+               ${GITHUB_AUTHORIZED_KEYS_IMAGE}
+ExecStop=-/usr/bin/docker stop --time=20 %p
+TimeoutStopSec=20s
+Restart=always
+RestartSec=10s
