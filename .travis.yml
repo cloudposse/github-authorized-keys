@@ -17,6 +17,7 @@ services:
 
 install:
   - make init
+  - git -C build-harness checkout gox-release-arch
   - make docker:login
   - pip install docker-compose
 
@@ -40,7 +41,7 @@ script:
   - make go:deps-dev
   - make go:deps-build
   - make go:deps
-  - make build-all
+  - make go:build-all
   - ls -l release/
 
 after_success:
