@@ -17,7 +17,6 @@ services:
 
 install:
   - make init
-  - git -C build-harness checkout gox-release-arch
   - make docker:login
   - pip install docker-compose
 
