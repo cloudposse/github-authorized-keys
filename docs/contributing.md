@@ -13,9 +13,9 @@
 
 Run the following commands:
 ```
-make deps
-make build
-make install
+make go:deps
+make go:build
+make go:install
 ```
 
 After installation, the binary will be installed here:
@@ -52,7 +52,7 @@ curl https://glide.sh/get | sh
 
 ## Install Golang Dependencies
 
-Run `make deps-dev` to install additional go libs.
+Run `make go:deps-dev` to install additional go libs.
 
 ## Testing
 
@@ -73,7 +73,7 @@ Then update the settings inside of the `.github-authorized-keys-tests.yml` file.
 After that, simply run:
 
 ```
-make test
+make go:test
 ```
 
 ### Using Environment Variables
