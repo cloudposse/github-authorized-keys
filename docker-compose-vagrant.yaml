@@ -13,6 +13,7 @@ services:
       - SYNC_USERS_ROOT=/host
       - INTEGRATE_SSH=true
       - SSH_RESTART_TPL=/usr/sbin/service ssh restart
+      - LOG_LEVEL=debug
     volumes:
       - "/:/host"
     ports:
