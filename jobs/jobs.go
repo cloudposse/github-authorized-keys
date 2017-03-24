@@ -4,12 +4,12 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/cloudposse/github-authorized-keys/api"
 	"github.com/cloudposse/github-authorized-keys/config"
+	model "github.com/cloudposse/github-authorized-keys/model/linux"
 	"github.com/goruha/permbits"
 	"github.com/jasonlvhit/gocron"
 	"github.com/spf13/viper"
 	"github.com/valyala/fasttemplate"
 	"strings"
-	model "github.com/cloudposse/github-authorized-keys/model/linux"
 )
 
 const wrapperScriptTpl = `#!/bin/bash
@@ -64,16 +64,13 @@ func syncUsers(cfg config.Config) {
 	notCreatedUsers := make([]string, 0)
 
 	for _, githubUser := range githubUsers {
+		linuxUser := model.NewUser(*githubUser.Login, gid, cfg.UserGroups, cfg.UserShell)
 		// Create only non existed users
-		if !linux.UserExists(*githubUser.Login) {
-
+		if !linux.UserExists(linuxUser.Name()) {
 			var gid string = ""
 			if cfg.UserGID != "" {
 				gid = cfg.UserGID
 			}
-
-
-			linuxUser := model.NewUser(*githubUser.Login, gid, cfg.UserGroups, cfg.UserShell)
 
 			// Create user and store it's name if there was error during creation
 			if err := linux.UserCreate(linuxUser); err != nil {
