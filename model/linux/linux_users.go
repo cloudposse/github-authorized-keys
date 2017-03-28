@@ -30,7 +30,7 @@ type User struct {
 
 // NewUser - creates new User
 func NewUser(name, gid string, groups []string, shell string) User {
-	return User{ name: name, gid: gid, groups: groups, shell: shell }
+	return User{name: name, gid: gid, groups: groups, shell: shell}
 }
 
 // Name - return user name

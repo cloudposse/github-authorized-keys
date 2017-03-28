@@ -21,10 +21,10 @@ package api
 import (
 	"errors"
 	"fmt"
+	"github.com/cloudposse/github-authorized-keys/model/linux"
 	"github.com/spf13/viper"
 	"os/exec"
 	"os/user"
-	"github.com/cloudposse/github-authorized-keys/model/linux"
 )
 
 const (

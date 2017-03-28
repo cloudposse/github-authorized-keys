@@ -4,12 +4,12 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/cloudposse/github-authorized-keys/api"
 	"github.com/cloudposse/github-authorized-keys/config"
+	model "github.com/cloudposse/github-authorized-keys/model/linux"
 	"github.com/goruha/permbits"
 	"github.com/jasonlvhit/gocron"
 	"github.com/spf13/viper"
 	"github.com/valyala/fasttemplate"
 	"strings"
-	model "github.com/cloudposse/github-authorized-keys/model/linux"
 )
 
 const wrapperScriptTpl = `#!/bin/bash
@@ -53,29 +53,25 @@ func syncUsers(cfg config.Config) {
 		return
 	}
 
-	// Get all members
+	// Get all GitHub team members
 	githubUsers, err := c.GetTeamMembers(team)
 	if err != nil {
 		logger.Error(err)
 		return
 	}
 
-	// Here we will store user name for users that got error during creation
+	// Track users that were unable to be added to the system
 	notCreatedUsers := make([]string, 0)
 
 	for _, githubUser := range githubUsers {
-		// Create only non existed users
-		if !linux.UserExists(*githubUser.Login) {
-
-			var gid string = ""
-			if cfg.UserGID != "" {
-				gid = cfg.UserGID
-			}
-
-
-			linuxUser := model.NewUser(*githubUser.Login, gid, cfg.UserGroups, cfg.UserShell)
-
-			// Create user and store it's name if there was error during creation
+		var gid string = ""
+		if cfg.UserGID != "" {
+			gid = cfg.UserGID
+		}
+		linuxUser := model.NewUser(*githubUser.Login, gid, cfg.UserGroups, cfg.UserShell)
+		// Only add new users
+		if !linux.UserExists(linuxUser.Name()) {
+			// Create user and track if we failed to create their account
 			if err := linux.UserCreate(linuxUser); err != nil {
 				logger.Error(err)
 				notCreatedUsers = append(notCreatedUsers, linuxUser.Name())
