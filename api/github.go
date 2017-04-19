@@ -25,6 +25,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
+
+const (
+	MAX_PAGE_SIZE = 100
+)
+
 var (
 	// ErrorGitHubConnectionFailed - returned when there was a connection error with github.com
 	ErrorGitHubConnectionFailed = errors.New("Connection to github.com failed")
@@ -58,21 +63,33 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 	team = nil
 	err = nil
 
-	teams, response, _ := c.client.Organizations.ListTeams(c.owner, nil)
-
-	if response.StatusCode != 200 {
-		err = ErrorGitHubAccessDenied
-
-	} else {
-		for _, localTeam := range teams {
-			if *localTeam.ID == id || *localTeam.Slug == name {
-				team = localTeam
-				// team found
-				return
-			}
-		}
-		err = errors.New("Team with such name or id not found")
+	var opt = &github.ListOptions{
+			PerPage: MAX_PAGE_SIZE,
 	}
+
+	for {
+		teams, response, _ := c.client.Organizations.ListTeams(c.owner, opt)
+
+		if response.StatusCode != 200 {
+			err = ErrorGitHubAccessDenied
+			return
+		} else {
+			for _, localTeam := range teams {
+				if *localTeam.ID == id || *localTeam.Slug == name {
+					team = localTeam
+					// team found
+					return
+				}
+			}
+			err = errors.New("Team with such name or id not found")
+		}
+
+		if response.LastPage == 0 {
+			break
+		}
+		opt.Page = response.NextPage
+	}
+
 	// Exit with error
 	return
 }
@@ -94,8 +111,33 @@ func (c *GithubClient) IsTeamMember(user string, team *github.Team) (bool, error
 }
 
 // GetKeys - return array of user's {userName} public keys
-func (c *GithubClient) GetKeys(userName string) ([]*github.Key, *github.Response, error) {
-	return c.client.Users.ListKeys(userName, nil)
+func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			keys = make([]*github.Key, 0)
+			err = ErrorGitHubConnectionFailed
+		}
+	}()
+
+	var opt = &github.ListOptions{
+			PerPage: MAX_PAGE_SIZE,
+	}
+
+	for {
+		items, resp, local_err := c.client.Users.ListKeys(userName, opt)
+		if local_err != nil {
+			err = local_err
+			return
+		}
+
+		keys = append(keys, items...)
+		if resp.LastPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+
+	return
 }
 
 // GetTeamMembers - return array of user's that are {team} members
@@ -107,7 +149,26 @@ func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, 
 		}
 	}()
 
-	users, _, err = c.client.Organizations.ListTeamMembers(*team.ID, nil)
+	var opt = &github.OrganizationListTeamMembersOptions{
+		ListOptions: github.ListOptions{
+			PerPage: MAX_PAGE_SIZE,
+		},
+	}
+
+	for {
+		members, resp, local_err := c.client.Organizations.ListTeamMembers(*team.ID, opt)
+		if local_err != nil {
+			err = local_err
+			return
+		}
+
+		users = append(users, members...)
+		if resp.LastPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+
 	return
 }
 

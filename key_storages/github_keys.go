@@ -55,13 +55,12 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 		return
 	}
 
-	keys, response, err := s.client.GetKeys(user)
+	keys, err := s.client.GetKeys(user)
 
-	logger.Debugf("Response: %v", response)
-	logger.Debugf("Response.StatusCode: %v", response.StatusCode)
+	logger.Debugf("Error: %v", err)
 
-	switch response.StatusCode {
-	case 200:
+	switch err {
+	case nil:
 		result := []string{}
 		for _, value := range keys {
 			result = append(result, *value.Key)
@@ -69,7 +68,7 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 		value = strings.Join(result, "\n")
 		return
 
-	case 404:
+	case api.ErrorGitHubConnectionFailed:
 		value = ""
 		err = ErrStorageKeyNotFound
 		return
