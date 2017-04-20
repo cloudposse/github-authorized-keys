@@ -24,11 +24,7 @@ import (
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 	log "github.com/Sirupsen/logrus"
-)
-
-
-const (
-	MAX_PAGE_SIZE = 100
+	"github.com/spf13/viper"
 )
 
 var (
@@ -43,7 +39,9 @@ var (
 
 )
 
-
+func init() {
+	viper.SetDefault("github_api_max_page_size", 100)
+}
 
 // Naive oauth setup
 func newAccessToken(token string) oauth2.TokenSource {
@@ -71,7 +69,7 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 	err = nil
 
 	var opt = &github.ListOptions{
-			PerPage: MAX_PAGE_SIZE,
+			PerPage: viper.GetInt("github_api_max_page_size"),
 	}
 
 	for {
@@ -129,7 +127,7 @@ func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) 
 	logger := log.WithFields(log.Fields{"class": "GithubClient", "method": "Get"})
 
 	var opt = &github.ListOptions{
-		PerPage: MAX_PAGE_SIZE,
+		PerPage: viper.GetInt("github_api_max_page_size"),
 	}
 
 	for {
@@ -174,7 +172,7 @@ func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, 
 
 	var opt = &github.OrganizationListTeamMembersOptions{
 		ListOptions: github.ListOptions{
-			PerPage: MAX_PAGE_SIZE,
+			PerPage: viper.GetInt("github_api_max_page_size"),
 		},
 	}
 	

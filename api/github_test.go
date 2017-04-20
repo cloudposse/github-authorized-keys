@@ -39,6 +39,8 @@ var _ = Describe("GithubClient", func() {
 		validTeamName = viper.GetString("github_team")
 		validTeamID = viper.GetInt("github_team_id")
 		validUser = viper.GetString("github_user")
+		// Set max page size to 1 for test pagination code
+		viper.Set("github_api_max_page_size", 1)
 	})
 
 	Describe("getTeam()", func() {
