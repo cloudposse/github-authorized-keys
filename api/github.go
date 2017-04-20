@@ -23,6 +23,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+	"strings"
 )
 
 
@@ -36,7 +37,13 @@ var (
 
 	// ErrorGitHubAccessDenied - returned when there was access denied to github.com resource
 	ErrorGitHubAccessDenied = errors.New("Access denied")
+
+	// ErrorGitHubNotFound - returned when github.com resource not found
+	ErrorGitHubNotFound = errors.New("Not found")
+
 )
+
+
 
 // Naive oauth setup
 func newAccessToken(token string) oauth2.TokenSource {
@@ -124,17 +131,22 @@ func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) 
 	}
 
 	for {
-		items, resp, local_err := c.client.Users.ListKeys(userName, opt)
-		if local_err != nil {
-			err = local_err
+		items, resp, _ := c.client.Users.ListKeys(userName, opt)
+
+		switch resp.StatusCode {
+		case 200:
+			keys = append(keys, items...)
+			if resp.LastPage == 0 {
+				break
+			}
+			opt.Page = resp.NextPage
+		case 404:
+			err = ErrorGitHubNotFound
+			return
+		default:
+			err = ErrorGitHubAccessDenied
 			return
 		}
-
-		keys = append(keys, items...)
-		if resp.LastPage == 0 {
-			break
-		}
-		opt.Page = resp.NextPage
 	}
 
 	return

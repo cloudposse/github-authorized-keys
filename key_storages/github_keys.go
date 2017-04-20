@@ -59,25 +59,22 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 
 	logger.Debugf("Error: %v", err)
 
-	switch err {
-	case nil:
-		result := []string{}
-		for _, value := range keys {
-			result = append(result, *value.Key)
-		}
-		value = strings.Join(result, "\n")
-		return
-
-	case api.ErrorGitHubConnectionFailed:
+	if err == api.ErrorGitHubNotFound {
 		value = ""
 		err = ErrStorageKeyNotFound
 		return
-
-	default:
+	} else if  err == api.ErrorGitHubAccessDenied {
 		value = ""
 		err = errors.New("Access denied")
 		return
 	}
+
+	result := []string{}
+	for _, value := range keys {
+		result = append(result, *value.Key)
+	}
+	value = strings.Join(result, "\n")
+	return
 }
 
 // NewGithubKeys - constructor for github key storage
