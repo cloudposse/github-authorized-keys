@@ -24,6 +24,7 @@ import (
 	. "github.com/onsi/gomega"
 	"os/user"
 	"strconv"
+	model "github.com/cloudposse/github-authorized-keys/model/linux"
 )
 
 var _ = Describe("Linux", func() {
@@ -83,12 +84,12 @@ var _ = Describe("Linux", func() {
 	Describe("userCreate()", func() {
 		Context("call without GID", func() {
 			var (
-				userName LinuxUser
+				userName model.User
 				linux    Linux
 			)
 
 			BeforeEach(func() {
-				userName = LinuxUser{Gid: "", Name: "test", Shell: "/bin/bash", Groups: []string{"wheel", "root"}}
+				userName = model.NewUser("test", "", []string{"wheel", "root"}, "/bin/bash")
 				linux = NewLinux("/")
 			})
 
@@ -101,35 +102,35 @@ var _ = Describe("Linux", func() {
 
 				Expect(err).To(BeNil())
 
-				osUser, _ := user.Lookup(userName.Name)
+				osUser, _ := user.Lookup(userName.Name())
 
-				Expect(osUser.Username).To(Equal(userName.Name))
+				Expect(osUser.Username).To(Equal(userName.Name()))
 
 				value, _ := strconv.ParseInt(osUser.Gid, 10, 64)
 				Expect(value > 0).To(BeTrue())
 
 				gids, _ := osUser.GroupIds()
 
-				for _, group := range userName.Groups {
+				for _, group := range userName.Groups() {
 					linuxGroup, err := user.LookupGroup(group)
 					Expect(err).To(BeNil())
 					Expect(gids).To(ContainElement(string(linuxGroup.Gid)))
 				}
 
-				shell := linux.userShell(userName.Name)
+				shell := linux.userShell(userName.Name())
 
-				Expect(shell).To(Equal(userName.Shell))
+				Expect(shell).To(Equal(userName.Shell()))
 			})
 		})
 
 		Context("call with GID", func() {
 			var (
-				userName LinuxUser
+				userName model.User
 				linux    Linux
 			)
 
 			BeforeEach(func() {
-				userName = LinuxUser{Gid: "42", Name: "test", Shell: "/bin/bash", Groups: []string{"root"}}
+				userName = model.NewUser("test", "42", []string{"root"}, "/bin/bash")
 				linux = NewLinux("/")
 			})
 
@@ -142,23 +143,23 @@ var _ = Describe("Linux", func() {
 
 				Expect(err).To(BeNil())
 
-				osUser, _ := user.Lookup(userName.Name)
+				osUser, _ := user.Lookup(userName.Name())
 
-				Expect(osUser.Username).To(Equal(userName.Name))
+				Expect(osUser.Username).To(Equal(userName.Name()))
 
-				Expect(string(osUser.Gid)).To(Equal(userName.Gid))
+				Expect(string(osUser.Gid)).To(Equal(userName.Gid()))
 
 				gids, _ := osUser.GroupIds()
 
-				for _, group := range userName.Groups {
+				for _, group := range userName.Groups() {
 					linuxGroup, err := user.LookupGroup(group)
 					Expect(err).To(BeNil())
 					Expect(gids).To(ContainElement(string(linuxGroup.Gid)))
 				}
 
-				shell := linux.userShell(userName.Name)
+				shell := linux.userShell(userName.Name())
 
-				Expect(shell).To(Equal(userName.Shell))
+				Expect(shell).To(Equal(userName.Shell()))
 			})
 		})
 	})
