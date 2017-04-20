@@ -23,11 +23,12 @@ import (
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+	log "github.com/Sirupsen/logrus"
 )
 
 
 const (
-	MAX_PAGE_SIZE = 1
+	MAX_PAGE_SIZE = 100
 )
 
 var (
@@ -125,20 +126,21 @@ func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) 
 		}
 	}()
 
+	logger := log.WithFields(log.Fields{"class": "GithubClient", "method": "Get"})
+
 	var opt = &github.ListOptions{
-			PerPage: MAX_PAGE_SIZE,
+		PerPage: MAX_PAGE_SIZE,
 	}
 
 	for {
-		items, resp, _ := c.client.Users.ListKeys(userName, opt)
+		items, response, local_err := c.client.Users.ListKeys(userName, opt)
 
-		switch resp.StatusCode {
+		logger.Debugf("Response: %v", response)
+		logger.Debugf("Response.StatusCode: %v", response.StatusCode)
+
+		switch response.StatusCode {
 		case 200:
 			keys = append(keys, items...)
-			if resp.LastPage == 0 {
-				break
-			}
-			opt.Page = resp.NextPage
 		case 404:
 			err = ErrorGitHubNotFound
 			return
@@ -146,6 +148,16 @@ func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) 
 			err = ErrorGitHubAccessDenied
 			return
 		}
+
+		if local_err != nil {
+			err = local_err
+			return
+		}
+
+		if response.LastPage == 0 {
+			break
+		}
+		opt.Page = response.NextPage
 	}
 
 	return
@@ -155,7 +167,7 @@ func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) 
 func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			users = make([]*github.User, 0)
+		users = make([]*github.User, 0)
 			err = ErrorGitHubConnectionFailed
 		}
 	}()
@@ -165,15 +177,19 @@ func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, 
 			PerPage: MAX_PAGE_SIZE,
 		},
 	}
-
+	
 	for {
 		members, resp, local_err := c.client.Organizations.ListTeamMembers(*team.ID, opt)
+		if resp.StatusCode != 200 {
+			return nil, ErrorGitHubAccessDenied
+		}
 		if local_err != nil {
 			err = local_err
 			return
 		}
-
+		
 		users = append(users, members...)
+
 		if resp.LastPage == 0 {
 			break
 		}

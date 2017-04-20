@@ -2,7 +2,6 @@ package keyStorages
 
 import (
 	"errors"
-	log "github.com/Sirupsen/logrus"
 	"strings"
 
 	"github.com/cloudposse/github-authorized-keys/api"
@@ -25,8 +24,6 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 	}()
 
 	value = ""
-
-	logger := log.WithFields(log.Fields{"class": "GithubClient", "method": "Get"})
 
 	// Load team
 	team, err := s.client.GetTeam(s.team, s.teamID)
@@ -55,25 +52,22 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 		return
 	}
 
-	keys, err := s.client.GetKeys(user)
+	keys,  err := s.client.GetKeys(user)
 
-	logger.Debugf("Error: %v", err)
+	if err == nil {
 
-	if err == api.ErrorGitHubNotFound {
-		value = ""
+		result := []string{}
+		for _, value := range keys {
+			result = append(result, *value.Key)
+		}
+		value = strings.Join(result, "\n")
+
+	} else if err ==  api.ErrorGitHubNotFound {
 		err = ErrStorageKeyNotFound
-		return
-	} else if  err == api.ErrorGitHubAccessDenied {
-		value = ""
+	} else {
 		err = errors.New("Access denied")
-		return
 	}
 
-	result := []string{}
-	for _, value := range keys {
-		result = append(result, *value.Key)
-	}
-	value = strings.Join(result, "\n")
 	return
 }
 
