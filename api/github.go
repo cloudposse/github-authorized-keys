@@ -27,7 +27,7 @@ import (
 
 
 const (
-	MAX_PAGE_SIZE = 100
+	MAX_PAGE_SIZE = 1
 )
 
 var (
@@ -81,7 +81,6 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 					return
 				}
 			}
-			err = errors.New("Team with such name or id not found")
 		}
 
 		if response.LastPage == 0 {
@@ -89,8 +88,9 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 		}
 		opt.Page = response.NextPage
 	}
-
 	// Exit with error
+
+	err = errors.New("Team with such name or id not found")
 	return
 }
 
