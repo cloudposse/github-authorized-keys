@@ -39,6 +39,8 @@ var _ = Describe("GithubClient", func() {
 		validTeamName = viper.GetString("github_team")
 		validTeamID = viper.GetInt("github_team_id")
 		validUser = viper.GetString("github_user")
+		// Set max page size to 1 for test pagination code
+		viper.Set("github_api_max_page_size", 1)
 	})
 
 	Describe("getTeam()", func() {
@@ -74,7 +76,7 @@ var _ = Describe("GithubClient", func() {
 				team, err := c.GetTeam("dasdasd", 0)
 
 				Expect(err).NotTo(BeNil())
-				Expect(err.Error()).To(Equal("Team with such name or id not found"))
+				Expect(err.Error()).To(Equal("No such team name or id could be found"))
 
 				Expect(team).To(BeNil())
 			})
@@ -163,7 +165,7 @@ var _ = Describe("GithubClient", func() {
 			It("should return nil error and no empty list of keys", func() {
 				c := NewGithubClient(validToken, validOrg)
 				user, _ := c.getUser(validUser)
-				keys, _, err := c.GetKeys(*user.Login)
+				keys, err := c.GetKeys(*user.Login)
 
 				Expect(err).To(BeNil())
 
@@ -183,6 +185,7 @@ var _ = Describe("GithubClient", func() {
 				Expect(err).To(BeNil())
 
 				Expect(len(members) > 0).To(BeTrue())
+				Expect(len(members) > 1).To(BeTrue())
 			})
 		})
 	})

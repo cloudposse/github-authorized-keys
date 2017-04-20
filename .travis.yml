@@ -11,7 +11,6 @@ env:
     - TEST_GITHUB_TEAM=${GITHUB_TEAM}
     - TEST_GITHUB_TEAM_ID=${GITHUB_TEAM_ID}
     - TEST_GITHUB_USER=${GITHUB_USER}
-    - TEST_ETCD_ENDPOINT=http://${ETCD_IP}:2379
 services:
   - docker
 
@@ -23,6 +22,8 @@ install:
 script:
   - |-
     export ETCD_IP=$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')
+
+  - export TEST_ETCD_ENDPOINT=http://${ETCD_IP}:2379
 
   - docker-compose -f docker-compose-test.yaml up -d
 
