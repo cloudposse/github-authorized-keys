@@ -74,7 +74,7 @@ var _ = Describe("GithubClient", func() {
 				team, err := c.GetTeam("dasdasd", 0)
 
 				Expect(err).NotTo(BeNil())
-				Expect(err.Error()).To(Equal("Team with such name or id not found"))
+				Expect(err.Error()).To(Equal("No such team name or id could be found"))
 
 				Expect(team).To(BeNil())
 			})

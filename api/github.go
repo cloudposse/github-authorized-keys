@@ -97,7 +97,7 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 	}
 	// Exit with error
 
-	err = errors.New("Team with such name or id not found")
+	err = errors.New("No such team name or id could be found")
 	return
 }
 
