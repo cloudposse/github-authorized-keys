@@ -25,8 +25,10 @@ script:
 
   - export TEST_ETCD_ENDPOINT=http://${ETCD_IP}:2379
 
+# setup testing environment for etcd
   - docker-compose -f docker-compose-test.yaml up -d
 
+# run tests
   - |-
     make docker:build \
       DOCKER_FILE=Dockerfile.build \
@@ -37,16 +39,18 @@ script:
             TEST_GITHUB_TEAM_ID \
             TEST_GITHUB_USER \
             TEST_ETCD_ENDPOINT"
-            
-# Also build packages for release
+
+# build packages for release
   - make go:deps-dev
   - make go:deps-build
   - make go:deps
   - make go:build-all
   - ls -l release/
 
-after_success:
+# build a slim alpine image that ships only with the release binary
   - make docker:build
+ 
+after_success:
   - make travis:docker-tag-and-push
 
 deploy:
