@@ -29,6 +29,7 @@ script:
 
   - |-
     make docker:build \
+      DOCKER_FILE=Dockerfile.build \
       ARGS="RUN_TESTS \
             TEST_GITHUB_API_TOKEN \
             TEST_GITHUB_ORGANIZATION \
