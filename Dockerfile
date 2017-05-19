@@ -1,6 +1,6 @@
 FROM alpine:3.5
 
-COPY ./releases/github-authorized-keys_linux_amd64 /usr/bin/github-authorized-keys
+COPY ./release/github-authorized-keys_linux_amd64 /usr/bin/github-authorized-keys
 
 WORKDIR /
 
@@ -32,7 +32,6 @@ ENV SYNC_USERS_SHELL=/bin/bash
 ENV SYNC_USERS_INTERVAL=
 
 ENV INTEGRATE_SSH=false
-
 
 ENV LISTEN=":301"
 
