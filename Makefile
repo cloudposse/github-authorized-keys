@@ -18,8 +18,10 @@ APP := github-authorized-keys
 COPYRIGHT_SOFTWARE := Github Authorized Keys
 COPYRIGHT_SOFTWARE_DESCRIPTION := Use GitHub teams to manage system user accounts and authorized_keys
 
+export BUILD_HARNESS_BRANCH=custom-dockerfile
+
 #include $(shell curl -so .build-harness "https://raw.githubusercontent.com/cloudposse/build-harness/master/templates/Makefile.build-harness"; echo .build-harness)
-include $(shell curl -so .build-harness "https://raw.githubusercontent.com/cloudposse/build-harness/custom-dockerfile/templates/Makefile.build-harness"; echo .build-harness)
+include $(shell curl -so .build-harness "https://raw.githubusercontent.com/cloudposse/build-harness/env-branch/templates/Makefile.build-harness"; echo .build-harness)
 
 deps:
 	$(SELF) go:deps go:deps-dev go:deps-build
