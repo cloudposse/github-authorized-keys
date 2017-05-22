@@ -143,8 +143,7 @@ Below are some of the settings which can be tweaked.
 | Environment Variable           | **Description**                                                                 | **Default**                                   
 |--------------------------------|---------------------------------------------------------------------------------|-------------------------------------------------------------------------
 | `LINUX_USER_ADD_TPL`           | Command used to add a user to the system when no default group supplied.        | `adduser {username} --disabled-password --force-badname --shell {shell}`                 
-| `LINUX_USER_ADD_WITH_GID_TPL`  | Command used to add a user to the system when a default primary gid supplied  . | `adduser {username} --disabled-password --force-badname --shell {shell} --gid {gid}`
-| `LINUX_USER_ADD_WITH_GROUP_TPL`| Command used to add a user to the system when a default primary group supplied. | `adduser {username} --disabled-password --force-badname --shell {shell} --group {group}`
+| `LINUX_USER_ADD_WITH_GID_TPL`  | Command used to add a user to the system when a default primary gid supplied  . | `adduser {username} --disabled-password --force-badname --shell {shell} --gid {gid|group}`
 | `LINUX_USER_ADD_TO_GROUP_TPL`  | Command used to add the user to secondary groups                                | `adduser {username} {group}` 
 | `LINUX_USER_DEL_TPL`           | Command used to delete a user from the system when removed the the team         | `deluser {username}`
 | `SSH_RESTART_TPL`              | Command used to restart SSH when `INTEGRATE_SSH=true`                           | `/usr/sbin/service ssh force-reload`
