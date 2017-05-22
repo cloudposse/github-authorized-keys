@@ -34,7 +34,7 @@ all:
 	 $(SELF) go:deps-build
 	 $(SELF) go:deps 
 	 $(SELF) go:lint
-	 $(SELF) go:test 
+#	 $(SELF) go:test 
 	 $(SELF) go:build-all
 
 ## Bring up docker compose environment
