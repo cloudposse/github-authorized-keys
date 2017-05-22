@@ -1,7 +1,4 @@
 sudo: required
-env:
-  global:
-    - DOCKER_IMAGE_NAME=cloudposse/github-authorized-keys
 services:
   - docker
 

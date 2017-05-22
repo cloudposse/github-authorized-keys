@@ -15,6 +15,9 @@ RELEASE_ARCH += openbsd/386
 RELEASE_ARCH += openbsd/amd64
 
 APP := github-authorized-keys
+
+DOCKER_IMAGE_NAME=cloudposse/$(APP)
+
 COPYRIGHT_SOFTWARE := Github Authorized Keys
 COPYRIGHT_SOFTWARE_DESCRIPTION := Use GitHub teams to manage system user accounts and authorized_keys
 

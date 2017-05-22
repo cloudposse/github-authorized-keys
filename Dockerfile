@@ -36,6 +36,9 @@ ENV LISTEN=":301"
 # For production we run container with host network, so expose is just for testing and CI\CD
 EXPOSE 301
 
+RUN apk --update --no-cache add libc6-compat && \
+    ln -s /lib /lib64
+
 COPY ./release/github-authorized-keys_linux_amd64 /usr/bin/github-authorized-keys
 
 ENTRYPOINT ["github-authorized-keys"]
