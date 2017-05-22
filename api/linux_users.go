@@ -61,7 +61,8 @@ func init() {
 	//
 	// adduser wants user name be the head and flags the tail.
 	viper.SetDefault("linux_user_add_tpl", "adduser {username} --disabled-password --force-badname --shell {shell}")
-	viper.SetDefault("linux_user_add_with_gid_tpl", "adduser {username} --disabled-password --force-badname --shell {shell} --group {group}")
+	viper.SetDefault("linux_user_add_with_gid_tpl", "adduser {username} --disabled-password --force-badname --shell {shell} --gid {gid}")
+	viper.SetDefault("linux_user_add_with_group_tpl", "adduser {username} --disabled-password --force-badname --shell {shell} --group {group}")
 	viper.SetDefault("linux_user_add_to_group_tpl", "adduser {username} {group}")
 	viper.SetDefault("linux_user_del_tpl", "deluser {username}")
 }
@@ -99,6 +100,7 @@ func (linux *Linux) UserCreate(new linux.User) error {
 
 	createUserCommandTemplate := viper.GetString("linux_user_add_tpl")
 	createUserWithGIDCommandTemplate := viper.GetString("linux_user_add_with_gid_tpl")
+	createUserWithGroupCommandTemplate := viper.GetString("linux_user_add_with_group_tpl")
 	addUserToGroupCommandTemplate := viper.GetString("linux_user_add_to_group_tpl")
 
 	var cmd *exec.Cmd
@@ -111,11 +113,13 @@ func (linux *Linux) UserCreate(new linux.User) error {
 	}
 
 	if new.Gid() != "" {
-		template = createUserWithGIDCommandTemplate
 		args["gid"] = new.Gid()
 
 		if primaryGroup, err := linux.groupLookupByID(new.Gid()); err == nil {
+			template = createUserWithGroupCommandTemplate
 			args["group"] = primaryGroup.Name
+		} else {
+			template = createUserWithGIDCommandTemplate
 		}
 	}
 
