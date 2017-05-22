@@ -5,12 +5,6 @@ go:
 env:
   global:
     - DOCKER_IMAGE_NAME=cloudposse/github-authorized-keys
-    - RUN_TESTS=1
-    - TEST_GITHUB_API_TOKEN=${GITHUB_API_TOKEN}
-    - TEST_GITHUB_ORGANIZATION=${GITHUB_ORGANIZATION}
-    - TEST_GITHUB_TEAM=${GITHUB_TEAM}
-    - TEST_GITHUB_TEAM_ID=${GITHUB_TEAM_ID}
-    - TEST_GITHUB_USER=${GITHUB_USER}
 services:
   - docker
 
@@ -26,26 +20,10 @@ script:
   - export TEST_ETCD_ENDPOINT=http://${ETCD_IP}:2379
 
 # setup testing environment for etcd
-  - docker-compose -f docker-compose-test.yaml up -d
+  - make compose-up
 
-# run tests
-  - |-
-    make docker:build \
-      DOCKER_FILE=Dockerfile.build \
-      ARGS="RUN_TESTS \
-            TEST_GITHUB_API_TOKEN \
-            TEST_GITHUB_ORGANIZATION \
-            TEST_GITHUB_TEAM \
-            TEST_GITHUB_TEAM_ID \
-            TEST_GITHUB_USER \
-            TEST_ETCD_ENDPOINT"
-
-# build packages for release
-  - make go:deps-dev
-  - make go:deps-build
-  - make go:deps
-  - make go:build-all
-  - ls -l release/
+# cross-compile & run tests
+  - make ci
 
 # build a slim alpine image that ships only with the release binary
   - make docker:build
