@@ -46,6 +46,7 @@ ci:
 	@docker run \
 		-e GIN_MODE=release \
 		-e RUN_TESTS=1 \
+		-e LOG_LEVEL=debug \
 		-e TEST_GITHUB_API_TOKEN=$(GITHUB_API_TOKEN) \
 		-e TEST_GITHUB_ORGANIZATION=$(GITHUB_ORGANIZATION) \
 		-e TEST_GITHUB_TEAM=$(GITHUB_TEAM) \

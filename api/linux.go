@@ -85,5 +85,6 @@ func (linux *Linux) Command(name string, params ...string) *exec.Cmd {
 func (linux *Linux) TemplateCommand(template string, args map[string]interface{}) *exec.Cmd {
 	t := fasttemplate.New(template, "{", "}")
 	cmd := strings.Split(t.ExecuteString(args), " ")
+	logger.Debugf("Command:  %v", cmd)
 	return linux.Command(cmd[0], cmd[1:]...)
 }
