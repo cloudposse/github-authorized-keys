@@ -77,13 +77,13 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 		if response.StatusCode != 200 {
 			err = ErrorGitHubAccessDenied
 			return
-		} else {
-			for _, localTeam := range teams {
-				if *localTeam.ID == id || *localTeam.Slug == name {
-					team = localTeam
-					// team found
-					return
-				}
+		}
+
+		for _, localTeam := range teams {
+			if *localTeam.ID == id || *localTeam.Slug == name {
+				team = localTeam
+				// team found
+				return
 			}
 		}
 
@@ -130,7 +130,7 @@ func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) 
 	}
 
 	for {
-		items, response, local_err := c.client.Users.ListKeys(userName, opt)
+		items, response, localErr := c.client.Users.ListKeys(userName, opt)
 
 		logger.Debugf("Response: %v", response)
 		logger.Debugf("Response.StatusCode: %v", response.StatusCode)
@@ -146,8 +146,8 @@ func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) 
 			return
 		}
 
-		if local_err != nil {
-			err = local_err
+		if localErr != nil {
+			err = localErr
 			return
 		}
 
@@ -176,12 +176,12 @@ func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, 
 	}
 
 	for {
-		members, resp, local_err := c.client.Organizations.ListTeamMembers(*team.ID, opt)
+		members, resp, localErr := c.client.Organizations.ListTeamMembers(*team.ID, opt)
 		if resp.StatusCode != 200 {
 			return nil, ErrorGitHubAccessDenied
 		}
-		if local_err != nil {
-			err = local_err
+		if localErr != nil {
+			err = localErr
 			return
 		}
 
