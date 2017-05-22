@@ -99,7 +99,6 @@ func (linux *Linux) UserCreate(new linux.User) error {
 
 	createUserCommandTemplate := viper.GetString("linux_user_add_tpl")
 	createUserWithGIDCommandTemplate := viper.GetString("linux_user_add_with_gid_tpl")
-	createUserWithGroupCommandTemplate := viper.GetString("linux_user_add_with_group_tpl")
 	addUserToGroupCommandTemplate := viper.GetString("linux_user_add_to_group_tpl")
 
 	var cmd *exec.Cmd
