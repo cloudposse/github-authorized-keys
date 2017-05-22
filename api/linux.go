@@ -20,6 +20,7 @@ package api
 
 import (
 	"bytes"
+	log "github.com/Sirupsen/logrus"
 	"os/exec"
 	"strings"
 
