@@ -230,13 +230,13 @@ var _ = Describe("Linux", func() {
 		Context("call with existing group", func() {
 			It("should return valid group", func() {
 				linux := NewLinux("/")
-				group, err := linux.groupLookup("10")
+				group, err := linux.groupLookup("37")
 
 				Expect(err).To(BeNil())
 
 				Expect(group).NotTo(BeNil())
 
-				Expect(group.Gid).To(Equal("10"))
+				Expect(group.Gid).To(Equal("37"))
 				Expect(group.Name).To(Equal("operator"))
 			})
 		})

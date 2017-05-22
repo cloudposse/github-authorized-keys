@@ -52,7 +52,7 @@ ci:
 		-e TEST_GITHUB_TEAM_ID=$(GITHUB_TEAM_ID) \
 		-e TEST_GITHUB_USER=$(GITHUB_USER) \
 		-e TEST_LINUX_USER_ADD_TPL="adduser --shell {shell} {username}" \
-		-e TEST_LINUX_USER_ADD_WITH_GID_TPL="adduser --shell {shell} --group {group} {username}" \
+		-e TEST_LINUX_USER_ADD_WITH_GID_TPL="adduser --shell {shell} --gid {group} {username}" \
 		-e TEST_LINUX_USER_ADD_TO_GROUP_TPL="adduser {username} {group}" \
 		-e TEST_LINUX_USER_DEL_TPL="deluser {username}" \
 		--volume=$$(pwd):/go/src/github.com/cloudposse/github-authorized-keys \
