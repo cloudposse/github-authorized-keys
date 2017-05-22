@@ -55,6 +55,6 @@ ci:
 		-e TEST_LINUX_USER_ADD_WITH_GID_TPL="adduser -D -s {shell} -G {group} {username}" \
 		-e TEST_LINUX_USER_ADD_TO_GROUP_TPL="adduser {username} {group}" \
 		-e TEST_LINUX_USER_DEL_TPL="deluser {username}" \
-		--volume=$(pwd):/go/src/github.com/cloudposse/github-authorized-keys \
+		--volume=$$(pwd):/go/src/github.com/cloudposse/github-authorized-keys \
 			golang:1.8 make -C /go/src/github.com/cloudposse/github-authorized-keys all
 	@ls -l release/
