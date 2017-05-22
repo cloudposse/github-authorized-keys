@@ -34,7 +34,7 @@ all:
 	 $(SELF) go:deps-build
 	 $(SELF) go:deps 
 	 $(SELF) go:lint
-#	 $(SELF) go:test 
+	 $(SELF) go:test 
 	 $(SELF) go:build-all
 
 ## Bring up docker compose environment
@@ -51,8 +51,8 @@ ci:
 		-e TEST_GITHUB_TEAM=$(GITHUB_TEAM) \
 		-e TEST_GITHUB_TEAM_ID=$(GITHUB_TEAM_ID) \
 		-e TEST_GITHUB_USER=$(GITHUB_USER) \
-		-e TEST_LINUX_USER_ADD_TPL="adduser -D -s {shell} {username}" \
-		-e TEST_LINUX_USER_ADD_WITH_GID_TPL="adduser -D -s {shell} -G {group} {username}" \
+		-e TEST_LINUX_USER_ADD_TPL="adduser --shell {shell} {username}" \
+		-e TEST_LINUX_USER_ADD_WITH_GID_TPL="adduser --shell {shell} --group {group} {username}" \
 		-e TEST_LINUX_USER_ADD_TO_GROUP_TPL="adduser {username} {group}" \
 		-e TEST_LINUX_USER_DEL_TPL="deluser {username}" \
 		--volume=$$(pwd):/go/src/github.com/cloudposse/github-authorized-keys \
