@@ -1,7 +1,4 @@
 sudo: required
-language: go
-go:
-  - 1.7.x
 env:
   global:
     - DOCKER_IMAGE_NAME=cloudposse/github-authorized-keys
@@ -39,5 +36,3 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-
-
