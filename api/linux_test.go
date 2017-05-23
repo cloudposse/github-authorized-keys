@@ -20,11 +20,11 @@ package api
 
 import (
 	"fmt"
+	model "github.com/cloudposse/github-authorized-keys/model/linux"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"os/user"
 	"strconv"
-	model "github.com/cloudposse/github-authorized-keys/model/linux"
 )
 
 var _ = Describe("Linux", func() {
@@ -89,7 +89,7 @@ var _ = Describe("Linux", func() {
 			)
 
 			BeforeEach(func() {
-				userName = model.NewUser("test", "", []string{"wheel", "root"}, "/bin/bash")
+				userName = model.NewUser("test", "", []string{"operator", "root"}, "/bin/bash")
 				linux = NewLinux("/")
 			})
 
@@ -184,14 +184,14 @@ var _ = Describe("Linux", func() {
 		Context("call with existing group", func() {
 			It("should return valid group", func() {
 				linux := NewLinux("/")
-				group, err := linux.groupLookup("wheel")
+				group, err := linux.groupLookup("operator")
 
 				Expect(err).To(BeNil())
 
 				Expect(group).NotTo(BeNil())
 
-				Expect(group.Gid).To(Equal("10"))
-				Expect(group.Name).To(Equal("wheel"))
+				Expect(group.Gid).To(Equal("37"))
+				Expect(group.Name).To(Equal("operator"))
 			})
 		})
 
@@ -230,14 +230,14 @@ var _ = Describe("Linux", func() {
 		Context("call with existing group", func() {
 			It("should return valid group", func() {
 				linux := NewLinux("/")
-				group, err := linux.groupLookup("10")
+				group, err := linux.groupLookup("37")
 
 				Expect(err).To(BeNil())
 
 				Expect(group).NotTo(BeNil())
 
-				Expect(group.Gid).To(Equal("10"))
-				Expect(group.Name).To(Equal("wheel"))
+				Expect(group.Gid).To(Equal("37"))
+				Expect(group.Name).To(Equal("operator"))
 			})
 		})
 
@@ -268,7 +268,7 @@ var _ = Describe("Linux", func() {
 		Context("call with existing group", func() {
 			It("should return true", func() {
 				linux := NewLinux("/")
-				isFound := linux.GroupExists("wheel")
+				isFound := linux.GroupExists("operator")
 				Expect(isFound).To(BeTrue())
 			})
 		})
@@ -294,10 +294,10 @@ var _ = Describe("Linux", func() {
 
 	Describe("userShell()", func() {
 		Context("call with existing user", func() {
-			It("should return /bin/ash", func() {
+			It("should return /bin/bash", func() {
 				linux := NewLinux("/")
 				shell := linux.userShell("root")
-				Expect(shell).To(Equal("/bin/ash"))
+				Expect(shell).To(Equal("/bin/bash"))
 			})
 		})
 	})

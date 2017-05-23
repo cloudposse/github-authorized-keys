@@ -52,7 +52,7 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 		return
 	}
 
-	keys,  err := s.client.GetKeys(user)
+	keys, err := s.client.GetKeys(user)
 
 	if err == nil {
 
@@ -62,7 +62,7 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 		}
 		value = strings.Join(result, "\n")
 
-	} else if err ==  api.ErrorGitHubNotFound {
+	} else if err == api.ErrorGitHubNotFound {
 		err = ErrStorageKeyNotFound
 	} else {
 		err = errors.New("Access denied")

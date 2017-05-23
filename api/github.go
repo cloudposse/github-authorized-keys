@@ -21,10 +21,10 @@ package api
 import (
 	"errors"
 
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 	log "github.com/Sirupsen/logrus"
+	"github.com/google/go-github/github"
 	"github.com/spf13/viper"
+	"golang.org/x/oauth2"
 )
 
 var (
@@ -36,7 +36,6 @@ var (
 
 	// ErrorGitHubNotFound - returned when github.com resource not found
 	ErrorGitHubNotFound = errors.New("Not found")
-
 )
 
 func init() {
@@ -69,7 +68,7 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 	err = nil
 
 	var opt = &github.ListOptions{
-			PerPage: viper.GetInt("github_api_max_page_size"),
+		PerPage: viper.GetInt("github_api_max_page_size"),
 	}
 
 	for {
@@ -78,13 +77,13 @@ func (c *GithubClient) GetTeam(name string, id int) (team *github.Team, err erro
 		if response.StatusCode != 200 {
 			err = ErrorGitHubAccessDenied
 			return
-		} else {
-			for _, localTeam := range teams {
-				if *localTeam.ID == id || *localTeam.Slug == name {
-					team = localTeam
-					// team found
-					return
-				}
+		}
+
+		for _, localTeam := range teams {
+			if *localTeam.ID == id || *localTeam.Slug == name {
+				team = localTeam
+				// team found
+				return
 			}
 		}
 
@@ -131,7 +130,7 @@ func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) 
 	}
 
 	for {
-		items, response, local_err := c.client.Users.ListKeys(userName, opt)
+		items, response, localErr := c.client.Users.ListKeys(userName, opt)
 
 		logger.Debugf("Response: %v", response)
 		logger.Debugf("Response.StatusCode: %v", response.StatusCode)
@@ -147,8 +146,8 @@ func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) 
 			return
 		}
 
-		if local_err != nil {
-			err = local_err
+		if localErr != nil {
+			err = localErr
 			return
 		}
 
@@ -165,7 +164,7 @@ func (c *GithubClient) GetKeys(userName string) (keys []*github.Key, err error) 
 func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-		users = make([]*github.User, 0)
+			users = make([]*github.User, 0)
 			err = ErrorGitHubConnectionFailed
 		}
 	}()
@@ -175,17 +174,17 @@ func (c *GithubClient) GetTeamMembers(team *github.Team) (users []*github.User, 
 			PerPage: viper.GetInt("github_api_max_page_size"),
 		},
 	}
-	
+
 	for {
-		members, resp, local_err := c.client.Organizations.ListTeamMembers(*team.ID, opt)
+		members, resp, localErr := c.client.Organizations.ListTeamMembers(*team.ID, opt)
 		if resp.StatusCode != 200 {
 			return nil, ErrorGitHubAccessDenied
 		}
-		if local_err != nil {
-			err = local_err
+		if localErr != nil {
+			err = localErr
 			return
 		}
-		
+
 		users = append(users, members...)
 
 		if resp.LastPage == 0 {

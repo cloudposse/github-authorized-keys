@@ -20,6 +20,7 @@ package api
 
 import (
 	"bytes"
+	log "github.com/Sirupsen/logrus"
 	"os/exec"
 	"strings"
 
@@ -83,7 +84,9 @@ func (linux *Linux) Command(name string, params ...string) *exec.Cmd {
 
 // TemplateCommand - creates command based on template and args with placeholders.
 func (linux *Linux) TemplateCommand(template string, args map[string]interface{}) *exec.Cmd {
+	logger := log.WithFields(log.Fields{"class": "Linux", "method": "TemplateCommand"})
 	t := fasttemplate.New(template, "{", "}")
 	cmd := strings.Split(t.ExecuteString(args), " ")
+	logger.Debugf("Command:  %v", cmd)
 	return linux.Command(cmd[0], cmd[1:]...)
 }
