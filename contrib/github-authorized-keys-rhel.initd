@@ -1,0 +1,128 @@
+     #!/bin/sh
+      #
+      # Control the Github Authorized Keys Daemon
+      #
+      # chkconfig: - 90 10
+      # description: Use GitHub teams to manage system user accounts and authorized_keys
+      # processname: github-authorized-keys
+      # config:
+      # pidfile: /var/run/github-authorized-keys.pid
+
+      ### BEGIN INIT INFO
+      # Provides: github-authorized-keys
+      # Required-Start: $network $local_fs $remote_fs
+      # Required-Stop: $network $local_fs $remote_fs
+      # Default-Start:
+      # Default-Stop:
+      # Short-Description: start and stop github-authorized-keys
+      # Description: Github Authorized keys daemon
+      ### END INIT INFO
+
+      [ -f /usr/bin/authorized-keys ] || /usr/bin/curl -Lso /usr/bin/authorized-keys https://raw.githubusercontent.com/cloudposse/github-authorized-keys/master/contrib/authorized-keys
+      [ -x /usr/bin/authorized-keys ] || /bin/chmod 755 /usr/bin/authorized-keys
+      [ -f /usr/bin/github-authorized-keys ] || /usr/bin/curl -Lso /usr/bin/github-authorized-keys https://github.com/cloudposse/github-authorized-keys/releases/download/1.0.3/github-authorized-keys_linux_amd64
+      [ -x /usr/bin/github-authorized-keys ] || /bin/chmod 755 /usr/bin/github-authorized-keys
+      [ -n "${GITHUB_API_TOKEN}" ] || (echo "GITHUB_API_TOKEN required"; exit 1)
+      [ -n "${GITHUB_ORGANIZATION}" ] || (echo "GITHUB_ORGANIZATION required"; exit 1)
+      [ -n "${GITHUB_TEAM}" ] || (echo "GITHUB_TEAM required"; exit 1)
+      [ -f /etc/default/service-name ] && . /etc/secrets
+
+      # Source function library.
+      . /etc/init.d/functions
+
+      prog=github-authorized-keys
+      pidfile=/var/run/$prog.pid
+      lockfile=/var/lock/subsys/$prog
+      logfile=/var/log/$prog.log
+
+      retval=0
+      exec="/usr/bin/$prog"
+      DAEMON_OPTS=""
+
+      if test -f /etc/default/$prog; then
+        set -o allexport
+        source /etc/default/$prog
+        set +o allexport
+      fi
+
+      start() {
+
+              if [ ! -x $exec ]
+              then
+                      echo $exec not found
+                      exit 5
+              fi
+
+              echo -n "Starting $prog daemon: "
+              daemon --user=root --pidfile=$pidfile  $exec $DAEMON_OPTS
+              echo
+              retval=$?
+              echo
+              [ $retval -eq 0 ] && touch $lockfile
+              return $retval
+      }
+
+      stop() {
+              echo -n "Stopping $prog daemon: "
+              killproc -p $pidfile $prog
+              retval=$?
+              echo
+              [ $retval -eq 0 ] && rm -f $lockfile
+              return $retval
+      }
+
+      restart() {
+              stop
+              start
+      }
+
+      reload() {
+              restart
+      }
+
+      force_reload() {
+              restart
+      }
+
+      rh_status() {
+              status -p $pidfile $prog
+      }
+
+      rh_status_q() {
+              rh_status >/dev/null 2>&1
+      }
+
+      # See how we were called.
+      case "$1" in
+              start)
+                      rh_status_q && exit 0
+                      $1
+                      ;;
+              stop)
+                      rh_status_q || exit 0
+                      $1
+                      ;;
+              restart)
+                      $1
+                      ;;
+              reload)
+                      rh_status_q || exit 7
+                      $1
+                      ;;
+              force-reload)
+                      force_reload
+                      ;;
+              status)
+                      rh_status
+                      ;;
+              condrestart|try-restart)
+                      rh_status_q || exit 0
+                      restart
+                      ;;
+              *)
+              echo "Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
+
+              exit 2
+      esac
+
+      exit $?
