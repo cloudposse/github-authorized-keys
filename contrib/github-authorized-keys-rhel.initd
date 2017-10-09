@@ -22,10 +22,10 @@
 [ -x /usr/bin/authorized-keys ] || /bin/chmod 755 /usr/bin/authorized-keys
 [ -f /usr/bin/github-authorized-keys ] || /usr/bin/curl -Lso /usr/bin/github-authorized-keys https://github.com/cloudposse/github-authorized-keys/releases/download/1.0.3/github-authorized-keys_linux_amd64
 [ -x /usr/bin/github-authorized-keys ] || /bin/chmod 755 /usr/bin/github-authorized-keys
+[ -f /etc/default/github-authorized-keys ] && . /etc/default/github-authorized-keys
 [ -n "${GITHUB_API_TOKEN}" ] || (echo "GITHUB_API_TOKEN required"; exit 1)
 [ -n "${GITHUB_ORGANIZATION}" ] || (echo "GITHUB_ORGANIZATION required"; exit 1)
 [ -n "${GITHUB_TEAM}" ] || (echo "GITHUB_TEAM required"; exit 1)
-[ -f /etc/default/service-name ] && . /etc/defaults/github-authorized-keys
 
 # Source function library.
 . /etc/init.d/functions
