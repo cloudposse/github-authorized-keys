@@ -7,7 +7,7 @@ After=network-online.target
 [Service]
 User=root
 TimeoutStartSec=0
-EnvironmentFile=/etc/defaults/secrets/%p
+EnvironmentFile=/etc/defaults/%p
 ExecStartPre=-/usr/bin/curl -Lso /usr/bin/authorized-keys https://raw.githubusercontent.com/cloudposse/github-authorized-keys/master/contrib/authorized-keys
 ExecStartPre=-/bin/chmod 755 /usr/bin/authorized-keys
 ExecStartPre=-/usr/bin/curl -Lso /usr/bin/github-authorized-keys https://github.com/cloudposse/github-authorized-keys/releases/download/1.0.3/github-authorized-keys_linux_amd64

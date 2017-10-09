@@ -25,7 +25,7 @@
 [ -n "${GITHUB_API_TOKEN}" ] || (echo "GITHUB_API_TOKEN required"; exit 1)
 [ -n "${GITHUB_ORGANIZATION}" ] || (echo "GITHUB_ORGANIZATION required"; exit 1)
 [ -n "${GITHUB_TEAM}" ] || (echo "GITHUB_TEAM required"; exit 1)
-[ -f /etc/default/service-name ] && . /etc/defaults/secrets
+[ -f /etc/default/service-name ] && . /etc/defaults/github-authorized-keys
 
 # Source function library.
 . /etc/init.d/functions
