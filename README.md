@@ -74,7 +74,11 @@ Available configuration options:
 ## Quick Start 
 
 We recommend that you specify all parameters as environment variables. If using `docker`, pass the [environment file](contrib/env) to the container using the `--env-file` argument.
-Remember to expose the REST API so you can retrieve user's public keys. Only public keys belonging to users found in the GitHub team will be returned.
+
+Obtain the GitHub API Token (aka Personal Access Token) [here](https://github.com/settings/tokens). Click "Generate new token" and select `read:org`. That's it!
+
+![Personal Access Token Permissions](docs/personal-access-token.png)
+
 
 For example, [`/etc/github-authorized-keys`](contrib/env), might look like this:
 
@@ -103,6 +107,8 @@ docker run \
   --env-file /etc/github-authorized-keys \
      cloudposse/github-authorized-keys:latest
 ```
+
+**IMPORTANT** Remember to expose the REST API so you can retrieve user's public keys. Only public keys belonging to users found in the GitHub team will be returned.
 
 **Note:** depending on your OS distribution, you might need to tweak the command templates. Keep reading for details.
 

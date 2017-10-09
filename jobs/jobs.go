@@ -64,7 +64,7 @@ func syncUsers(cfg config.Config) {
 	notCreatedUsers := make([]string, 0)
 
 	for _, githubUser := range githubUsers {
-		var gid string = ""
+		var gid string
 		if cfg.UserGID != "" {
 			gid = cfg.UserGID
 		}
