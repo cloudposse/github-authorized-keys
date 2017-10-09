@@ -47,19 +47,18 @@ fi
 
 start() {
 
-        if [ ! -x $exec ]
-        then
-                echo $exec not found
-                exit 5
+        if [ -s ${pidfile} ]; then
+           RETVAL=1
+           echo -n "Already running !" && warning
+           echo
+        else
+           nohup ${exec} >> ${logfile} 2>&1 &
+           RETVAL=$?
+           PID=$!
+           [ $RETVAL -eq 0 ] && touch ${lockfile} && success || failure
+           echo
+           echo $PID > ${pidfile}
         fi
-
-        echo -n "Starting $prog daemon: "
-        daemon --user=root --pidfile=$pidfile  $exec $DAEMON_OPTS
-        echo
-        retval=$?
-        echo
-        [ $retval -eq 0 ] && touch $lockfile
-        return $retval
 }
 
 stop() {
