@@ -23,7 +23,7 @@ badges:
     url: "https://travis-ci.org/cloudposse/github-authorized-keys"
   - name: "Latest Release"
     image: "https://img.shields.io/github/release/cloudposse/github-authorized-keys.svg"
-    url: "https://travis-ci.org/cloudposse/github-authorized-keys/releases"
+    url: "https://github.com/cloudposse/github-authorized-keys/releases/latest"
   - name: "Slack Community"
     image: "https://slack.cloudposse.com/badge.svg"
     url: "https://slack.cloudposse.com"

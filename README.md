@@ -2,7 +2,7 @@
 
 [![Cloud Posse](https://cloudposse.com/logo-300x69.png)](https://cloudposse.com)
 
-# github-authorized-keys [![Build Status](https://travis-ci.org/cloudposse/github-authorized-keys.svg?branch=master)](https://travis-ci.org/cloudposse/github-authorized-keys) [![Latest Release](https://img.shields.io/github/release/cloudposse/github-authorized-keys.svg)](https://travis-ci.org/cloudposse/github-authorized-keys/releases) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
+# github-authorized-keys [![Build Status](https://travis-ci.org/cloudposse/github-authorized-keys.svg?branch=master)](https://travis-ci.org/cloudposse/github-authorized-keys) [![Latest Release](https://img.shields.io/github/release/cloudposse/github-authorized-keys.svg)](https://github.com/cloudposse/github-authorized-keys/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
 
 
 Use GitHub teams to manage system user accounts and `authorized_keys`. 
