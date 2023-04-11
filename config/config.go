@@ -29,8 +29,9 @@ import (
 type Config struct {
 	GithubAPIToken     string
 	GithubOrganization string
+	GithubURL          string
 	GithubTeamName     string
-	GithubTeamID       int
+	GithubTeamID       int64
 
 	EtcdEndpoints []string
 	EtcdTTL       time.Duration

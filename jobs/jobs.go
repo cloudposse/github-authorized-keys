@@ -46,7 +46,7 @@ func syncUsers(cfg config.Config) {
 
 	linux := api.NewLinux(cfg.Root)
 
-	c := api.NewGithubClient(cfg.GithubAPIToken, cfg.GithubOrganization)
+	c := api.NewGithubClient(cfg.GithubAPIToken, cfg.GithubOrganization, cfg.GithubURL)
 	// Load team
 	team, err := c.GetTeam(cfg.GithubTeamName, cfg.GithubTeamID)
 	if err != nil {
@@ -55,7 +55,7 @@ func syncUsers(cfg config.Config) {
 	}
 
 	// Get all GitHub team members
-	githubUsers, err := c.GetTeamMembers(team)
+	githubUsers, err := c.GetTeamMembers(cfg.GithubOrganization, team)
 	if err != nil {
 		logger.Error(err)
 		return

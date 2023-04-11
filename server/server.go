@@ -48,7 +48,7 @@ func Run(cfg config.Config) {
 func authorize(cfg config.Config, userName string) (string, error) {
 	var keys *keyStorages.Proxy
 
-	sourceStorage := keyStorages.NewGithubKeys(cfg.GithubAPIToken, cfg.GithubOrganization, cfg.GithubTeamName, cfg.GithubTeamID)
+	sourceStorage := keyStorages.NewGithubKeys(cfg.GithubAPIToken, cfg.GithubOrganization, cfg.GithubURL, cfg.GithubTeamName, cfg.GithubTeamID)
 
 	if len(cfg.EtcdEndpoints) > 0 {
 		fallbackStorage, _ := keyStorages.NewEtcdCache(cfg.EtcdEndpoints, cfg.EtcdPrefix, cfg.EtcdTTL)

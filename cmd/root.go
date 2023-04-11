@@ -87,7 +87,7 @@ Config:
 			GithubAPIToken:     viper.GetString("github_api_token"),
 			GithubOrganization: viper.GetString("github_organization"),
 			GithubTeamName:     viper.GetString("github_team"),
-			GithubTeamID:       viper.GetInt("github_team_id"),
+			GithubTeamID:       viper.GetInt64("github_team_id"),
 
 			EtcdEndpoints: fixStringSlice(viper.GetString("etcd_endpoint")),
 			EtcdPrefix:    viper.GetString("etcd_prefix"),

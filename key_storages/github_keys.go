@@ -11,7 +11,7 @@ import (
 type GithubKeys struct {
 	client *api.GithubClient
 	team   string
-	teamID int
+	teamID int64
 }
 
 // Get - fetch {user} ssh keys
@@ -37,7 +37,7 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 	}
 
 	// Check if user is a member
-	isMember, err := s.client.IsTeamMember(user, team)
+	isMember, err := s.client.IsTeamMember(s.client.GetOrg(), user, team)
 	if err != nil {
 		if err == api.ErrorGitHubConnectionFailed {
 			err = ErrStorageConnectionFailed
@@ -72,6 +72,6 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 }
 
 // NewGithubKeys - constructor for github key storage
-func NewGithubKeys(token, owner, team string, teamID int) *GithubKeys {
-	return &GithubKeys{client: api.NewGithubClient(token, owner), team: team, teamID: teamID}
+func NewGithubKeys(token, owner, githubURL, team string, teamID int64) *GithubKeys {
+	return &GithubKeys{client: api.NewGithubClient(token, owner, githubURL), team: team, teamID: teamID}
 }
