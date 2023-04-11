@@ -12,7 +12,7 @@ var _ = Describe("GithubKeys as backend storage", func() {
 		validToken    string
 		validOrg      string
 		validTeamName string
-		validTeamID   int
+		validTeamID   int64
 		validUser     string
 	)
 
@@ -20,7 +20,7 @@ var _ = Describe("GithubKeys as backend storage", func() {
 		validToken = viper.GetString("github_api_token")
 		validOrg = viper.GetString("github_organization")
 		validTeamName = viper.GetString("github_team")
-		validTeamID = viper.GetInt("github_team_id")
+		validTeamID = viper.GetInt64("github_team_id")
 		validUser = viper.GetString("github_user")
 	})
 
@@ -28,7 +28,7 @@ var _ = Describe("GithubKeys as backend storage", func() {
 		var c *GithubKeys
 
 		BeforeEach(func() {
-			c = NewGithubKeys(validToken, validOrg, validTeamName, validTeamID)
+			c = NewGithubKeys(validToken, validOrg, "", validTeamName, validTeamID)
 		})
 
 		Context("backend have valid value", func() {
@@ -60,7 +60,7 @@ var _ = Describe("GithubKeys as backend storage", func() {
 
 		BeforeEach(func() {
 			httpmock.Activate()
-			c = NewGithubKeys(validToken, validOrg, validTeamName, validTeamID)
+			c = NewGithubKeys(validToken, validOrg, "", validTeamName, validTeamID)
 
 		})
 

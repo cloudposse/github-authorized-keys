@@ -107,7 +107,7 @@ Config:
 		logger.Infof("Config: GithubAPIToken - %v", mask(cfg.GithubAPIToken))
 		logger.Infof("Config: GithubOrganization - %v", mask(cfg.GithubOrganization))
 		logger.Infof("Config: GithubTeamName - %v", mask(cfg.GithubTeamName))
-		logger.Infof("Config: GithubTeamID - %v", mask(string(cfg.GithubTeamID)))
+		logger.Infof("Config: GithubTeamID - %v", mask(fmt.Sprint(cfg.GithubTeamID)))
 		logger.Infof("Config: EtcdEndpoints - %v", cfg.EtcdEndpoints)
 		logger.Infof("Config: EtcdPrefix - %v", cfg.EtcdPrefix)
 		logger.Infof("Config: EtcdTTL - %v seconds", cfg.EtcdTTL)
