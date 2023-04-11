@@ -18,21 +18,11 @@ var _ = Describe("ETCD", func() {
 	)
 
 	var (
-		validToken string
-		validOrg   string
-		validUser  string
-	)
-
-	var (
 		endpoints []string
 		ttl       time.Duration
 	)
 
 	BeforeEach(func() {
-		validToken = viper.GetString("github_api_token")
-		validOrg = viper.GetString("github_organization")
-		validUser = viper.GetString("github_user")
-
 		ttl = 10 * time.Millisecond
 	})
 
