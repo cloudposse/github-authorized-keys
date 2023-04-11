@@ -19,10 +19,11 @@
 package server
 
 import (
-	"github.com/cloudposse/github-authorized-keys/config"
-	"github.com/cloudposse/github-authorized-keys/key_storages"
-	"github.com/gin-gonic/gin"
 	"strings"
+
+	"github.com/cloudposse/github-authorized-keys/config"
+	keyStorages "github.com/cloudposse/github-authorized-keys/key_storages"
+	"github.com/gin-gonic/gin"
 )
 
 // Run - start http server

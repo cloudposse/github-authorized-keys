@@ -1,11 +1,12 @@
 package keyStorages
 
 import (
+	"strings"
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/viper"
-	"strings"
-	"time"
 )
 
 var _ = Describe("ETCD", func() {

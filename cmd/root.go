@@ -20,14 +20,15 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/cloudposse/github-authorized-keys/config"
 	"github.com/cloudposse/github-authorized-keys/jobs"
 	"github.com/cloudposse/github-authorized-keys/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
-	"time"
 )
 
 var cfgFile string

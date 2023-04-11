@@ -1,6 +1,8 @@
 package jobs
 
 import (
+	"strings"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/cloudposse/github-authorized-keys/api"
 	"github.com/cloudposse/github-authorized-keys/config"
@@ -9,7 +11,6 @@ import (
 	"github.com/jasonlvhit/gocron"
 	"github.com/spf13/viper"
 	"github.com/valyala/fasttemplate"
-	"strings"
 )
 
 const wrapperScriptTpl = `#!/bin/bash

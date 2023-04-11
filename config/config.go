@@ -20,8 +20,9 @@ package config
 
 import (
 	"errors"
-	"github.com/go-ozzo/ozzo-validation"
 	"time"
+
+	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 // Config - structure to store global configuration
