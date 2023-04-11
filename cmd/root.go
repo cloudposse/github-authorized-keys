@@ -44,6 +44,7 @@ var flags = []flag{
 	{"o", "string", "github_organization", "", "Github organization ( environment variable GITHUB_ORGANIZATION could be used instead )"},
 	{"n", "string", "github_team", "", "Github team name    ( environment variable GITHUB_TEAM could be used instead )"},
 	{"i", "int", "github_team_id", 0, "Github team id 	    ( environment variable GITHUB_TEAM_ID could be used instead )"},
+	{"u", "string", "github_url", "", "Github Enterprise URL ( environment variable GITHUB_URL could be used instead )"},
 
 	{"g", "string", "sync_users_gid", "", "Primary group id    ( environment variable SYNC_USERS_GID could be used instead )"},
 	{"G", "strings", "sync_users_groups", []string{}, "CSV groups name     ( environment variable SYNC_USERS_GROUPS could be used instead )"},
@@ -88,6 +89,7 @@ Config:
 			GithubOrganization: viper.GetString("github_organization"),
 			GithubTeamName:     viper.GetString("github_team"),
 			GithubTeamID:       viper.GetInt64("github_team_id"),
+			GithubURL:          viper.GetString("github_url"),
 
 			EtcdEndpoints: fixStringSlice(viper.GetString("etcd_endpoint")),
 			EtcdPrefix:    viper.GetString("etcd_prefix"),
@@ -104,8 +106,17 @@ Config:
 			Listen: viper.GetString("listen"),
 		}
 
+		var githubURL string
+
+		if cfg.GithubURL != "" {
+			githubURL = cfg.GithubURL
+		} else {
+			githubURL = "github.com"
+		}
+
 		logger.Infof("Config: GithubAPIToken - %v", mask(cfg.GithubAPIToken))
 		logger.Infof("Config: GithubOrganization - %v", mask(cfg.GithubOrganization))
+		logger.Infof("Config: GithubURL - %v", githubURL)
 		logger.Infof("Config: GithubTeamName - %v", mask(cfg.GithubTeamName))
 		logger.Infof("Config: GithubTeamID - %v", mask(fmt.Sprint(cfg.GithubTeamID)))
 		logger.Infof("Config: EtcdEndpoints - %v", cfg.EtcdEndpoints)
