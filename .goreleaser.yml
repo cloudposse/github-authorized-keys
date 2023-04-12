@@ -14,7 +14,8 @@ builds:
     goos:
       - darwin
       - freebsd
-      - windows
+      # Windows is not supported by the Go code in this repo, we should review it
+      # - windows
       - linux
     goarch:
       - amd64
