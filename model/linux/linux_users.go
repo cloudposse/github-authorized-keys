@@ -33,7 +33,7 @@ func NewUser(name, gid string, groups []string, shell string) User {
 	return User{name: name, gid: gid, groups: groups, shell: shell}
 }
 
-// Name - return user name
+// Name - return user's name
 func (user *User) Name() string {
 	return strings.ToLower(user.name)
 }

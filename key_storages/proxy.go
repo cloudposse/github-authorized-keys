@@ -6,11 +6,11 @@ import (
 )
 
 var (
-	// ErrStorageKeyNotFound - returned when value is not fould in storage (source or fallback cache)
-	ErrStorageKeyNotFound = errors.New("Storage: Key not found")
+	// ErrStorageKeyNotFound - returned when value is not found in storage (source or fallback cache)
+	ErrStorageKeyNotFound = errors.New("storage: Key not found")
 
 	// ErrStorageConnectionFailed - returned when there was connection error to storage (source or fallback cache)
-	ErrStorageConnectionFailed = errors.New("Storage: Connection failed")
+	ErrStorageConnectionFailed = errors.New("storage: Connection failed")
 )
 
 type fallbackCache interface {
@@ -24,8 +24,8 @@ type source interface {
 }
 
 // Proxy - key storage fallback proxy.
-// 	Always deal with source key storage first, and sync values with fallback cache storage
-//      If source key storage is unavailable fallback to cache storage
+// Always deal with source key storage first, and sync values with fallback cache storage
+// If source key storage is unavailable fallback to cache storage
 type Proxy struct {
 	fallbackCache fallbackCache
 	source        source
@@ -42,11 +42,17 @@ func (c *Proxy) Get(name string) (value string, err error) {
 	switch err {
 	case nil:
 		logger.Debugf("Backend found %v", name)
-		c.saveTo(c.fallbackCache, name, value)
+		err = c.saveTo(c.fallbackCache, name, value)
+		if err != nil {
+			return "", err
+		}
 		return
 
 	case ErrStorageKeyNotFound:
-		c.removeFrom(c.fallbackCache, name)
+		err = c.removeFrom(c.fallbackCache, name)
+		if err != nil {
+			return "", err
+		}
 		return
 
 	default:

@@ -1,12 +1,11 @@
 # Github Authorized Keys [![Build Status](https://travis-ci.org/cloudposse/github-authorized-keys.svg?branch=master)](https://travis-ci.org/cloudposse/github-authorized-keys)
 
-Use GitHub teams to manage system user accounts and `authorized_keys`. 
-
+Use GitHub teams to manage system user accounts and `authorized_keys`.
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/cloudposse/github-authorized-keys)](https://goreportcard.com/report/github.com/cloudposse/github-authorized-keys)
 [![Coverage Status](https://coveralls.io/repos/github/cloudposse/github-authorized-keys/badge.svg?branch=master)](https://coveralls.io/github/cloudposse/github-authorized-keys?branch=master)
 [![Docker Pulls](https://img.shields.io/docker/pulls/cloudposse/github-authorized-keys.svg)](https://hub.docker.com/r/cloudposse/github-authorized-keys)
-[![GitHub Stars](https://img.shields.io/github/stars/cloudposse/github-authorized-keys.svg)](https://github.com/cloudposse/github-authorized-keys/stargazers) 
+[![GitHub Stars](https://img.shields.io/github/stars/cloudposse/github-authorized-keys.svg)](https://github.com/cloudposse/github-authorized-keys/stargazers)
 [![GitHub Issues](https://img.shields.io/github/issues/cloudposse/github-authorized-keys.svg)](https://github.com/cloudposse/github-authorized-keys/issues)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/cloudposse/github-authorized-keys/pulls)
 [![License](https://img.shields.io/badge/license-APACHE%202.0%20-brightgreen.svg)](https://github.com/cloudposse/github-authorized-keys/blob/master/LICENSE)
@@ -15,33 +14,41 @@ Use GitHub teams to manage system user accounts and `authorized_keys`.
 
 ## Screenshots
 
-**Administrators** 
-* Automatically provision new users to production servers simply by adding them to a designatd GitHub team (e.g. `ssh`). 
+**Administrators**
+
+* Automatically provision new users to production servers simply by adding them to a designatd GitHub team (e.g. `ssh`).
   ![Demo](docs/github-team-demo.png)
 * No need to keep `authorized_keys` up to date because keys are pulled directly from github.com API and *optionally* cached in etcd
 * Immediately revoke SSH access to servers by evicting users from the GitHub team
 * Easy to deploy
 
-
 **End Users**
+
 * Self-administer public SSH keys via the [GitHub account settings](https://github.com/settings/keys).
   ![Demo](docs/github-keys-demo.png)
 * No need to manage multiple SSH keys
-
 
 ## Architecture
 
 This tool consists of three parts:
 
-1. User Account / Authorized Keys provisioner which polls [GitHub API for users](https://developer.github.com/v3/users/keys/) that correspond to a given GitHub Organization & Team using a [personal access token](https://github.com/settings/tokens). It's responsible for adding or removing users from the system. All commands are templatized to allow it to run on multiple distributions. 
-2. Simple read-only REST API that provides public keys for users, which is used by the `AuthorizedKeysCommand` in the `sshd_config`; this allows you to expose the service internally without compromising your Github Token. The public SSH access keys are *optionally* cached in Etcd for performance and reliability.
+1. User Account / Authorized Keys provisioner which polls [GitHub API for users](https://developer.github.com/v3/users/keys/) that correspond to a
+   given GitHub Organization & Team using a [personal access token](https://github.com/settings/tokens). It's responsible for adding or removing users
+   from the system. All commands are templatized to allow it to run on multiple distributions.
+2. Simple read-only REST API that provides public keys for users, which is used by the `AuthorizedKeysCommand` in the `sshd_config`; this allows you
+   to expose the service internally without compromising your Github Token. The public SSH access keys are *optionally* cached in Etcd for performance
+   and reliability.
 3. An `AuthorizedKeysCommand` [script](contrib/authorized-keys) that will `curl` the REST API for a user's public keys.
 
 ## Getting Started
 
-By far, the easiest way to get up and running is by using the ready-made docker container. The only dependency is [Docker](https://docs.docker.com/engine/installation) itself. We also provide a [Kubernetes Helm Chart](https://github.com/cloudposse/charts/tree/master/incubator/github-authorized-keys). If you run [CoreOS](docs/coreos.md) or use `systemd`, there's a [sample unit file](contrib/github-authorized-keys.service).
+By far, the easiest way to get up and running is by using the ready-made docker container. The only dependency
+is [Docker](https://docs.docker.com/engine/installation) itself. We also provide
+a [Kubernetes Helm Chart](https://github.com/cloudposse/charts/tree/master/incubator/github-authorized-keys). If you run [CoreOS](docs/coreos.md) or
+use `systemd`, there's a [sample unit file](contrib/github-authorized-keys.service).
 
-Cloud Posse provides a public image [cloudposse/github-authorized-keys](https://hub.docker.com/r/cloudposse/github-authorized-keys/) that is built using [TravisCI](.travis.yml) or you can build your own from source.
+Cloud Posse provides a public image [cloudposse/github-authorized-keys](https://hub.docker.com/r/cloudposse/github-authorized-keys/) that is built
+using [TravisCI](.travis.yml) or you can build your own from source.
 
 ```
 docker build -t cloudposse/github-authorized-keys .
@@ -53,32 +60,33 @@ All arguments can be passed both as environment variables or command-line argume
 
 Available configuration options:
 
-| **Environment Variable** | **Argument**             | **Description**                                   | **Default**              |
-|--------------------------|--------------------------|---------------------------------------------------|--------------------------|
-| `GITHUB_API_TOKEN`       | `--github-api-token`     | GitHub API Token (read-only)                      |                          |
-| `GITHUB_ORGANIZATION`    | `--github-organization`  | GitHub Organization Containing Team               |                          |
-| `GITHUB_TEAM`            | `--github-team`          | GitHub Team for Membership to Grant SSH Access    |                          |
-| `GITHUB_TEAM_ID`         | `--github-team-id`       | GitHub Team ID for Membership to Grant SSH Access |                          |
-| `SYNC_USERS_GID`         | `--sync-users-gid`       | Default Group ID (aka `gid`) of users             |                          |
-| `SYNC_USERS_GROUPS`      | `--sync-users-groups`    | Default "Extra" Groups                            |                          |
-| `SYNC_USERS_SHELL`       | `--sync-users-shell`     | Default Login Shell                               | `/bin/bash`              |
-| `SYNC_USERS_ROOT`        | `--sync-users-root`      | `chroot` path for user commands                   | `/`                      |
-| `SYNC_USERS_INTERVAL`    | `--sync-users-interval`  | Interval used to update user accounts             | `300`                    |
-| `ETCD_ENDPOINT`          | `--etcd-endpoint`        | Etcd endpoint used for caching public keys        |                          |
-| `ETCD_TTL`               | `--etcd-ttl`             | Duration (in seconds) to cache public keys        | `86400`                  |
-| `ETCD_PREFIX`            | `--etcd-prefix`          | Prefix for public keys stored in etcd             | `github-authorized-keys` |
-| `LISTEN`                 | `--listen`               | Bind address used for REST API                    | `:301`                   |
-| `INTEGRATE_SSH`          | `--integrate-ssh`        | Flag to automatically configure SSH               | `false`                  |
-| `LOG_LEVEL`              | `--log-level`            | Ccontrol the logging verbosity.                   | `info`                   |
+| **Environment Variable** | **Argument**            | **Description**                                   | **Default**              |
+|--------------------------|-------------------------|---------------------------------------------------|--------------------------|
+| `GITHUB_API_TOKEN`       | `--github-api-token`    | GitHub API Token (read-only)                      |                          |
+| `GITHUB_ORGANIZATION`    | `--github-organization` | GitHub Organization Containing Team               |                          |
+| `GITHUB_TEAM`            | `--github-team`         | GitHub Team for Membership to Grant SSH Access    |                          |
+| `GITHUB_TEAM_ID`         | `--github-team-id`      | GitHub Team ID for Membership to Grant SSH Access |                          |
+| `SYNC_USERS_GID`         | `--sync-users-gid`      | Default Group ID (aka `gid`) of users             |                          |
+| `SYNC_USERS_GROUPS`      | `--sync-users-groups`   | Default "Extra" Groups                            |                          |
+| `SYNC_USERS_SHELL`       | `--sync-users-shell`    | Default Login Shell                               | `/bin/bash`              |
+| `SYNC_USERS_ROOT`        | `--sync-users-root`     | `chroot` path for user commands                   | `/`                      |
+| `SYNC_USERS_INTERVAL`    | `--sync-users-interval` | Interval used to update user accounts             | `300`                    |
+| `ETCD_ENDPOINT`          | `--etcd-endpoint`       | Etcd endpoint used for caching public keys        |                          |
+| `ETCD_TTL`               | `--etcd-ttl`            | Duration (in seconds) to cache public keys        | `86400`                  |
+| `ETCD_PREFIX`            | `--etcd-prefix`         | Prefix for public keys stored in etcd             | `github-authorized-keys` |
+| `LISTEN`                 | `--listen`              | Bind address used for REST API                    | `:301`                   |
+| `INTEGRATE_SSH`          | `--integrate-ssh`       | Flag to automatically configure SSH               | `false`                  |
+| `LOG_LEVEL`              | `--log-level`           | Ccontrol the logging verbosity.                   | `info`                   |
 
-## Quick Start 
+## Quick Start
 
-We recommend that you specify all parameters as environment variables. If using `docker`, pass the [environment file](contrib/env) to the container using the `--env-file` argument.
+We recommend that you specify all parameters as environment variables. If using `docker`, pass the [environment file](contrib/env) to the container
+using the `--env-file` argument.
 
-Obtain the GitHub API Token (aka Personal Access Token) [here](https://github.com/settings/tokens). Click "Generate new token" and select `read:org`. That's it!
+Obtain the GitHub API Token (aka Personal Access Token) [here](https://github.com/settings/tokens). Click "Generate new token" and select `read:org`.
+That's it!
 
 ![Personal Access Token Permissions](docs/personal-access-token.png)
-
 
 For example, [`/etc/github-authorized-keys`](contrib/env), might look like this:
 
@@ -108,7 +116,8 @@ docker run \
      cloudposse/github-authorized-keys:latest
 ```
 
-**IMPORTANT** Remember to expose the REST API so you can retrieve user's public keys. Only public keys belonging to users found in the GitHub team will be returned.
+**IMPORTANT** Remember to expose the REST API so you can retrieve user's public keys. Only public keys belonging to users found in the GitHub team
+will be returned.
 
 **Note:** depending on your OS distribution, you might need to tweak the command templates. Keep reading for details.
 
@@ -116,12 +125,14 @@ docker run \
 
 ### Automatically Configure SSH
 
-To leverage the `github-authorized-keys` API, we need to make a small tweak to the `sshd_config`. 
+To leverage the `github-authorized-keys` API, we need to make a small tweak to the `sshd_config`.
 
 This can be done automatically by passing the `--integrate-ssh` flag (or setting `INTEGRATE_SSH=true`)
 
-After modifying the `sshd_config`, it's necessary to restart the SSH daemon. This happens automatically by calling the `SSH_RESTART_TPL` command. Since this differs depending on the OS distribution, you can change the default behavior by setting the `SSH_RESTART_TPL` environment variable (default: `/usr/sbin/service ssh force-reload`). Similarly, you might need to tweak the `AUTHORIZED_KEYS_COMMAND_TPL` environment variable to something compatible with your OS.
-
+After modifying the `sshd_config`, it's necessary to restart the SSH daemon. This happens automatically by calling the `SSH_RESTART_TPL` command.
+Since this differs depending on the OS distribution, you can change the default behavior by setting the `SSH_RESTART_TPL` environment variable (
+default: `/usr/sbin/service ssh force-reload`). Similarly, you might need to tweak the `AUTHORIZED_KEYS_COMMAND_TPL` environment variable to something
+compatible with your OS.
 
 ### Manually Configure SSH
 
@@ -132,7 +143,7 @@ AuthorizedKeysCommand /usr/bin/authorized-keys
 AuthorizedKeysCommandUser root
 ```
 
-Then install a [wrapper script](contrib/authorized-keys) to `/usr/bin/authorized-keys`. 
+Then install a [wrapper script](contrib/authorized-keys) to `/usr/bin/authorized-keys`.
 
 **Note**: this command requires `curl` to access the REST API in order to fetch authorized keys
 
@@ -144,31 +155,32 @@ The REST API supports Etcd as cache for public keys. This mitigates any connecti
 
 Due to the vast differences between OS commands, the defaults provided might not work for you flavor of Linux.
 
-Below are some of the settings which can be tweaked. 
+Below are some of the settings which can be tweaked.
 
-| Environment Variable           | **Description**                                                                 | **Default**                                   
-|--------------------------------|---------------------------------------------------------------------------------|-------------------------------------------------------------------------
-| `LINUX_USER_ADD_TPL`           | Command used to add a user to the system when no default group supplied.        | `adduser {username} --disabled-password --force-badname --shell {shell}`                 
-| `LINUX_USER_ADD_WITH_GID_TPL`  | Command used to add a user to the system when a default primary gid supplied  . | `adduser {username} --disabled-password --force-badname --shell {shell} --gid {gid|group}`
-| `LINUX_USER_ADD_TO_GROUP_TPL`  | Command used to add the user to secondary groups                                | `adduser {username} {group}` 
-| `LINUX_USER_DEL_TPL`           | Command used to delete a user from the system when removed the the team         | `deluser {username}`
-| `SSH_RESTART_TPL`              | Command used to restart SSH when `INTEGRATE_SSH=true`                           | `/usr/sbin/service ssh force-reload`
-| `AUTHORIZED_KEYS_COMMAND_TPL`  | Command used to fetch a user's `authorized_keys` from REST API                  | `/usr/bin/github-authorized-keys`
+| Environment Variable          | **Description**                                                                 | **Default**                                                                        
+|-------------------------------|---------------------------------------------------------------------------------|------------------------------------------------------------------------------------
+| `LINUX_USER_ADD_TPL`          | Command used to add a user to the system when no default group supplied.        | `adduser {username} --disabled-password --force-badname --shell {shell}`           
+| `LINUX_USER_ADD_WITH_GID_TPL` | Command used to add a user to the system when a default primary gid supplied  . | `adduser {username} --disabled-password --force-badname --shell {shell} --gid {gid |group}`
+| `LINUX_USER_ADD_TO_GROUP_TPL` | Command used to add the user to secondary groups                                | `adduser {username} {group}`                                                       
+| `LINUX_USER_DEL_TPL`          | Command used to delete a user from the system when removed the the team         | `deluser {username}`                                                               
+| `SSH_RESTART_TPL`             | Command used to restart SSH when `INTEGRATE_SSH=true`                           | `/usr/sbin/service ssh force-reload`                                               
+| `AUTHORIZED_KEYS_COMMAND_TPL` | Command used to fetch a user's `authorized_keys` from REST API                  | `/usr/bin/github-authorized-keys`                                                  
 
 The values in `{braces}` are macros that will be automatically substituted at run-time.
 
-| **Macro**     | **Description**            |
-|---------------|----------------------------|
-| `{username}`  | User's login name          |
-| `{shell}`     | User's login shell         |
-| `{group}`     | User's primary group name  |
-| `{gid}`       | User's primary group id    |
+| **Macro**    | **Description**           |
+|--------------|---------------------------|
+| `{username}` | User's login name         |
+| `{shell}`    | User's login shell        |
+| `{group}`    | User's primary group name |
+| `{gid}`      | User's primary group id   |
 
 ## Help
 
-**Got a question?** 
+**Got a question?**
 
-File a GitHub [issue](https://github.com/cloudposse/github-authorized-keys/issues), send us an [email](mailto:hello@cloudposse.com) or reach out to us on [Gitter](https://gitter.im/cloudposse/).
+File a GitHub [issue](https://github.com/cloudposse/github-authorized-keys/issues), send us an [email](mailto:hello@cloudposse.com) or reach out to us
+on [Gitter](https://gitter.im/cloudposse/).
 
 ## Contributing
 
@@ -178,21 +190,22 @@ Please use the [issue tracker](https://github.com/cloudposse/github-authorized-k
 
 ### Developing
 
-If you are interested in being a contributor and want to get involved in developing GitHub Authorized Keys, we would love to hear from you! Shoot us an [email](mailto:hello@cloudposse.com).
+If you are interested in being a contributor and want to get involved in developing GitHub Authorized Keys, we would love to hear from you! Shoot us
+an [email](mailto:hello@cloudposse.com).
 
 In general, PRs are welcome. We follow the typical "fork-and-pull" Git workflow.
 
- 1. **Fork** the repo on GitHub
- 2. **Clone** the project to your own machine
- 3. **Commit** changes to your own branch
- 4. **Push** your work back up to your fork
- 5. Submit a **Pull request** so that we can review your changes
+1. **Fork** the repo on GitHub
+2. **Clone** the project to your own machine
+3. **Commit** changes to your own branch
+4. **Push** your work back up to your fork
+5. Submit a **Pull request** so that we can review your changes
 
 **NOTE:** Be sure to merge the latest from "upstream" before making a pull request!
 
 Here's how to get started...
 
-1. `git clone https://github.com/cloudposse/github-authorized-keys.git` to pull down the repository 
+1. `git clone https://github.com/cloudposse/github-authorized-keys.git` to pull down the repository
 2. `make init` to initialize the [`build-harness`](https://github.com/cloudposse/build-harness/)
 3. Review the [documentation](docs/) on compiling
 
@@ -221,23 +234,27 @@ Here's how to get started...
 
 GitHub Authorized Keys is maintained and funded by [Cloud Posse, LLC][website]. Like it? Please let us know at <hello@cloudposse.com>
 
-We love [Open Source Software](https://github.com/cloudposse/)! 
+We love [Open Source Software](https://github.com/cloudposse/)!
 
 See [our other projects][community] or [hire us][hire] to help build your next cloud-platform.
 
-  [website]: http://cloudposse.com/
-  [community]: https://github.com/cloudposse/
-  [hire]: http://cloudposse.com/contact/
-  
+[website]: http://cloudposse.com/
+
+[community]: https://github.com/cloudposse/
+
+[hire]: http://cloudposse.com/contact/
+
 ### Contributors
 
-
 | [![Erik Osterman][erik_img]][erik_web]<br/>[Erik Osterman][erik_web] | [![Igor Rodionov][igor_img]][igor_web]<br/>[Igor Rodionov][igor_web] |
-|-------------------------------------------------------|------------------------------------------------------------------|
+|----------------------------------------------------------------------|----------------------------------------------------------------------|
 
-  [erik_img]: http://s.gravatar.com/avatar/88c480d4f73b813904e00a5695a454cb?s=144
-  [erik_web]: https://github.com/osterman/
-  [igor_img]: http://s.gravatar.com/avatar/bc70834d32ed4517568a1feb0b9be7e2?s=144
-  [igor_web]: https://github.com/goruha/
+[erik_img]: http://s.gravatar.com/avatar/88c480d4f73b813904e00a5695a454cb?s=144
+
+[erik_web]: https://github.com/osterman/
+
+[igor_img]: http://s.gravatar.com/avatar/bc70834d32ed4517568a1feb0b9be7e2?s=144
+
+[igor_web]: https://github.com/goruha/
 
 

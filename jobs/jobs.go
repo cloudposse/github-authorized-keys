@@ -33,9 +33,13 @@ func Run(cfg config.Config) {
 	}
 
 	if cfg.Interval != 0 {
-		gocron.Every(cfg.Interval).Seconds().Do(syncUsers, cfg)
+		err := gocron.Every(cfg.Interval).Seconds().Do(syncUsers, cfg)
+		if err != nil {
+			log.Error(err)
+			return
+		}
 
-		// function Start start all the pending jobs
+		// function Start starts all the pending jobs
 		gocron.Start()
 		log.Info("Start jobs scheduler")
 	}
@@ -96,17 +100,33 @@ func sshIntegrate(cfg config.Config) {
 	cmdFile := viper.GetString("authorized_keys_command_tpl")
 
 	logger.Infof("Ensure file %v", cmdFile)
-	linux.FileEnsure(cmdFile, wrapperScript)
+	err := linux.FileEnsure(cmdFile, wrapperScript)
+	if err != nil {
+		logger.Errorf("Error: %v", err.Error())
+		return
+	}
 
 	// Should be executable
 	logger.Infof("Ensure exec mode for file %v", cmdFile)
-	linux.FileModeSet(cmdFile, permbits.PermissionBits(0755))
+	err = linux.FileModeSet(cmdFile, permbits.PermissionBits(0755))
+	if err != nil {
+		logger.Errorf("Error: %v", err.Error())
+		return
+	}
 
 	logger.Info("Ensure AuthorizedKeysCommand line in sshd_config")
-	linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "(?m:^AuthorizedKeysCommand\\s.*$)", "AuthorizedKeysCommand "+cmdFile)
+	err = linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "(?m:^AuthorizedKeysCommand\\s.*$)", "AuthorizedKeysCommand "+cmdFile)
+	if err != nil {
+		logger.Errorf("Error: %v", err.Error())
+		return
+	}
 
 	logger.Info("Ensure AuthorizedKeysCommandUser line in sshd_config")
-	linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "(?m:^AuthorizedKeysCommandUser\\s.*$)", "AuthorizedKeysCommandUser nobody")
+	err = linux.FileEnsureLineMatch("/etc/ssh/sshd_config", "(?m:^AuthorizedKeysCommandUser\\s.*$)", "AuthorizedKeysCommandUser nobody")
+	if err != nil {
+		logger.Errorf("Error: %v", err.Error())
+		return
+	}
 
 	logger.Info("Restart ssh")
 	output, err := linux.TemplateCommand(viper.GetString("ssh_restart_tpl"), map[string]interface{}{}).CombinedOutput()

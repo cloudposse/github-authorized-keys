@@ -21,6 +21,7 @@ package server
 import (
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/cloudposse/github-authorized-keys/config"
 	keyStorages "github.com/cloudposse/github-authorized-keys/key_storages"
 	"github.com/gin-gonic/gin"
@@ -42,7 +43,10 @@ func Run(cfg config.Config) {
 		}
 	})
 
-	router.Run(cfg.Listen)
+	err := router.Run(cfg.Listen)
+	if err != nil {
+		log.Error(err)
+	}
 }
 
 func authorize(cfg config.Config, userName string) (string, error) {
