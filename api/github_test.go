@@ -29,7 +29,7 @@ var _ = Describe("GithubClient", func() {
 		validToken    string
 		validOrg      string
 		validTeamName string
-		validTeamID   int
+		validTeamID   int64
 		validUser     string
 	)
 
@@ -37,7 +37,7 @@ var _ = Describe("GithubClient", func() {
 		validToken = viper.GetString("github_api_token")
 		validOrg = viper.GetString("github_organization")
 		validTeamName = viper.GetString("github_team")
-		validTeamID = viper.GetInt("github_team_id")
+		validTeamID = viper.GetInt64("github_team_id")
 		validUser = viper.GetString("github_user")
 		// Set max page size to 1 for test pagination code
 		viper.Set("github_api_max_page_size", 1)
@@ -46,7 +46,7 @@ var _ = Describe("GithubClient", func() {
 	Describe("getTeam()", func() {
 		Context("call with valid token, org, team name and team id ", func() {
 			It("should return nil error and valid team", func() {
-				c := NewGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg, "")
 				team, err := c.GetTeam(validTeamName, validTeamID)
 
 				Expect(err).To(BeNil())
@@ -59,7 +59,7 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with invalid team name AND valid token, org, team id", func() {
 			It("should return nil error and valid team", func() {
-				c := NewGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg, "")
 				team, err := c.GetTeam("dasdasd", validTeamID)
 
 				Expect(err).To(BeNil())
@@ -72,7 +72,7 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with invalid team name && team id AND valid token, org", func() {
 			It("should return valid error and nil team", func() {
-				c := NewGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg, "")
 				team, err := c.GetTeam("dasdasd", 0)
 
 				Expect(err).NotTo(BeNil())
@@ -84,7 +84,7 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with invalid token AND valid org, team name, team id", func() {
 			It("should return valid error and nil team", func() {
-				c := NewGithubClient("11111111111111111111111111", validOrg)
+				c := NewGithubClient("11111111111111111111111111", validOrg, "")
 				team, err := c.GetTeam(validTeamName, validTeamID)
 
 				Expect(err).NotTo(BeNil())
@@ -96,7 +96,7 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with invalid org AND valid token, team name, team id", func() {
 			It("should return valid error and nil team", func() {
-				c := NewGithubClient(validToken, "dsadsad")
+				c := NewGithubClient(validToken, "dsadsad", "")
 				team, err := c.GetTeam(validTeamName, validTeamID)
 
 				Expect(err).NotTo(BeNil())
@@ -111,9 +111,9 @@ var _ = Describe("GithubClient", func() {
 	Describe("isTeamMember()", func() {
 		Context("call with user that is member of the team", func() {
 			It("should return nil error and true value", func() {
-				c := NewGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg, "")
 				team, _ := c.GetTeam(validTeamName, validTeamID)
-				isMember, err := c.IsTeamMember(validUser, team)
+				isMember, err := c.IsTeamMember(validOrg, validUser, team)
 
 				Expect(err).To(BeNil())
 
@@ -123,9 +123,9 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with user that is not member of the team", func() {
 			It("should return nil error and false value", func() {
-				c := NewGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg, "")
 				team, _ := c.GetTeam(validTeamName, validTeamID)
-				isMember, err := c.IsTeamMember("dasda", team)
+				isMember, err := c.IsTeamMember("", "dasda", team)
 
 				Expect(err).To(BeNil())
 
@@ -138,7 +138,7 @@ var _ = Describe("GithubClient", func() {
 	Describe("getUser()", func() {
 		Context("call with valid user", func() {
 			It("should return nil error and not nil user", func() {
-				c := NewGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg, "")
 				user, err := c.getUser(validUser)
 
 				Expect(err).To(BeNil())
@@ -149,7 +149,7 @@ var _ = Describe("GithubClient", func() {
 
 		Context("call with invalid user", func() {
 			It("should return error and nil user", func() {
-				c := NewGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg, "")
 				user, err := c.getUser("dasdddds232dasdas")
 
 				Expect(err).NotTo(BeNil())
@@ -163,7 +163,7 @@ var _ = Describe("GithubClient", func() {
 	Describe("getKeys()", func() {
 		Context("call with valid user", func() {
 			It("should return nil error and no empty list of keys", func() {
-				c := NewGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg, "")
 				user, _ := c.getUser(validUser)
 				keys, err := c.GetKeys(*user.Login)
 
@@ -177,10 +177,10 @@ var _ = Describe("GithubClient", func() {
 	Describe("getTeamMembers()", func() {
 		Context("call with valid team", func() {
 			It("should return nil error and no empty list of members", func() {
-				c := NewGithubClient(validToken, validOrg)
+				c := NewGithubClient(validToken, validOrg, "")
 				team, _ := c.GetTeam(validTeamName, validTeamID)
 
-				members, err := c.GetTeamMembers(team)
+				members, err := c.GetTeamMembers(validOrg, team)
 
 				Expect(err).To(BeNil())
 

@@ -20,11 +20,12 @@ package api
 
 import (
 	"fmt"
+	"os/user"
+	"strconv"
+
 	model "github.com/cloudposse/github-authorized-keys/model/linux"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"os/user"
-	"strconv"
 )
 
 var _ = Describe("Linux", func() {

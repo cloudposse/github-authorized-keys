@@ -1,11 +1,12 @@
 package keyStorages
 
 import (
+	"strings"
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/viper"
-	"strings"
-	"time"
 )
 
 var _ = Describe("ETCD", func() {
@@ -17,21 +18,11 @@ var _ = Describe("ETCD", func() {
 	)
 
 	var (
-		validToken string
-		validOrg   string
-		validUser  string
-	)
-
-	var (
 		endpoints []string
 		ttl       time.Duration
 	)
 
 	BeforeEach(func() {
-		validToken = viper.GetString("github_api_token")
-		validOrg = viper.GetString("github_organization")
-		validUser = viper.GetString("github_user")
-
 		ttl = 10 * time.Millisecond
 	})
 

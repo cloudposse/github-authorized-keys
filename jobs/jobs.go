@@ -1,6 +1,8 @@
 package jobs
 
 import (
+	"strings"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/cloudposse/github-authorized-keys/api"
 	"github.com/cloudposse/github-authorized-keys/config"
@@ -9,7 +11,6 @@ import (
 	"github.com/jasonlvhit/gocron"
 	"github.com/spf13/viper"
 	"github.com/valyala/fasttemplate"
-	"strings"
 )
 
 const wrapperScriptTpl = `#!/bin/bash
@@ -45,7 +46,7 @@ func syncUsers(cfg config.Config) {
 
 	linux := api.NewLinux(cfg.Root)
 
-	c := api.NewGithubClient(cfg.GithubAPIToken, cfg.GithubOrganization)
+	c := api.NewGithubClient(cfg.GithubAPIToken, cfg.GithubOrganization, cfg.GithubURL)
 	// Load team
 	team, err := c.GetTeam(cfg.GithubTeamName, cfg.GithubTeamID)
 	if err != nil {
@@ -54,7 +55,7 @@ func syncUsers(cfg config.Config) {
 	}
 
 	// Get all GitHub team members
-	githubUsers, err := c.GetTeamMembers(team)
+	githubUsers, err := c.GetTeamMembers(cfg.GithubOrganization, team)
 	if err != nil {
 		logger.Error(err)
 		return
