@@ -1,7 +1,7 @@
 /*
  * Github Authorized Keys - Use GitHub teams to manage system user accounts and authorized_keys
  *
- * Copyright 2016 Cloud Posse, LLC <hello@cloudposse.com>
+ * Copyright 2016-2023 Cloud Posse, LLC <hello@cloudposse.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,11 @@ func main() {
 // LoggerInit - Initialize logger configuration used for cli
 func LoggerInit() {
 	viper.SetDefault("log_level", "info")
-	viper.BindEnv("log_level", "LOG_LEVEL")
+	err := viper.BindEnv("log_level", "LOG_LEVEL")
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
 	// Log as JSON instead of the default ASCII formatter.
 	log.SetFormatter(&log.JSONFormatter{})

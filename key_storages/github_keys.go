@@ -7,7 +7,7 @@ import (
 	"github.com/cloudposse/github-authorized-keys/api"
 )
 
-// GithubKeys - github api as key storage
+// GithubKeys - GitHub API as key storage
 type GithubKeys struct {
 	client *api.GithubClient
 	team   string
@@ -65,13 +65,13 @@ func (s *GithubKeys) Get(user string) (value string, err error) {
 	} else if err == api.ErrorGitHubNotFound {
 		err = ErrStorageKeyNotFound
 	} else {
-		err = errors.New("Access denied")
+		err = errors.New("access denied")
 	}
 
 	return
 }
 
-// NewGithubKeys - constructor for github key storage
+// NewGithubKeys - constructor for GitHub key storage
 func NewGithubKeys(token, owner, githubURL, team string, teamID int64) *GithubKeys {
 	return &GithubKeys{client: api.NewGithubClient(token, owner, githubURL), team: team, teamID: teamID}
 }
