@@ -6,6 +6,23 @@ on:
 
   workflow_dispatch:
 
+  push:
+    branches:
+      - main
+      - release/v*
+    paths-ignore:
+      - '.github/**'
+      - 'docs/**'
+      - 'examples/**'
+      - 'test/**'
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions: {}
+
+
 jobs:
   build:
     name: 'Build Binaries'
@@ -34,3 +51,10 @@ jobs:
           distribution: goreleaser
           version: latest
           args: release --config ./dev.goreleaser.yml --clean --snapshot
+
+  release:
+    if: github.event_name == 'push' &&
+    uses: cloudposse/.github/.github/workflows/shared-go-auto-release.yml@main
+    with:
+      publish: true
+    secrets: inherit
