@@ -4,12 +4,22 @@ on:
   push:
     branches:
       - main
-      - master
-      - production
+      - release/v*
+    paths-ignore:
+      - '.github/**'
+      - 'docs/**'
+      - 'examples/**'
+      - 'test/**'
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions: {}
 
 jobs:
   auto:
-    uses: cloudposse/.github/.github/workflows/shared-auto-release.yml@main
+    uses: cloudposse/.github/.github/workflows/shared-go-auto-release.yml@main
     with:
       publish: true
     secrets: inherit
