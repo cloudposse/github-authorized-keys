@@ -36,7 +36,7 @@ jobs:
 
       # Setup Go
       - name: 'Setup Go'
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
 
@@ -54,6 +54,7 @@ jobs:
 
   release:
     if: github.event_name == 'push'
+    needs: build
     uses: cloudposse/.github/.github/workflows/shared-go-auto-release.yml@main
     with:
       publish: true
