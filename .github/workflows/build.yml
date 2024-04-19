@@ -53,7 +53,7 @@ jobs:
           args: release --config ./dev.goreleaser.yml --clean --snapshot
 
   release:
-    if: github.event_name == 'push' &&
+    if: github.event_name == 'push'
     uses: cloudposse/.github/.github/workflows/shared-go-auto-release.yml@main
     with:
       publish: true
