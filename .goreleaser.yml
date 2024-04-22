@@ -36,18 +36,6 @@ checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
   algorithm: sha256
 
-signs:
-  - artifacts: checksum
-    args:
-      # since we are using this in a GitHub action we need to pass the batch flag to indicate its not interactive.
-      - "--batch"
-      - "--local-user"
-      - "{{ .Env.GPG_FINGERPRINT }}" # set this environment variable for your signing key
-      - "--output"
-      - "${signature}"
-      - "--detach-sign"
-      - "${artifact}"
-
 ## Copied from https://github.com/cloudposse/.github/blob/main/.github/goreleaser.yml
 ## Required to correct working go auto release workflow
 ## ----- DO NOT CHANGE ----- ##
