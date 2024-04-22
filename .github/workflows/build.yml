@@ -4,10 +4,24 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
 
-  release:
-    types: [ published ]
-
   workflow_dispatch:
+
+  push:
+    branches:
+      - main
+      - release/v*
+    paths-ignore:
+      - '.github/**'
+      - 'docs/**'
+      - 'examples/**'
+      - 'test/**'
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions: {}
+
 
 jobs:
   build:
@@ -16,35 +30,32 @@ jobs:
     steps:
       # Checkout the repo
       - name: 'Checkout'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       # Setup Go
       - name: 'Setup Go'
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.20'
+          go-version-file: go.mod
 
       # Print Go version
       - run: go version
 
-      # Build and release
-      - name: Build release
-        if: (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch' && github.ref_name == 'master')
-        uses: goreleaser/goreleaser-action@v4
-        with:
-          distribution: goreleaser
-          version: latest
-          args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       # Trial build
       - name: Test build
-        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref_name != 'master')
-        uses: goreleaser/goreleaser-action@v4
+        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref_name != 'main')
+        uses: goreleaser/goreleaser-action@v5
         with:
           distribution: goreleaser
           version: latest
-          args: release --clean --snapshot
+          args: release --config ./dev.goreleaser.yml --clean --snapshot
+
+  release:
+    if: github.event_name == 'push'
+    needs: build
+    uses: cloudposse/.github/.github/workflows/shared-go-auto-release.yml@main
+    with:
+      publish: true
+    secrets: inherit
