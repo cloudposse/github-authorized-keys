@@ -36,9 +36,18 @@ checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
   algorithm: sha256
 
-#release:
-# If you want to manually examine the release before it is live, uncomment this line:
-# draft: true
+## Copied from https://github.com/cloudposse/.github/blob/main/.github/goreleaser.yml
+## Required to correct working go auto release workflow
+## ----- DO NOT CHANGE ----- ##
+release:
+  draft: true
+  replace_existing_draft: true
+  replace_existing_artifacts: true
+  mode: keep-existing
+  make_latest: false
+  name_template: 'v{{.Tag}}'
+  target_commitish: "{{ .Branch }}"
+## ----- DO NOT CHANGE ----- ##
 
 changelog:
   skip: true
