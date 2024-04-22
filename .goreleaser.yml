@@ -36,9 +36,30 @@ checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
   algorithm: sha256
 
-#release:
-# If you want to manually examine the release before it is live, uncomment this line:
-# draft: true
+signs:
+  - artifacts: checksum
+    args:
+      # since we are using this in a GitHub action we need to pass the batch flag to indicate its not interactive.
+      - "--batch"
+      - "--local-user"
+      - "{{ .Env.GPG_FINGERPRINT }}" # set this environment variable for your signing key
+      - "--output"
+      - "${signature}"
+      - "--detach-sign"
+      - "${artifact}"
+
+## Copied from https://github.com/cloudposse/.github/blob/main/.github/goreleaser.yml
+## Required to correct working go auto release workflow
+## ----- DO NOT CHANGE ----- ##
+release:
+  draft: true
+  replace_existing_draft: true
+  replace_existing_artifacts: true
+  mode: keep-existing
+  make_latest: false
+  name_template: 'v{{.Tag}}'
+  target_commitish: "{{ .Branch }}"
+## ----- DO NOT CHANGE ----- ##
 
 changelog:
   skip: true
