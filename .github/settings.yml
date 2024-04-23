@@ -1,5 +1,5 @@
 # These settings are synced to GitHub by https://probot.github.io/apps/settings/
-extends: cloudposse/.github
+extends: .github
 
 repository:
   # A URL with more information about the repository
